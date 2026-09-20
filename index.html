@@ -203,6 +203,25 @@ canvas{width:100%!important}
     </div>
   </div>
 
+
+  <!-- 카드 탭 -->
+  <div id="tab-cards" class="tab-content">
+    <div class="card">
+      <div class="card-title">카드 목록</div>
+      <div id="card-list"><div class="empty-row">등록된 카드가 없어요.</div></div>
+      <div class="form-section">
+        <div class="card-sub">카드 추가</div>
+        <div class="form-row">
+          <input type="text" id="c-name" placeholder="카드명 (예: 신한 체크카드)">
+          <select id="c-linked-asset">
+            <option value="">연결 예금 없음</option>
+          </select>
+        </div>
+        <div class="err" id="c-err"></div>
+        <button class="btn-primary" onclick="addCard()">카드 추가</button>
+      </div>
+    </div>
+  </div>
   <!-- 가계부 탭 -->
   <div id="tab-budget" class="tab-content">
     <div class="month-nav">
@@ -263,6 +282,7 @@ canvas{width:100%!important}
   <button class="tab-btn active" onclick="showTab('dashboard')"><span class="ico">📊</span>순자산</button>
   <button class="tab-btn" onclick="showTab('assets')"><span class="ico">🏦</span>자산</button>
   <button class="tab-btn" onclick="showTab('debts')"><span class="ico">💳</span>부채</button>
+  <button class="tab-btn" onclick="showTab('cards')"><span class="ico">💳</span>카드</button>
   <button class="tab-btn" onclick="showTab('budget')"><span class="ico">📒</span>가계부</button>
 </nav>
 
@@ -369,13 +389,14 @@ canvas{width:100%!important}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
-const CAT_EXP=['식비','교통','쇼핑','의료','문화','교육','통신','공과금','예적금납입','대출원금','대출이자','기타'];
+const CAT_EXP=['식비','교통','쇼핑','의료','문화','교육','통신','공과금','카드결제','카드대금납부','예적금납입','대출원금','대출이자','기타'];
 const CAT_INC=['급여','부수입','기타'];
-const EMOJI={식비:'🍚',교통:'🚌',쇼핑:'🛍',의료:'🏥',문화:'🎬',교육:'📚',통신:'📱',공과금:'💡',예적금납입:'🏦',대출원금:'🏠',대출이자:'💳',급여:'💰',부수입:'📈',기타:'📌',예금:'🏦',부동산:'🏠',현금:'💵',연금:'👴',주택담보대출:'🏠',전세대출:'🔑',신용대출:'💳',자동차할부:'🚗',기타대출:'📌'};
-const CCOLOR={식비:'#1d9e75',교통:'#185fa5',쇼핑:'#d85a30',의료:'#d4537e',문화:'#7f77dd',교육:'#ba7517',통신:'#378add',공과금:'#639922',예적금납입:'#0f6e56',대출원금:'#993c1d',대출이자:'#d85a30',급여:'#1d9e75',부수입:'#185fa5',기타:'#888780'};
+const EMOJI={식비:'🍚',교통:'🚌',쇼핑:'🛍',의료:'🏥',문화:'🎬',교육:'📚',통신:'📱',공과금:'💡',카드결제:'💳',카드대금납부:'💸',예적금납입:'🏦',대출원금:'🏠',대출이자:'💳',급여:'💰',부수입:'📈',기타:'📌',예금:'🏦',부동산:'🏠',현금:'💵',연금:'👴',주택담보대출:'🏠',전세대출:'🔑',신용대출:'💳',자동차할부:'🚗',기타대출:'📌',카드:'💳'};
+const CCOLOR={식비:'#1d9e75',교통:'#185fa5',쇼핑:'#d85a30',의료:'#d4537e',문화:'#7f77dd',교육:'#ba7517',통신:'#378add',공과금:'#639922',카드결제:'#7f77dd',카드대금납부:'#993c1d',예적금납입:'#0f6e56',대출원금:'#993c1d',대출이자:'#d85a30',급여:'#1d9e75',부수입:'#185fa5',기타:'#888780'};
 
 let db=null, curType='expense', curY=new Date().getFullYear(), curM=new Date().getMonth();
-let chart=null, txList=[], budgetAmt=0, assetList=[], debtList=[], repayList=[];
+let chart=null, txList=[], budgetAmt=0, assetList=[], debtList=[], repayList=[], cardList=[];
+let unsubCards=null;
 let unsubTx=null, unsubBudget=null, unsubAssets=null, unsubDebts=null, unsubRepay=null;
 // 상환이력 모달 상태
 let repayFilter='month', repayPeriodY=new Date().getFullYear(), repayPeriodM=new Date().getMonth(), repayDebtId=null;
@@ -393,7 +414,7 @@ function showTab(name){
   document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(e=>e.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
-  const idx={dashboard:0,assets:1,debts:2,budget:3}[name];
+  const idx={dashboard:0,assets:1,debts:2,cards:3,budget:4}[name];
   document.querySelectorAll('.tab-btn')[idx].classList.add('active');
 }
 function openModal(id){document.getElementById(id).classList.add('open')}
@@ -415,6 +436,7 @@ function updateHint(){
   const cat=document.getElementById('f-cat').value;
   const sel=document.getElementById('f-asset-sel');
   const h=document.getElementById('f-hint');
+  sel.style.display='none';
   if(cat==='예적금납입'){
     const savings=assetList.filter(a=>a.assetType==='예금');
     if(savings.length>1){
@@ -422,14 +444,26 @@ function updateHint(){
       sel.innerHTML=savings.map(a=>`<option value="${a.id}">${a.name} (현재 ${fmt(a.amount||0)})</option>`).join('');
       h.textContent='✦ 선택한 예적금 자산 잔액에 자동 반영돼요.';
     } else {
-      sel.style.display='none';
       h.textContent='✦ 예적금 자산 잔액에 자동 반영돼요.';
     }
+  } else if(cat==='카드결제'){
+    if(cardList.length>0){
+      sel.style.display='';
+      sel.innerHTML=cardList.map(c=>`<option value="${c.id}">${c.name} (미결제 ${fmt(c.unpaid||0)})</option>`).join('');
+    }
+    h.textContent='✦ 자산 차감 없이 카드 미결제 금액에 누적돼요.';
+  } else if(cat==='카드대금납부'){
+    if(cardList.length>0){
+      sel.style.display='';
+      sel.innerHTML=cardList.map(c=>`<option value="${c.id}">${c.name} (미결제 ${fmt(c.unpaid||0)})</option>`).join('');
+    }
+    h.textContent='✦ 카드 미결제 금액이 줄고, 연결된 예금 자산에서 차감돼요.';
+  } else if(cat==='대출원금'){
+    h.textContent='✦ 부채 잔액이 줄어들고 상환이력에 기록돼요.';
+  } else if(cat==='대출이자'){
+    h.textContent='✦ 이자 납부로 상환이력에 기록돼요.';
   } else {
-    sel.style.display='none';
-    if(cat==='대출원금')h.textContent='✦ 부채 잔액이 줄어들고 상환이력에 기록돼요.';
-    else if(cat==='대출이자')h.textContent='✦ 이자 납부로 상환이력에 기록돼요.';
-    else h.textContent='';
+    h.textContent='';
   }
 }
 function changeMonth(d){
@@ -451,35 +485,67 @@ async function addTx(){
   if(!date){err.textContent='날짜를 선택해주세요.';return;}
   if(!db){err.textContent='연결 중이에요. 잠시 후 다시 시도해주세요.';return;}
   const id='tx'+uid();
+  const sel=document.getElementById('f-asset-sel');
+  const selVal=sel.style.display!=='none'?sel.value:null;
   try{
     showStatus('저장 중...');
-    let linkedAssetId=null;
-    if(curType==='expense' && cat==='예적금납입'){
-      const sel=document.getElementById('f-asset-sel');
-      const savings=assetList.filter(a=>a.assetType==='예금');
-      if(savings.length>1 && sel.style.display!=='none' && sel.value){
-        linkedAssetId=sel.value;
-      } else if(savings.length===1){
-        linkedAssetId=savings[0].id;
+    let linkedAssetId=null, linkedCardId=null;
+    if(curType==='expense'){
+      if(cat==='예적금납입'){
+        const savings=assetList.filter(a=>a.assetType==='예금');
+        linkedAssetId=selVal||(savings.length===1?savings[0].id:null);
+      } else if(cat==='카드결제'){
+        // 카드결제: 카드 미결제 누적만, 자산 차감 없음
+        linkedCardId=selVal||(cardList.length===1?cardList[0].id:null);
+      } else if(cat==='카드대금납부'){
+        // 카드대금납부: 카드 미결제 차감 + 예금자산 차감
+        linkedCardId=selVal||(cardList.length===1?cardList[0].id:null);
+        const savings=assetList.filter(a=>a.assetType==='예금');
+        linkedAssetId=savings.length?savings[0].id:null;
       }
     }
-    await db.doc(`transactions/${mk()}_${id}`).set({id,desc,amount,cat,date,type:curType,createdAt:Date.now(),month:mk(),linkedAssetId});
+    await db.doc(`transactions/${mk()}_${id}`).set({id,desc,amount,cat,date,type:curType,createdAt:Date.now(),month:mk(),linkedAssetId,linkedCardId});
     if(curType==='expense'){
-      if(cat==='예적금납입')await autoUpdateAsset(amount, linkedAssetId);
-      else if(cat==='대출원금')await autoAddRepay(amount,'원금',date,desc);
-      else if(cat==='대출이자')await autoAddRepay(amount,'이자',date,desc);
+      if(cat==='예적금납입') await autoUpdateAsset(amount, linkedAssetId);
+      else if(cat==='카드결제') await autoCardCharge(amount, linkedCardId);
+      else if(cat==='카드대금납부') await autoCardPayment(amount, linkedCardId, linkedAssetId);
+      else if(cat==='대출원금') await autoAddRepay(amount,'원금',date,desc);
+      else if(cat==='대출이자') await autoAddRepay(amount,'이자',date,desc);
     }
     document.getElementById('f-desc').value='';
     document.getElementById('f-amount').value='';
     showStatus('저장됨 ✓');
   }catch(e){err.textContent='저장 실패 ('+(e.code||e.message)+')';showStatus('');}
 }
-// 버그2 수정: linkedAssetId 있으면 그 자산에만, 없으면 예금 중 첫번째에 반영
 async function autoUpdateAsset(amount, linkedAssetId){
   const savings=assetList.filter(a=>a.assetType==='예금');
   if(!savings.length)return;
   const t=linkedAssetId ? savings.find(a=>a.id===linkedAssetId)||savings[0] : savings[0];
   await db.doc(`assets/${t.id}`).set({...t,amount:(t.amount||0)+amount});
+}
+// 카드결제: 카드 미결제 금액 증가 (자산 변동 없음)
+async function autoCardCharge(amount, linkedCardId){
+  if(!linkedCardId) return;
+  const card=cardList.find(c=>c.id===linkedCardId);
+  if(!card) return;
+  await db.doc(`cards/${linkedCardId}`).set({...card, unpaid:(card.unpaid||0)+amount});
+}
+// 카드대금납부: 카드 미결제 차감 + 예금자산 차감
+async function autoCardPayment(amount, linkedCardId, linkedAssetId){
+  if(linkedCardId){
+    const card=cardList.find(c=>c.id===linkedCardId);
+    if(card){
+      const newUnpaid=Math.max(0,(card.unpaid||0)-amount);
+      await db.doc(`cards/${linkedCardId}`).set({...card, unpaid:newUnpaid});
+    }
+  }
+  if(linkedAssetId){
+    const asset=assetList.find(a=>a.id===linkedAssetId);
+    if(asset){
+      const newAmt=Math.max(0,(asset.amount||0)-amount);
+      await db.doc(`assets/${linkedAssetId}`).set({...asset, amount:newAmt});
+    }
+  }
 }
 async function autoAddRepay(amount,type,date,note){
   if(!debtList.length)return;
@@ -492,21 +558,35 @@ async function autoAddRepay(amount,type,date,note){
     await db.doc(`debts/${t.id}`).set({...t,remain:newRemain});
   }
 }
-// 버그3 수정: 삭제 시 예적금납입이면 linkedAssetId 자산에서 금액 차감
 async function deleteTx(docId){
   if(!db)return;
   try{
-    // 삭제 전 tx 데이터 읽어서 연동 처리
     const snap=await db.doc(`transactions/${docId}`).get();
     const tx=snap.exists?snap.data():null;
     showStatus('삭제 중...');
     await db.doc(`transactions/${docId}`).delete();
-    if(tx && tx.type==='expense' && tx.cat==='예적금납입' && tx.amount>0){
-      const savings=assetList.filter(a=>a.assetType==='예금');
-      const target=tx.linkedAssetId ? savings.find(a=>a.id===tx.linkedAssetId)||savings[0] : savings[0];
-      if(target){
-        const newAmt=Math.max(0,(target.amount||0)-tx.amount);
-        await db.doc(`assets/${target.id}`).set({...target,amount:newAmt});
+    if(tx && tx.type==='expense' && tx.amount>0){
+      if(tx.cat==='예적금납입'){
+        // 예적금납입 삭제 → 자산 차감
+        const savings=assetList.filter(a=>a.assetType==='예금');
+        const target=tx.linkedAssetId?savings.find(a=>a.id===tx.linkedAssetId)||savings[0]:savings[0];
+        if(target) await db.doc(`assets/${target.id}`).set({...target,amount:Math.max(0,(target.amount||0)-tx.amount)});
+      } else if(tx.cat==='카드결제'){
+        // 카드결제 삭제 → 카드 미결제 차감
+        if(tx.linkedCardId){
+          const card=cardList.find(c=>c.id===tx.linkedCardId);
+          if(card) await db.doc(`cards/${tx.linkedCardId}`).set({...card,unpaid:Math.max(0,(card.unpaid||0)-tx.amount)});
+        }
+      } else if(tx.cat==='카드대금납부'){
+        // 카드대금납부 삭제 → 카드 미결제 복원 + 예금자산 복원
+        if(tx.linkedCardId){
+          const card=cardList.find(c=>c.id===tx.linkedCardId);
+          if(card) await db.doc(`cards/${tx.linkedCardId}`).set({...card,unpaid:(card.unpaid||0)+tx.amount});
+        }
+        if(tx.linkedAssetId){
+          const asset=assetList.find(a=>a.id===tx.linkedAssetId);
+          if(asset) await db.doc(`assets/${tx.linkedAssetId}`).set({...asset,amount:(asset.amount||0)+tx.amount});
+        }
       }
     }
     showStatus('삭제됨 ✓');
@@ -698,6 +778,52 @@ function renderDebts(){
   renderNetworth();
 }
 
+
+// ── 카드 ──────────────────────────────
+async function addCard(){
+  const name=document.getElementById('c-name').value.trim();
+  const linkedAssetId=document.getElementById('c-linked-asset').value||null;
+  const err=document.getElementById('c-err');err.textContent='';
+  if(!name){err.textContent='카드명을 입력해주세요.';return;}
+  if(!db){err.textContent='연결 중이에요.';return;}
+  const id='card'+uid();
+  try{
+    showStatus('저장 중...');
+    await db.doc(`cards/${id}`).set({id,name,linkedAssetId,unpaid:0,createdAt:Date.now()});
+    document.getElementById('c-name').value='';
+    showStatus('카드 추가됨 ✓');
+  }catch(e){err.textContent='저장 실패 ('+(e.code||e.message)+')';showStatus('');}
+}
+async function deleteCard(id){
+  if(!db)return;
+  try{showStatus('삭제 중...');await db.doc(`cards/${id}`).delete();showStatus('삭제됨 ✓');}
+  catch(e){showStatus('삭제 실패');}
+}
+function renderCards(){
+  // 카드 추가 폼의 연결 예금 셀렉트 업데이트
+  const sel=document.getElementById('c-linked-asset');
+  if(sel){
+    const savings=assetList.filter(a=>a.assetType==='예금');
+    sel.innerHTML='<option value="">연결 예금 없음</option>'+savings.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+  }
+  const list=document.getElementById('card-list');
+  if(!cardList.length){list.innerHTML='<div class="empty-row">등록된 카드가 없어요.</div>';renderNetworth();return;}
+  list.innerHTML='<div class="item-list">'+cardList.map(c=>{
+    const linked=assetList.find(a=>a.id===c.linkedAssetId);
+    return `<div class="item-row">
+      <div class="item-icon" style="background:#f3eefa">💳</div>
+      <div class="item-info">
+        <div class="item-name">${c.name}</div>
+        <div class="item-meta">${linked?'연결: '+linked.name:'연결 예금 없음'}</div>
+      </div>
+      <div class="item-right">
+        <div class="item-amount" style="color:#7f77dd">미결제 ${fmt(c.unpaid||0)}</div>
+      </div>
+      <button class="btn-icon btn-del" onclick="deleteCard('${c.id}')">✕</button>
+    </div>`;
+  }).join('')+'</div>';
+  renderNetworth();
+}
 // ── 상환이력 ──────────────────────────────
 function openRepayModal(debtId){
   repayDebtId=debtId;
@@ -809,7 +935,8 @@ async function deleteRepay(docId){
 // ── 순자산 ──────────────────────────────
 function renderNetworth(){
   const totalA=assetList.reduce((s,a)=>s+(a.amount||0),0);
-  const totalD=debtList.reduce((s,d)=>s+(d.remain||0),0);
+  const totalCard=cardList.reduce((s,c)=>s+(c.unpaid||0),0);
+  const totalD=debtList.reduce((s,d)=>s+(d.remain||0),0)+totalCard;
   const net=totalA-totalD;
   document.getElementById('net-asset').textContent=fmt(totalA);
   document.getElementById('net-debt').textContent=fmt(totalD);
@@ -819,8 +946,8 @@ function renderNetworth(){
   const dA=document.getElementById('dash-assets'),dD=document.getElementById('dash-debts');
   dA.innerHTML=!assetList.length?'<div class="empty-row">자산 탭에서 추가해주세요.</div>':
     '<div class="item-list">'+assetList.map(a=>`<div class="item-row"><div class="item-icon" style="background:#e1f5ee;font-size:14px">${EMOJI[a.assetType]||'📌'}</div><div class="item-info"><div class="item-name">${a.name}</div><div class="item-meta">${a.assetType}</div></div><div class="item-amount c-asset">${fmt(a.amount||0)}</div></div>`).join('')+'</div>';
-  dD.innerHTML=!debtList.length?'<div class="empty-row">부채 탭에서 추가해주세요.</div>':
-    '<div class="item-list">'+debtList.map(d=>`<div class="item-row"><div class="item-icon" style="background:#faece7;font-size:14px">${EMOJI[d.debtType]||'📌'}</div><div class="item-info"><div class="item-name">${d.name}</div><div class="item-meta">${d.debtType}</div></div><div class="item-amount c-debt">−${fmt(d.remain||0)}</div></div>`).join('')+'</div>';
+  const debtItems=[...debtList.map(d=>`<div class="item-row"><div class="item-icon" style="background:#faece7;font-size:14px">${EMOJI[d.debtType]||'📌'}</div><div class="item-info"><div class="item-name">${d.name}</div><div class="item-meta">${d.debtType}</div></div><div class="item-amount c-debt">−${fmt(d.remain||0)}</div></div>`),...cardList.filter(c=>c.unpaid>0).map(c=>`<div class="item-row"><div class="item-icon" style="background:#f3eefa;font-size:14px">💳</div><div class="item-info"><div class="item-name">${c.name}</div><div class="item-meta">카드 미결제</div></div><div class="item-amount" style="color:#7f77dd">−${fmt(c.unpaid||0)}</div></div>`)];
+  dD.innerHTML=!debtItems.length?'<div class="empty-row">부채/카드 탭에서 추가해주세요.</div>':'<div class="item-list">'+debtItems.join('')+'</div>';
 }
 
 // ── 구독 ──────────────────────────────
@@ -848,6 +975,13 @@ function subscribeDebts(){
     debtList=snap.docs.filter(d=>d.exists).map(d=>d.data());renderDebts();
   },e=>console.error('debts',e));
 }
+function subscribeCards(){
+  if(unsubCards){unsubCards();unsubCards=null;}
+  unsubCards=db.collection('cards').onSnapshot(snap=>{
+    cardList=snap.docs.filter(d=>d.exists).map(d=>d.data());
+    renderCards();updateHint();
+  },e=>console.error('cards',e));
+}
 function subscribeRepay(debtId){
   if(unsubRepay){unsubRepay();unsubRepay=null;}
   unsubRepay=db.collection('repayments').where('debtId','==',debtId).onSnapshot(snap=>{
@@ -863,7 +997,7 @@ function init(){
   function startWithDb(){
     db=window._fbDb;
     document.getElementById('sync-label').textContent='실시간 공유 중 ✓ — 링크를 와이프와 공유하세요';
-    subscribeTx();subscribeAssets();subscribeDebts();
+    subscribeTx();subscribeAssets();subscribeDebts();subscribeCards();
   }
   if(window._fbReady){ startWithDb(); }
   else { window.addEventListener('fbReady', startWithDb, {once:true}); }
