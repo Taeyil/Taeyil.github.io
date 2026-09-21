@@ -2,11 +2,92 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>우리 가계부</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>태일❤️솔현 HOME</title>
 <style>
+/* ── 공통 ── */
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,sans-serif;background:var(--surface-0,#f5f5f3);color:var(--text-primary,#1a1a18);min-height:100vh}
+
+/* ── 메인 선택 화면 ── */
+#screen-main{display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:1.25rem 1rem 2rem}
+.hero{text-align:center;margin-bottom:1.25rem}
+.hero h1{font-size:26px;font-weight:600;margin-bottom:6px}
+.hero p{font-size:14px;color:#888}
+.main-cards{display:flex;flex-direction:column;gap:12px;width:100%;max-width:360px}
+.main-card{background:#fff;border:0.5px solid #d8d6ce;border-radius:16px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;cursor:pointer;transition:transform .1s,box-shadow .1s;user-select:none}
+.main-card:active{transform:scale(.98)}
+.main-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.main-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.main-info{flex:1}
+.main-title{font-size:16px;font-weight:500;margin-bottom:3px}
+.main-desc{font-size:12px;color:#888}
+.main-arrow{font-size:18px;color:#ccc}
+
+
+/* ── 일정표 ── */
+.cal-wrap{width:100%;max-width:400px;margin-bottom:1rem}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem}
+.cal-title{font-size:15px;font-weight:500}
+.cal-nav{background:none;border:0.5px solid #d8d6ce;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:14px;color:#1a1a18;font-family:inherit}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-dow{font-size:10px;color:#aaa;text-align:center;padding:2px 0;font-weight:500}
+.cal-dow.sun{color:#e05050}.cal-dow.sat{color:#3a7bd5}
+.cal-cell{border-radius:8px;padding:3px 2px;min-height:58px;position:relative;background:#fff;border:0.5px solid #ece9e4;cursor:pointer;transition:background .1s}
+.cal-cell:active{background:#f0efe8}
+.cal-cell.today{border-color:#185fa5;border-width:2px;background:#eef4fd}
+.cal-cell.other-month{opacity:.35}
+.cal-day{font-size:11px;text-align:center;font-weight:500;margin-bottom:2px}
+.cal-cell.sun .cal-day{color:#e05050}
+.cal-cell.sat .cal-day{color:#3a7bd5}
+.cal-cell.today .cal-day{background:#185fa5;color:#fff;border-radius:50%;width:18px;height:18px;line-height:18px;margin:0 auto 2px;display:flex;align-items:center;justify-content:center}
+.cal-badge{font-size:9px;text-align:center;border-radius:4px;padding:1px 3px;margin:1px auto;display:block;width:fit-content;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4}
+.badge-off{background:#f0efe8;color:#666}
+.badge-night{background:#2d2060;color:#c8bfff}
+.badge-day{background:#e1f5ee;color:#0f6e56}
+.badge-wife-off{background:#fde8f0;color:#8b1a4a}
+.badge-wife-leave{background:#ffd6e7;color:#8b1a4a}
+.badge-memo{background:#fff8e1;color:#7a5200;font-size:8px}
+.badge-holiday{background:#ffeaea;color:#c0392b;font-size:8px;font-weight:500}
+/* 일정 모달 */
+.sched-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;align-items:flex-end;justify-content:center}
+.sched-modal-bg.open{display:flex}
+.sched-modal{background:#fff;border-radius:16px 16px 0 0;padding:1.25rem;width:100%;max-width:400px}
+.sched-modal-title{font-size:15px;font-weight:500;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center}
+.sched-section{margin-bottom:0.875rem}
+.sched-section-label{font-size:11px;color:#888;margin-bottom:6px;font-weight:500}
+.sched-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.sched-chip{padding:5px 12px;border-radius:20px;border:0.5px solid #d8d6ce;background:#f5f5f3;cursor:pointer;font-size:12px;font-family:inherit;color:#1a1a18}
+.sched-chip.active-off{background:#f0efe8;border-color:#999;color:#444;font-weight:500}
+.sched-chip.active-night{background:#2d2060;border-color:#2d2060;color:#c8bfff;font-weight:500}
+.sched-chip.active-day{background:#e1f5ee;border-color:#0f6e56;color:#0f6e56;font-weight:500}
+.sched-chip.active-wife-off{background:#fde8f0;border-color:#d4537e;color:#8b1a4a;font-weight:500}
+.sched-chip.active-wife-leave{background:#ffd6e7;border-color:#d4537e;color:#8b1a4a;font-weight:500}
+.sched-memo-input{width:100%;padding:8px 10px;border:0.5px solid #d8d6ce;border-radius:8px;font-size:13px;font-family:inherit;background:#f5f5f3;resize:none}
+.sched-memo-input:focus{outline:none;border-color:#185fa5}
+.sched-save-btn{width:100%;padding:10px;background:#1a1a18;border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:4px}
+.sched-delete-btn{width:100%;padding:8px;background:transparent;border:0.5px solid #d8d6ce;border-radius:8px;color:#d85a30;font-size:13px;cursor:pointer;font-family:inherit;margin-top:6px}
+
+/* ── 잠금 화면 ── */
+#screen-lock{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem 1rem}
+.lock-box{background:#fff;border:0.5px solid #d8d6ce;border-radius:16px;padding:2rem 1.5rem;width:100%;max-width:320px;text-align:center}
+.lock-icon{font-size:44px;margin-bottom:1rem}
+.lock-title{font-size:17px;font-weight:500;margin-bottom:4px}
+.lock-sub{font-size:13px;color:#888;margin-bottom:1.5rem}
+.lock-pw-input{width:100%;padding:10px;border:0.5px solid #d8d6ce;border-radius:8px;font-size:22px;text-align:center;letter-spacing:8px;margin-bottom:8px;font-family:inherit;background:#f5f5f3}
+.lock-pw-input:focus{outline:none;border-color:#185fa5}
+.lock-btn{width:100%;padding:11px;background:#1a1a18;border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;margin-bottom:8px}
+.lock-err{font-size:12px;color:#d85a30;min-height:16px;margin-bottom:4px}
+.lock-back{font-size:12px;color:#888;cursor:pointer;text-decoration:underline}
+.lock-setpw{margin-top:1rem;padding-top:1rem;border-top:0.5px solid #d8d6ce;text-align:left}
+.lock-setpw-label{font-size:12px;color:#888;margin-bottom:6px}
+.lock-setpw-row{display:flex;gap:6px;margin-bottom:6px}
+.lock-setpw-row input{flex:1;padding:8px;border:0.5px solid #d8d6ce;border-radius:8px;font-size:13px;font-family:inherit;background:#f5f5f3}
+.lock-setpw-btn{width:100%;padding:8px;border:0.5px solid #d8d6ce;border-radius:8px;background:#f5f5f3;cursor:pointer;font-size:13px;font-family:inherit}
+.lock-setpw-msg{font-size:12px;min-height:16px;margin-top:4px}
+
+/* ── 가계부 앱 화면 ── */
+#screen-app{display:none}
 .tab-nav{display:flex;border-top:0.5px solid var(--border,#d8d6ce);background:var(--surface-2,#fff);position:fixed;bottom:0;left:0;right:0;z-index:100;max-width:680px;margin:0 auto}
 .tab-btn{flex:1;padding:10px 4px 12px;border:none;background:transparent;font-size:11px;font-family:inherit;cursor:pointer;color:var(--text-secondary,#888);display:flex;flex-direction:column;align-items:center;gap:2px}
 .tab-btn .ico{font-size:20px}
@@ -41,6 +122,7 @@ body{font-family:-apple-system,sans-serif;background:var(--surface-0,#f5f5f3);co
 .form-section{margin-top:0.75rem;padding-top:0.75rem;border-top:0.5px solid var(--border)}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
 .form-row.trio{grid-template-columns:1fr 1fr 1fr}
+.form-row.full{grid-template-columns:1fr}
 input,select{width:100%;padding:9px 10px;border:0.5px solid var(--border,#d8d6ce);border-radius:8px;font-size:14px;background:var(--surface-2,#fff);color:var(--text-primary);font-family:inherit;-webkit-appearance:none}
 input:focus,select:focus{outline:none;border-color:#185fa5}
 .btn-primary{width:100%;padding:10px;background:var(--surface-0,#f5f5f3);border:0.5px solid var(--border-strong,#b4b2a9);border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;color:var(--text-primary);margin-top:4px}
@@ -77,27 +159,16 @@ canvas{width:100%!important}
 .ldot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .loan-bar-wrap{height:4px;background:var(--surface-0);border-radius:2px;overflow:hidden;margin-top:5px}
 .loan-bar{height:100%;border-radius:2px;background:#993c1d}
-
-/* 부채 상세 영역 */
-.debt-detail{background:var(--surface-1,#f0efe8);border-radius:10px;padding:0.875rem 1rem;margin-top:0.5rem}
-.debt-detail-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem}
-.debt-detail-title{font-size:13px;font-weight:500}
-
-/* 필터 탭 */
 .filter-tabs{display:flex;gap:4px;margin-bottom:0.75rem}
 .filter-tab{padding:5px 12px;border:0.5px solid var(--border);border-radius:20px;background:transparent;cursor:pointer;font-size:12px;font-family:inherit;color:var(--text-secondary)}
 .filter-tab.active{background:var(--text-primary);border-color:var(--text-primary);color:#fff}
 .filter-nav{display:flex;align-items:center;gap:6px;margin-bottom:0.75rem}
 .filter-nav button{background:var(--surface-2,#fff);border:0.5px solid var(--border);border-radius:6px;padding:4px 10px;font-size:13px;cursor:pointer;color:var(--text-primary);font-family:inherit}
 .filter-nav-label{font-size:13px;font-weight:500;flex:1;text-align:center}
-
-/* 상환 요약 */
 .repay-summary{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:0.75rem}
 .repay-card{background:var(--surface-2,#fff);border-radius:8px;padding:0.6rem 0.875rem}
 .repay-card-label{font-size:10px;color:var(--text-secondary);margin-bottom:2px}
 .repay-card-val{font-size:14px;font-weight:500}
-
-/* 상환 이력 행 */
 .repay-item{display:flex;align-items:center;gap:8px;padding:0.6rem 0;border-bottom:0.5px solid var(--border)}
 .repay-item:last-child{border-bottom:none}
 .repay-badge{font-size:11px;padding:2px 7px;border-radius:10px;flex-shrink:0;font-weight:500}
@@ -107,11 +178,7 @@ canvas{width:100%!important}
 .repay-date{font-size:12px;color:var(--text-secondary)}
 .repay-note{font-size:13px}
 .repay-amount{font-size:13px;font-weight:500;flex-shrink:0}
-
-/* 상환 추가 폼 */
 .repay-form{margin-top:0.75rem;padding-top:0.75rem;border-top:0.5px solid var(--border)}
-
-/* 모달 */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:flex-end;justify-content:center}
 .modal-bg.open{display:flex}
 .modal{background:var(--surface-2,#fff);border-radius:16px 16px 0 0;padding:1.25rem;width:100%;max-width:680px;max-height:85vh;overflow-y:auto}
@@ -120,171 +187,298 @@ canvas{width:100%!important}
 .hint{font-size:11px;color:var(--text-secondary);margin-bottom:4px;min-height:14px}
 .status{font-size:11px;color:var(--text-secondary);position:fixed;bottom:68px;right:12px;background:var(--surface-2);border:0.5px solid var(--border);border-radius:6px;padding:3px 8px;opacity:0;transition:opacity .2s;z-index:150}
 .status.show{opacity:1}
-.sync-label{font-size:11px;color:var(--text-secondary);padding:0.5rem 1rem 0;display:block}
-
-@media(max-width:400px){
-  .summary-grid{grid-template-columns:1fr 1fr}
-  .summary-grid .summary-card:last-child{grid-column:1/-1}
-  .form-row.trio{grid-template-columns:1fr 1fr}
-  .repay-summary{grid-template-columns:1fr 1fr}
-}
+/* 앱 상단 헤더 */
+.app-header{max-width:680px;margin:0 auto;padding:0.6rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border,#d8d6ce);background:var(--surface-2,#fff);position:sticky;top:0;z-index:50}
+.app-header-title{font-size:14px;font-weight:500}
+.app-header-btns{display:flex;gap:8px;align-items:center}
+.header-btn{font-size:11px;color:#888;background:none;border:0.5px solid #d8d6ce;border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit}
 </style>
 </head>
 <body>
-<span class="sync-label" id="sync-label">연결 중...</span>
-<div class="page">
 
-  <!-- 순자산 탭 -->
-  <div id="tab-dashboard" class="tab-content active">
-    <div class="net-hero">
-      <div class="net-label">순자산 (총자산 − 총부채)</div>
-      <div class="net-value" id="net-value">—</div>
-      <div class="net-grid">
-        <div class="net-card"><div class="net-card-label">총자산</div><div class="net-card-val c-asset" id="net-asset">—</div></div>
-        <div class="net-card"><div class="net-card-label">총부채</div><div class="net-card-val c-debt" id="net-debt">—</div></div>
-      </div>
-    </div>
-    <div class="card"><div class="card-title">자산 현황</div><div id="dash-assets"><div class="empty-row">자산 탭에서 추가해주세요.</div></div></div>
-    <div class="card"><div class="card-title">부채 현황</div><div id="dash-debts"><div class="empty-row">부채 탭에서 추가해주세요.</div></div></div>
+<!-- ① 메인 선택 화면 -->
+<div id="screen-main">
+  <div class="hero">
+    <h1>태일❤️솔현 HOME</h1>
+    <p>사용할 가계부를 선택해 주세요</p>
   </div>
 
-  <!-- 자산 탭 -->
-  <div id="tab-assets" class="tab-content">
-    <div class="card">
-      <div class="card-title">자산 목록</div>
-      <div id="asset-list"><div class="empty-row">등록된 자산이 없어요.</div></div>
-      <div class="form-section">
-        <div class="card-sub">자산 추가</div>
-        <div class="form-row">
-          <input type="text" id="a-name" placeholder="자산명 (예: 청약통장)">
-          <select id="a-type">
-            <option value="예금">🏦 예금/적금</option>
-            <option value="부동산">🏠 부동산</option>
-            <option value="현금">💵 현금</option>
-            <option value="연금">👴 연금</option>
-            <option value="기타">📌 기타</option>
-          </select>
-        </div>
-        <div class="form-row">
-          <input type="number" id="a-amount" placeholder="현재 금액 (원)">
-          <input type="text" id="a-note" placeholder="메모 (선택)">
-        </div>
-        <div class="err" id="a-err"></div>
-        <button class="btn-primary" onclick="addAsset()">자산 추가</button>
-      </div>
+  <!-- 일정표 -->
+  <div class="cal-wrap">
+    <div class="cal-header">
+      <button class="cal-nav" onclick="calMove(-1)">‹</button>
+      <span class="cal-title" id="cal-title"></span>
+      <button class="cal-nav" onclick="calMove(1)">›</button>
     </div>
+    <div class="cal-grid" id="cal-dow">
+      <div class="cal-dow sun">일</div><div class="cal-dow">월</div><div class="cal-dow">화</div>
+      <div class="cal-dow">수</div><div class="cal-dow">목</div><div class="cal-dow">금</div>
+      <div class="cal-dow sat">토</div>
+    </div>
+    <div class="cal-grid" id="cal-body"></div>
   </div>
 
-  <!-- 부채 탭 -->
-  <div id="tab-debts" class="tab-content">
-    <div class="card">
-      <div class="card-title">부채 목록</div>
-      <div id="debt-list"><div class="empty-row">등록된 부채가 없어요.</div></div>
-      <div class="form-section">
-        <div class="card-sub">부채 추가</div>
-        <div class="form-row">
-          <input type="text" id="d-name" placeholder="부채명 (예: 주담대)">
-          <select id="d-type">
-            <option value="주택담보대출">🏠 주택담보대출</option>
-            <option value="전세대출">🔑 전세대출</option>
-            <option value="신용대출">💳 신용대출</option>
-            <option value="자동차할부">🚗 자동차할부</option>
-            <option value="기타대출">📌 기타대출</option>
-          </select>
-        </div>
-        <div class="form-row trio">
-          <input type="number" id="d-total" placeholder="총 대출금액">
-          <input type="number" id="d-remain" placeholder="남은 잔액">
-          <input type="number" id="d-rate" placeholder="금리(%) 예:3.5">
-        </div>
-        <div class="err" id="d-err"></div>
-        <button class="btn-primary" onclick="addDebt()">부채 추가</button>
+  <!-- 일정 모달 -->
+  <div class="sched-modal-bg" id="sched-modal">
+    <div class="sched-modal">
+      <div class="sched-modal-title">
+        <span id="sched-modal-date"></span>
+        <button onclick="closeSchedModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888">✕</button>
       </div>
+      <div class="sched-section">
+        <div class="sched-section-label">👩 와이프 일정</div>
+        <div class="sched-chips">
+          <button class="sched-chip" id="chip-wife-none" onclick="selectWife('')">없음</button>
+          <button class="sched-chip" id="chip-wife-off" onclick="selectWife('off')">휴무</button>
+          <button class="sched-chip" id="chip-wife-leave" onclick="selectWife('leave')">연차</button>
+        </div>
+      </div>
+      <div class="sched-section">
+        <div class="sched-section-label">📝 메모</div>
+        <textarea class="sched-memo-input" id="sched-memo" rows="2" placeholder="공용 메모를 입력해주세요"></textarea>
+      </div>
+      <button class="sched-save-btn" onclick="saveSchedModal()">저장</button>
+      <button class="sched-delete-btn" onclick="deleteSchedModal()">이 날 일정 삭제</button>
     </div>
   </div>
 
-
-  <!-- 카드 탭 -->
-  <div id="tab-cards" class="tab-content">
-    <div class="card">
-      <div class="card-title">카드 목록</div>
-      <div id="card-list"><div class="empty-row">등록된 카드가 없어요.</div></div>
-      <div class="form-section">
-        <div class="card-sub">카드 추가</div>
-        <div class="form-row">
-          <input type="text" id="c-name" placeholder="카드명 (예: 신한 체크카드)">
-          <select id="c-linked-asset">
-            <option value="">연결 예금 없음</option>
-          </select>
-        </div>
-        <div class="err" id="c-err"></div>
-        <button class="btn-primary" onclick="addCard()">카드 추가</button>
+  <div class="main-cards">
+    <div class="main-card" onclick="openApp('shared')">
+      <div class="main-icon" style="background:#e1f5ee">👫</div>
+      <div class="main-info">
+        <div class="main-title">공용 가계부</div>
+        <div class="main-desc">둘이 함께 쓰는 공용 내역</div>
+      </div>
+      <span class="main-arrow">›</span>
+    </div>
+    <div class="main-card" onclick="openApp('mine')">
+      <div class="main-icon" style="background:#e8f1fa">👨</div>
+      <div class="main-info">
+        <div class="main-title">태일 가계부</div>
+        <div class="main-desc" id="mine-desc"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <span class="main-arrow">›</span>
+        <button onclick="event.stopPropagation();openSetPw('mine')" style="font-size:11px;color:#888;background:none;border:0.5px solid #d8d6ce;border-radius:6px;padding:3px 8px;cursor:pointer;white-space:nowrap">🔑 비번변경</button>
+      </div>
+    </div>
+    <div class="main-card" onclick="openApp('wife')">
+      <div class="main-icon" style="background:#fde8f0">👩</div>
+      <div class="main-info">
+        <div class="main-title">솔현 가계부</div>
+        <div class="main-desc" id="wife-desc"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <span class="main-arrow">›</span>
+        <button onclick="event.stopPropagation();openSetPw('wife')" style="font-size:11px;color:#888;background:none;border:0.5px solid #d8d6ce;border-radius:6px;padding:3px 8px;cursor:pointer;white-space:nowrap">🔑 비번변경</button>
       </div>
     </div>
   </div>
-  <!-- 가계부 탭 -->
-  <div id="tab-budget" class="tab-content">
-    <div class="month-nav">
-      <button onclick="changeMonth(-1)">‹</button>
-      <span class="month-label" id="month-label"></span>
-      <button onclick="changeMonth(1)">›</button>
+
+</div>
+
+<!-- 비밀번호 변경 모달 (메인) -->
+<div id="modal-setpw" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;align-items:flex-end;justify-content:center">
+  <div style="background:#fff;border-radius:16px 16px 0 0;padding:1.5rem;width:100%;max-width:400px">
+    <div style="font-size:15px;font-weight:500;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center">
+      <span id="setpw-modal-title">비밀번호 변경</span>
+      <button onclick="closeSetPw()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888">✕</button>
     </div>
-    <div class="summary-grid">
-      <div class="summary-card"><div class="summary-label">수입</div><div class="summary-value c-income" id="s-income">0원</div></div>
-      <div class="summary-card"><div class="summary-label">지출</div><div class="summary-value c-expense" id="s-expense">0원</div></div>
-      <div class="summary-card"><div class="summary-label">잔액</div><div class="summary-value" id="s-balance">0원</div></div>
-    </div>
-    <div class="card">
-      <div class="card-title">이번 달 예산</div>
-      <div class="budget-row">
-        <span style="font-size:12px;color:var(--text-secondary);width:72px;flex-shrink:0" id="b-used">0원</span>
-        <div class="bbar-wrap"><div class="bbar" id="b-bar" style="width:0%"></div></div>
-        <span style="font-size:12px;color:var(--text-secondary);width:34px;text-align:right;flex-shrink:0" id="b-pct">—</span>
-      </div>
-      <div style="font-size:12px;color:var(--text-secondary);margin-top:4px" id="b-info">예산을 설정하면 현황을 볼 수 있어요.</div>
-      <div style="margin-top:10px;padding-top:10px;border-top:0.5px solid #d8d6ce">
-        <div style="display:flex;gap:6px;align-items:center">
-          <input type="number" id="b-input" placeholder="이번 달 예산 입력" style="flex:1;min-width:0;width:auto">
-          <button onclick="saveBudget()" style="padding:9px 16px;border:0.5px solid #d8d6ce;border-radius:8px;background:#f0efe8;cursor:pointer;font-size:13px;font-family:-apple-system,sans-serif;white-space:nowrap;color:#1a1a18;flex-shrink:0;width:auto;-webkit-appearance:none">설정</button>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">카테고리별 지출</div>
-      <div class="chart-wrap"><canvas id="pie"></canvas></div>
-      <div class="legend" id="legend"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">내역 추가</div>
-      <div class="type-tabs">
-        <button class="type-tab exp" id="t-exp" onclick="setType('expense')">지출</button>
-        <button class="type-tab" id="t-inc" onclick="setType('income')">수입</button>
-      </div>
-      <div class="form-row">
-        <input type="text" id="f-desc" placeholder="항목명 (예: 점심식사)" maxlength="30">
-        <input type="number" id="f-amount" placeholder="금액 (원)">
-      </div>
-      <div class="form-row">
-        <select id="f-cat" onchange="updateHint()"></select>
-        <input type="date" id="f-date">
-      </div>
-      <select id="f-asset-sel" style="display:none;margin-bottom:8px"></select>
-      <div class="hint" id="f-hint"></div>
-      <div class="err" id="f-err"></div>
-      <button class="btn-primary" onclick="addTx()">추가하기</button>
-    </div>
-    <div style="font-size:14px;font-weight:500;margin-bottom:0.5rem">이번 달 내역</div>
-    <div id="list-wrap"></div>
+    <div style="font-size:12px;color:#888;margin-bottom:12px">현재 비밀번호를 먼저 입력해주세요</div>
+    <input type="password" id="setpw-current" inputmode="numeric" placeholder="현재 비밀번호" style="width:100%;padding:10px;border:0.5px solid #d8d6ce;border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:8px;background:#f5f5f3">
+    <input type="password" id="setpw-new1" inputmode="numeric" placeholder="새 비밀번호" style="width:100%;padding:10px;border:0.5px solid #d8d6ce;border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:8px;background:#f5f5f3">
+    <input type="password" id="setpw-new2" inputmode="numeric" placeholder="새 비밀번호 확인" style="width:100%;padding:10px;border:0.5px solid #d8d6ce;border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:8px;background:#f5f5f3">
+    <div style="font-size:12px;color:#d85a30;min-height:16px;margin-bottom:8px" id="setpw-err"></div>
+    <button onclick="confirmSetPw()" style="width:100%;padding:11px;background:#1a1a18;border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">변경하기</button>
   </div>
 </div>
 
-<nav class="tab-nav">
-  <button class="tab-btn active" onclick="showTab('dashboard')"><span class="ico">📊</span>순자산</button>
-  <button class="tab-btn" onclick="showTab('assets')"><span class="ico">🏦</span>자산</button>
-  <button class="tab-btn" onclick="showTab('debts')"><span class="ico">💳</span>부채</button>
-  <button class="tab-btn" onclick="showTab('cards')"><span class="ico">💳</span>카드</button>
-  <button class="tab-btn" onclick="showTab('budget')"><span class="ico">📒</span>가계부</button>
-</nav>
+<!-- ② 잠금 화면 -->
+<div id="screen-lock" style="display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem 1rem">
+  <div class="lock-box">
+    <div class="lock-icon" id="lock-icon">🔒</div>
+    <div class="lock-title" id="lock-title">가계부</div>
+    <div class="lock-sub">비밀번호를 입력해주세요</div>
+    <input class="lock-pw-input" type="password" id="lock-pw" inputmode="numeric" maxlength="10" placeholder="••••" onkeydown="if(event.key==='Enter')tryUnlock()">
+    <button class="lock-btn" onclick="tryUnlock()">확인</button>
+    <div class="lock-err" id="lock-err"></div>
+    <span class="lock-back" onclick="goMain()">← 메인으로</span>
+    <!-- 비밀번호 설정 (마스터로 열었을 때만 표시) -->
+    <div class="lock-setpw" id="lock-setpw" style="display:none">
+      <div class="lock-setpw-label">비밀번호 설정</div>
+      <div class="lock-setpw-row">
+        <input type="password" id="new-pw1" placeholder="새 비밀번호" inputmode="numeric">
+        <input type="password" id="new-pw2" placeholder="확인" inputmode="numeric">
+      </div>
+      <button class="lock-setpw-btn" onclick="setNewPw()">비밀번호 변경</button>
+      <div class="lock-setpw-msg" id="set-pw-msg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ③ 가계부 앱 화면 -->
+<div id="screen-app" style="display:none">
+  <div class="app-header">
+    <button class="header-btn" onclick="goMain()">← 메인</button>
+    <span class="app-header-title" id="app-header-title">가계부</span>
+    <div class="app-header-btns">
+      <button class="header-btn" id="lock-app-btn" onclick="lockApp()" style="display:none">🔒 잠금</button>
+    </div>
+  </div>
+  <div style="font-size:11px;color:var(--text-secondary);padding:0.4rem 1rem;max-width:680px;margin:0 auto" id="sync-label">연결 중...</div>
+
+  <div class="page">
+    <!-- 순자산 탭 -->
+    <div id="tab-dashboard" class="tab-content active">
+      <div class="net-hero">
+        <div class="net-label">순자산 (총자산 − 총부채)</div>
+        <div class="net-value" id="net-value">—</div>
+        <div class="net-grid">
+          <div class="net-card"><div class="net-card-label">총자산</div><div class="net-card-val c-asset" id="net-asset">—</div></div>
+          <div class="net-card"><div class="net-card-label">총부채</div><div class="net-card-val c-debt" id="net-debt">—</div></div>
+        </div>
+      </div>
+      <div class="card"><div class="card-title">자산 현황</div><div id="dash-assets"><div class="empty-row">자산 탭에서 추가해주세요.</div></div></div>
+      <div class="card"><div class="card-title">부채 현황</div><div id="dash-debts"><div class="empty-row">부채/카드 탭에서 추가해주세요.</div></div></div>
+    </div>
+
+    <!-- 자산 탭 -->
+    <div id="tab-assets" class="tab-content">
+      <div class="card">
+        <div class="card-title">자산 목록</div>
+        <div id="asset-list"><div class="empty-row">등록된 자산이 없어요.</div></div>
+        <div class="form-section">
+          <div class="card-sub">자산 추가</div>
+          <div class="form-row">
+            <input type="text" id="a-name" placeholder="자산명 (예: 신한통장)">
+            <select id="a-type">
+              <option value="예금">🏦 예금통장</option>
+              <option value="적금">💰 적금</option>
+              <option value="주택청약">🏠 주택청약</option>
+              <option value="연금">👴 연금</option>
+              <option value="통장">🪙 기타통장</option>
+              <option value="부동산">🏢 부동산</option>
+              <option value="현금">💵 현금</option>
+              <option value="기타">📌 기타</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <input type="number" id="a-amount" placeholder="현재 금액 (원)">
+            <input type="text" id="a-note" placeholder="메모 (선택)">
+          </div>
+          <div class="err" id="a-err"></div>
+          <button class="btn-primary" onclick="addAsset()">자산 추가</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 부채 탭 -->
+    <div id="tab-debts" class="tab-content">
+      <div class="card">
+        <div class="card-title">부채 목록</div>
+        <div id="debt-list"><div class="empty-row">등록된 부채가 없어요.</div></div>
+        <div class="form-section">
+          <div class="card-sub">부채 추가</div>
+          <div class="form-row">
+            <input type="text" id="d-name" placeholder="부채명 (예: 주담대)">
+            <select id="d-type">
+              <option value="주택담보대출">🏠 주택담보대출</option>
+              <option value="전세대출">🔑 전세대출</option>
+              <option value="신용대출">💳 신용대출</option>
+              <option value="자동차할부">🚗 자동차할부</option>
+              <option value="기타대출">📌 기타대출</option>
+            </select>
+          </div>
+          <div class="form-row trio">
+            <input type="number" id="d-total" placeholder="총 대출금액">
+            <input type="number" id="d-remain" placeholder="남은 잔액">
+            <input type="number" id="d-rate" placeholder="금리(%)">
+          </div>
+          <div class="err" id="d-err"></div>
+          <button class="btn-primary" onclick="addDebt()">부채 추가</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 카드 탭 -->
+    <div id="tab-cards" class="tab-content">
+      <div class="card">
+        <div class="card-title">카드 목록</div>
+        <div id="card-list"><div class="empty-row">등록된 카드가 없어요.</div></div>
+        <div class="form-section">
+          <div class="card-sub">카드 추가</div>
+          <div class="form-row">
+            <input type="text" id="c-name" placeholder="카드명 (예: 신한카드)">
+            <select id="c-linked-asset"><option value="">연결 통장 없음</option></select>
+          </div>
+          <div class="err" id="c-err"></div>
+          <button class="btn-primary" onclick="addCard()">카드 추가</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 가계부 탭 -->
+    <div id="tab-budget" class="tab-content">
+      <div class="month-nav">
+        <button onclick="changeMonth(-1)">‹</button>
+        <span class="month-label" id="month-label"></span>
+        <button onclick="changeMonth(1)">›</button>
+      </div>
+      <div class="summary-grid">
+        <div class="summary-card"><div class="summary-label">수입</div><div class="summary-value c-income" id="s-income">0원</div></div>
+        <div class="summary-card"><div class="summary-label">지출</div><div class="summary-value c-expense" id="s-expense">0원</div></div>
+        <div class="summary-card"><div class="summary-label">잔액</div><div class="summary-value" id="s-balance">0원</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">이번 달 예산</div>
+        <div class="budget-row">
+          <span style="font-size:12px;color:var(--text-secondary);width:72px;flex-shrink:0" id="b-used">0원</span>
+          <div class="bbar-wrap"><div class="bbar" id="b-bar" style="width:0%"></div></div>
+          <span style="font-size:12px;color:var(--text-secondary);width:34px;text-align:right;flex-shrink:0" id="b-pct">—</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-top:4px" id="b-info">예산을 설정하면 현황을 볼 수 있어요.</div>
+        <div style="display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border)">
+          <input type="number" id="b-input" placeholder="이번 달 예산 입력" style="flex:1;min-width:0;width:auto">
+          <button onclick="saveBudget()" style="padding:9px 16px;border:0.5px solid #d8d6ce;border-radius:8px;background:#f0efe8;cursor:pointer;font-size:13px;font-family:inherit;white-space:nowrap;color:#1a1a18;flex-shrink:0;width:auto;-webkit-appearance:none">설정</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">카테고리별 지출</div>
+        <div class="chart-wrap"><canvas id="pie"></canvas></div>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">내역 추가</div>
+        <div class="type-tabs">
+          <button class="type-tab exp" id="t-exp" onclick="setType('expense')">지출</button>
+          <button class="type-tab" id="t-inc" onclick="setType('income')">수입</button>
+        </div>
+        <div class="form-row">
+          <input type="text" id="f-desc" placeholder="항목명" maxlength="30">
+          <input type="number" id="f-amount" placeholder="금액 (원)">
+        </div>
+        <div class="form-row">
+          <select id="f-cat" onchange="updateHint()"></select>
+          <input type="date" id="f-date">
+        </div>
+        <select id="f-asset-sel" style="display:none;margin-bottom:8px;width:100%"></select>
+        <div class="hint" id="f-hint"></div>
+        <div class="err" id="f-err"></div>
+        <button class="btn-primary" onclick="addTx()">추가하기</button>
+      </div>
+      <div style="font-size:14px;font-weight:500;margin-bottom:0.5rem">이번 달 내역</div>
+      <div id="list-wrap"></div>
+    </div>
+  </div>
+
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="showTab('dashboard')"><span class="ico">📊</span>순자산</button>
+    <button class="tab-btn" onclick="showTab('assets')"><span class="ico">🏦</span>자산</button>
+    <button class="tab-btn" onclick="showTab('debts')"><span class="ico">💳</span>부채</button>
+    <button class="tab-btn" onclick="showTab('cards')"><span class="ico">💳</span>카드</button>
+    <button class="tab-btn" onclick="showTab('budget')"><span class="ico">📒</span>가계부</button>
+  </nav>
+</div>
 
 <!-- 자산 수정 모달 -->
 <div class="modal-bg" id="modal-asset">
@@ -294,10 +488,13 @@ canvas{width:100%!important}
     <div class="form-row">
       <input type="text" id="ea-name" placeholder="자산명">
       <select id="ea-type">
-        <option value="예금">🏦 예금/적금</option>
-        <option value="부동산">🏠 부동산</option>
-        <option value="현금">💵 현금</option>
+        <option value="예금">🏦 예금통장</option>
+        <option value="적금">💰 적금</option>
+        <option value="주택청약">🏠 주택청약</option>
         <option value="연금">👴 연금</option>
+        <option value="통장">🪙 기타통장</option>
+        <option value="부동산">🏢 부동산</option>
+        <option value="현금">💵 현금</option>
         <option value="기타">📌 기타</option>
       </select>
     </div>
@@ -309,7 +506,6 @@ canvas{width:100%!important}
     <button class="btn-primary" onclick="saveAsset()">수정 저장</button>
   </div>
 </div>
-
 <!-- 부채 수정 모달 -->
 <div class="modal-bg" id="modal-debt">
   <div class="modal">
@@ -334,8 +530,23 @@ canvas{width:100%!important}
     <button class="btn-primary" onclick="saveDebt()">수정 저장</button>
   </div>
 </div>
-
-<!-- 부채 상환이력 모달 -->
+<!-- 카드 수정 모달 -->
+<div class="modal-bg" id="modal-card">
+  <div class="modal">
+    <div class="modal-title">카드 수정 <button class="modal-close" onclick="closeModal('modal-card')">✕</button></div>
+    <input type="hidden" id="ec-id">
+    <div class="form-row">
+      <input type="text" id="ec-name" placeholder="카드명">
+      <select id="ec-linked"></select>
+    </div>
+    <div class="form-row full">
+      <input type="number" id="ec-unpaid" placeholder="현재 미결제 금액 (원)" min="0">
+    </div>
+    <div class="err" id="ec-err"></div>
+    <button class="btn-primary" onclick="saveCard()">수정 저장</button>
+  </div>
+</div>
+<!-- 상환이력 모달 -->
 <div class="modal-bg" id="modal-repay">
   <div class="modal">
     <div class="modal-title">
@@ -343,36 +554,25 @@ canvas{width:100%!important}
       <button class="modal-close" onclick="closeModal('modal-repay')">✕</button>
     </div>
     <input type="hidden" id="repay-debt-id">
-
-    <!-- 필터: 일/월/년 -->
     <div class="filter-tabs" id="repay-filter-tabs">
       <button class="filter-tab active" onclick="setRepayFilter('day')">일별</button>
       <button class="filter-tab" onclick="setRepayFilter('month')">월별</button>
       <button class="filter-tab" onclick="setRepayFilter('year')">연도별</button>
     </div>
-    <div class="filter-nav" id="repay-filter-nav">
+    <div class="filter-nav">
       <button onclick="moveRepayPeriod(-1)">‹</button>
       <span class="filter-nav-label" id="repay-period-label"></span>
       <button onclick="moveRepayPeriod(1)">›</button>
     </div>
-
-    <!-- 요약 -->
     <div class="repay-summary">
       <div class="repay-card"><div class="repay-card-label">원금 상환</div><div class="repay-card-val c-prin" id="rs-prin">0원</div></div>
       <div class="repay-card"><div class="repay-card-label">이자 납부</div><div class="repay-card-val c-int" id="rs-int">0원</div></div>
     </div>
-
-    <!-- 이력 목록 -->
     <div id="repay-list"><div class="empty-row">이 기간에 상환 내역이 없어요.</div></div>
-
-    <!-- 상환 추가 폼 -->
     <div class="repay-form">
       <div class="card-sub">상환 내역 직접 추가</div>
       <div class="form-row">
-        <select id="rp-type">
-          <option value="원금">🏠 원금 상환</option>
-          <option value="이자">💳 이자 납부</option>
-        </select>
+        <select id="rp-type"><option value="원금">🏠 원금 상환</option><option value="이자">💳 이자 납부</option></select>
         <input type="number" id="rp-amount" placeholder="금액 (원)">
       </div>
       <div class="form-row">
@@ -388,28 +588,423 @@ canvas{width:100%!important}
 <div class="status" id="status"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
 <script>
+// ── Firebase 초기화 ──────────────────────────────
+const firebaseConfig={
+  apiKey:"AIzaSyAOeHgseYEGdyGN6HcgUfBHD4LHhEm69tU",
+  authDomain:"yil-hyun.firebaseapp.com",
+  projectId:"yil-hyun",
+  storageBucket:"yil-hyun.firebasestorage.app",
+  messagingSenderId:"86114194305",
+  appId:"1:86114194305:web:b468c93429a19c40bb4e80"
+};
+firebase.initializeApp(firebaseConfig);
+const fdb=firebase.firestore();
+
+// ── DB 래퍼 (컬렉션 prefix 지원) ──────────────────────────────
+function makeDb(prefix){
+  return {
+    doc:(path)=>{
+      const parts=path.split('/');
+      const col=prefix+parts[0];
+      const docId=parts.slice(1).join('_');
+      const ref=fdb.collection(col).doc(docId);
+      return {
+        set:(data)=>ref.set(data),
+        update:(data)=>ref.set(data,{merge:true}),
+        delete:()=>ref.delete(),
+        get:async()=>{const s=await ref.get();return{exists:s.exists,data:()=>s.data()};},
+        onSnapshot:(cb,err)=>ref.onSnapshot(s=>cb({exists:s.exists,data:()=>s.data()}),err||console.error)
+      };
+    },
+    collection:(colName)=>({
+      where:(field,op,val)=>({
+        onSnapshot:(cb,err)=>{
+          const q=fdb.collection(prefix+colName).where(field,op,val);
+          return q.onSnapshot(s=>cb({docs:s.docs.map(d=>({exists:d.exists,data:()=>d.data()}))}),err||console.error);
+        }
+      }),
+      onSnapshot:(cb,err)=>fdb.collection(prefix+colName).onSnapshot(s=>cb({docs:s.docs.map(d=>({exists:d.exists,data:()=>d.data()}))}),err||console.error)
+    })
+  };
+}
+
+// ── 화면 전환 & 잠금 ──────────────────────────────
+const MASTER_PW='9512';
+const DEFAULT_PW='0000';
+const APP_INFO={
+  shared:{label:'👫 공용 가계부',icon:'👫',prefix:'shared_',needLock:false},
+  mine:  {label:'👨 태일 가계부',  icon:'👨',prefix:'mine_',  needLock:true},
+  wife:  {label:'👩 솔현 가계부',icon:'👩',prefix:'wife_',needLock:true}
+};
+let curApp=null, setPwTarget=null;
+
+// 저장된 비밀번호
+function getSavedPw(prefix){ return localStorage.getItem(prefix+'pw')||DEFAULT_PW; }
+
+// 메인화면 비번 상태 표시 업데이트
+function updateMainDesc(){
+  ['mine','wife'].forEach(key=>{
+    const info=APP_INFO[key];
+    const hasCustomPw=!!localStorage.getItem(info.prefix+'pw');
+    const el=document.getElementById(key+'-desc');
+    if(el) el.textContent=hasCustomPw?'비밀번호 설정됨 🔒':'';
+  });
+}
+
+// 메인에서 비밀번호 변경 모달 열기
+function openSetPw(appKey){
+  setPwTarget=appKey;
+  const info=APP_INFO[appKey];
+  document.getElementById('setpw-modal-title').textContent=info.label+' 비밀번호 변경';
+  document.getElementById('setpw-current').value='';
+  document.getElementById('setpw-new1').value='';
+  document.getElementById('setpw-new2').value='';
+  document.getElementById('setpw-err').textContent='';
+  const modal=document.getElementById('modal-setpw');
+  modal.style.display='flex';
+  setTimeout(()=>document.getElementById('setpw-current').focus(),200);
+}
+function closeSetPw(){
+  document.getElementById('modal-setpw').style.display='none';
+  setPwTarget=null;
+}
+function confirmSetPw(){
+  const current=document.getElementById('setpw-current').value;
+  const pw1=document.getElementById('setpw-new1').value;
+  const pw2=document.getElementById('setpw-new2').value;
+  const err=document.getElementById('setpw-err');
+  const info=APP_INFO[setPwTarget];
+  const savedPw=getSavedPw(info.prefix);
+  // 현재 비번 확인
+  if(current!==MASTER_PW && current!==savedPw){err.textContent='현재 비밀번호가 틀렸어요.';return;}
+  if(!pw1){err.textContent='새 비밀번호를 입력해주세요.';return;}
+  if(pw1!==pw2){err.textContent='새 비밀번호가 일치하지 않아요.';return;}
+  if(pw1===MASTER_PW){err.textContent='마스터 비밀번호는 사용할 수 없어요.';return;}
+  localStorage.setItem(info.prefix+'pw',pw1);
+  err.style.color='#0f6e56';err.textContent='비밀번호가 변경됐어요 ✓';
+  updateMainDesc();
+  setTimeout(closeSetPw,1200);
+}
+// 모달 배경 클릭 닫기
+document.getElementById('modal-setpw').addEventListener('click',function(e){if(e.target===this)closeSetPw();});
+
+function openApp(appKey){
+  curApp=appKey;
+  const info=APP_INFO[appKey];
+  if(info.needLock){
+    document.getElementById('screen-main').style.display='none';
+    const ls=document.getElementById('screen-lock');
+    ls.style.display='flex';ls.style.flexDirection='column';
+    document.getElementById('lock-icon').textContent=info.icon;
+    document.getElementById('lock-title').textContent=info.label;
+    document.getElementById('lock-pw').value='';
+    document.getElementById('lock-err').textContent='';
+    document.getElementById('lock-setpw').style.display='none';
+    document.getElementById('set-pw-msg').textContent='';
+    setTimeout(()=>document.getElementById('lock-pw').focus(),200);
+  } else {
+    launchApp(appKey);
+  }
+}
+
+function tryUnlock(){
+  const pw=document.getElementById('lock-pw').value;
+  const info=APP_INFO[curApp];
+  const savedPw=getSavedPw(info.prefix); 
+  const errEl=document.getElementById('lock-err');
+  const isMaster=pw===MASTER_PW;
+  const isUser=pw===savedPw;
+  if(isMaster||isUser){
+    document.getElementById('screen-lock').style.display='none';
+    if(isMaster) document.getElementById('lock-setpw').style.display='';
+    errEl.textContent='';
+    launchApp(curApp);
+  } else {
+    errEl.textContent='비밀번호가 틀렸어요.';
+    document.getElementById('lock-pw').value='';
+  }
+}
+
+function setNewPw(){
+  const pw1=document.getElementById('new-pw1').value;
+  const pw2=document.getElementById('new-pw2').value;
+  const msg=document.getElementById('set-pw-msg');
+  if(!pw1){msg.style.color='#d85a30';msg.textContent='비밀번호를 입력해주세요.';return;}
+  if(pw1!==pw2){msg.style.color='#d85a30';msg.textContent='비밀번호가 일치하지 않아요.';return;}
+  if(pw1===MASTER_PW){msg.style.color='#d85a30';msg.textContent='마스터 비밀번호는 사용할 수 없어요.';return;}
+  localStorage.setItem(APP_INFO[curApp].prefix+'pw',pw1);
+  msg.style.color='#0f6e56';msg.textContent='비밀번호가 설정됐어요 ✓';
+  document.getElementById('new-pw1').value='';
+  document.getElementById('new-pw2').value='';
+  updateMainDesc();
+}
+
+// 페이지 로드 시 메인 설명 업데이트
+updateMainDesc();
+
+// ── 일정표 ──────────────────────────────
+// 패턴: 2025-09-21 기준 0번째 = 휴무 시작
+// 휴무3 야간3 휴무3 주간3 반복 (12일 주기)
+
+// ── 한국 공휴일 ──────────────────────────────
+const HOLIDAYS = {
+  // 2026년
+  '2026-01-01':'신정','2026-01-28':'설날연휴','2026-01-29':'설날','2026-01-30':'설날연휴',
+  '2026-03-01':'삼일절','2026-05-05':'어린이날','2026-05-24':'부처님오신날',
+  '2026-06-06':'현충일','2026-08-15':'광복절',
+  '2026-09-24':'추석연휴','2026-09-25':'추석','2026-09-26':'추석연휴',
+  '2026-10-03':'개천절','2026-10-09':'한글날',
+  '2026-12-25':'크리스마스',
+  // 2027년
+  '2027-01-01':'신정','2027-01-17':'설날연휴','2027-01-18':'설날','2027-01-19':'설날연휴',
+  '2027-03-01':'삼일절','2027-05-05':'어린이날','2027-05-13':'부처님오신날',
+  '2027-06-06':'현충일','2027-08-15':'광복절',
+  '2027-09-14':'추석연휴','2027-09-15':'추석','2027-09-16':'추석연휴',
+  '2027-10-03':'개천절','2027-10-09':'한글날',
+  '2027-12-25':'크리스마스',
+  // 2025년 (이전 달 표시용)
+  '2025-01-01':'신정','2025-01-28':'설날연휴','2025-01-29':'설날','2025-01-30':'설날연휴',
+  '2025-03-01':'삼일절','2025-05-05':'어린이날','2025-05-06':'부처님오신날',
+  '2025-06-06':'현충일','2025-08-15':'광복절',
+  '2025-10-02':'추석연휴','2025-10-03':'추석·개천절','2025-10-04':'추석연휴','2025-10-05':'추석연휴',
+  '2025-10-09':'한글날','2025-12-25':'크리스마스',
+};
+const PATTERN_START = new Date(2026,8,21); // 2026-09-21
+const PATTERN = ['휴무','휴무','휴무','야간','야간','야간','휴무','휴무','휴무','주간','주간','주간'];
+
+function dateToInt(d){return d.getFullYear()*10000+d.getMonth()*100+d.getDate();}
+function dateDiff(a,b){
+  // 타임존 무관하게 날짜만 비교
+  const msA=Date.UTC(a.getFullYear(),a.getMonth(),a.getDate());
+  const msB=Date.UTC(b.getFullYear(),b.getMonth(),b.getDate());
+  return Math.round((msA-msB)/(1000*60*60*24));
+}
+function getMySchedule(date){
+  const diff=dateDiff(date,PATTERN_START);
+  const idx=((diff % 12)+12)%12;
+  return PATTERN[idx];
+}
+
+let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
+let schedData={}; // {dateStr: {wife:'',memo:''}}
+let schedModal_date=null;
+let calDb=null;
+let unsubSched=null;
+
+function calMove(d){
+  calMonth+=d;
+  if(calMonth<0){calMonth=11;calYear--;}
+  if(calMonth>11){calMonth=0;calYear++;}
+  renderCal();
+}
+
+function renderCal(){
+  const ns=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  document.getElementById('cal-title').textContent=calYear+'년 '+ns[calMonth];
+  const body=document.getElementById('cal-body');
+  body.innerHTML='';
+  const today=new Date(); today.setHours(0,0,0,0);
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const lastDate=new Date(calYear,calMonth+1,0).getDate();
+  const prevLastDate=new Date(calYear,calMonth,0).getDate();
+  const total=Math.ceil((firstDay+lastDate)/7)*7;
+
+  for(let i=0;i<total;i++){
+    let d,m,y,otherMonth=false;
+    if(i<firstDay){d=prevLastDate-firstDay+1+i;m=calMonth-1;y=calYear;if(m<0){m=11;y--;}otherMonth=true;}
+    else if(i>=firstDay+lastDate){d=i-firstDay-lastDate+1;m=calMonth+1;y=calYear;if(m>11){m=0;y++;}otherMonth=true;}
+    else{d=i-firstDay+1;m=calMonth;y=calYear;}
+
+    const date=new Date(y,m,d);
+    const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday=date.getTime()===today.getTime();
+    const dow=date.getDay();
+    const myS=getMySchedule(date);
+    const data=schedData[dateStr]||{};
+
+    const cell=document.createElement('div');
+    let cls='cal-cell';
+    if(otherMonth)cls+=' other-month';
+    if(isToday)cls+=' today';
+    if(dow===0)cls+=' sun';
+    if(dow===6)cls+=' sat';
+    cell.className=cls;
+    cell.onclick=()=>openSchedModal(dateStr,d,m,y);
+
+    // 날짜 숫자
+    const dayEl=document.createElement('div');
+    dayEl.className='cal-day';dayEl.textContent=d;
+    cell.appendChild(dayEl);
+
+    // 내 스케줄 뱃지
+    const myBadge=document.createElement('span');
+    myBadge.className='cal-badge';
+    if(myS==='휴무'){myBadge.className+=' badge-off';myBadge.textContent='휴무';}
+    else if(myS==='야간'){myBadge.className+=' badge-night';myBadge.textContent='야간';}
+    else if(myS==='주간'){myBadge.className+=' badge-day';myBadge.textContent='주간';}
+    cell.appendChild(myBadge);
+
+    // 와이프 일정
+    if(data.wife==='off'){const w=document.createElement('span');w.className='cal-badge badge-wife-off';w.textContent='👩휴무';cell.appendChild(w);}
+    else if(data.wife==='leave'){const w=document.createElement('span');w.className='cal-badge badge-wife-leave';w.textContent='👩연차';cell.appendChild(w);}
+
+    // 공휴일: 날짜 숫자 아래 작은 텍스트
+    const holiday=HOLIDAYS[dateStr];
+    if(holiday){
+      const hEl=document.createElement('div');
+      hEl.style.cssText='font-size:8px;color:#c0392b;text-align:center;line-height:1.2;margin-bottom:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%';
+      hEl.textContent=holiday;
+      // cal-day 바로 뒤에 삽입
+      dayEl.insertAdjacentElement('afterend',hEl);
+    }
+    // 메모
+    if(data.memo){const memo=document.createElement('span');memo.className='cal-badge badge-memo';memo.textContent=data.memo;cell.appendChild(memo);}
+
+    body.appendChild(cell);
+  }
+}
+
+function openSchedModal(dateStr,d,m,y){
+  schedModal_date=dateStr;
+  const ns=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  const date=new Date(y,m,d);
+  const myS=getMySchedule(date);
+  document.getElementById('sched-modal-date').textContent=`${y}년 ${ns[m]} ${d}일 (내: ${myS})`;
+  const data=schedData[dateStr]||{};
+  // 와이프 칩 상태
+  selectWife(data.wife||'', false);
+  // 메모
+  document.getElementById('sched-memo').value=data.memo||'';
+  document.getElementById('sched-modal').classList.add('open');
+}
+
+function closeSchedModal(){
+  document.getElementById('sched-modal').classList.remove('open');
+  schedModal_date=null;
+}
+
+function selectWife(val, save=false){
+  const chips={
+    '': document.getElementById('chip-wife-none'),
+    'off': document.getElementById('chip-wife-off'),
+    'leave': document.getElementById('chip-wife-leave')
+  };
+  Object.entries(chips).forEach(([k,el])=>{
+    el.className='sched-chip';
+    if(k===val){
+      if(k==='off')el.className+=' active-wife-off';
+      else if(k==='leave')el.className+=' active-wife-leave';
+      else el.className+=' active-off';
+    }
+  });
+  if(save) { chips[val]._selected=true; } // 선택값 임시 저장
+  // data-selected 속성으로 현재 선택값 기억
+  document.getElementById('chip-wife-none').dataset.val='';
+  document.getElementById('chip-wife-off').dataset.val='off';
+  document.getElementById('chip-wife-leave').dataset.val='leave';
+  // 현재 선택된 값 표시
+  document.querySelectorAll('#sched-modal .sched-chip').forEach(c=>{
+    if(c.dataset.val===val) c._active=true; else c._active=false;
+  });
+  window._wifeSelected=val;
+}
+
+async function saveSchedModal(){
+  if(!schedModal_date||!calDb)return;
+  const wife=window._wifeSelected||'';
+  const memo=document.getElementById('sched-memo').value.trim();
+  const dateKey=schedModal_date;
+  closeSchedModal(); // 먼저 닫기
+  try{
+    await calDb.doc(`schedules/${dateKey}`).set({date:dateKey,wife,memo,updatedAt:Date.now()});
+  }catch(e){console.error('저장 실패:',e.message);}
+}
+
+async function deleteSchedModal(){
+  if(!schedModal_date||!calDb)return;
+  try{
+    await calDb.doc(`schedules/${schedModal_date}`).delete();
+    closeSchedModal();
+  }catch(e){alert('삭제 실패: '+e.message);}
+}
+
+function subscribeSchedules(){
+  if(unsubSched){unsubSched();unsubSched=null;}
+  unsubSched=calDb.collection('schedules').onSnapshot(snap=>{
+    schedData={};
+    snap.docs.filter(d=>d.exists).forEach(d=>{const data=d.data();if(data.date)schedData[data.date]=data;});
+    renderCal();
+  },e=>console.error('sched',e));
+}
+
+function initCal(){
+  // Firebase db를 shared_ prefix로 일정 공유
+  calDb=makeDb('shared_');
+  renderCal();
+  subscribeSchedules();
+}
+
+// 모달 배경 클릭 닫기
+document.getElementById('sched-modal').addEventListener('click',function(e){if(e.target===this)closeSchedModal();});
+
+
+function lockApp(){
+  stopSubscriptions();
+  document.getElementById('screen-app').style.display='none';
+  openApp(curApp);
+}
+
+function goMain(){
+  stopSubscriptions();
+  document.getElementById('screen-lock').style.display='none';
+  document.getElementById('screen-app').style.display='none';
+  document.getElementById('screen-main').style.display='flex';
+  curApp=null;
+}
+
+function launchApp(appKey){
+  const info=APP_INFO[appKey];
+  db=makeDb(info.prefix);
+  document.getElementById('screen-main').style.display='none';
+  document.getElementById('screen-lock').style.display='none';
+  const appEl=document.getElementById('screen-app');
+  appEl.style.display='block';
+  document.getElementById('app-header-title').textContent=info.label;
+  document.getElementById('lock-app-btn').style.display=info.needLock?'':'none';
+  // 가계부 앱 초기화
+  initApp();
+}
+
+// ── 가계부 앱 로직 ──────────────────────────────
 const CAT_EXP=['식비','교통','쇼핑','의료','문화','교육','통신','공과금','카드결제','카드대금납부','예적금납입','대출원금','대출이자','기타'];
 const CAT_INC=['급여','부수입','기타'];
-const EMOJI={식비:'🍚',교통:'🚌',쇼핑:'🛍',의료:'🏥',문화:'🎬',교육:'📚',통신:'📱',공과금:'💡',카드결제:'💳',카드대금납부:'💸',예적금납입:'🏦',대출원금:'🏠',대출이자:'💳',급여:'💰',부수입:'📈',기타:'📌',예금:'🏦',부동산:'🏠',현금:'💵',연금:'👴',주택담보대출:'🏠',전세대출:'🔑',신용대출:'💳',자동차할부:'🚗',기타대출:'📌',카드:'💳'};
-const CCOLOR={식비:'#1d9e75',교통:'#185fa5',쇼핑:'#d85a30',의료:'#d4537e',문화:'#7f77dd',교육:'#ba7517',통신:'#378add',공과금:'#639922',카드결제:'#7f77dd',카드대금납부:'#993c1d',예적금납입:'#0f6e56',대출원금:'#993c1d',대출이자:'#d85a30',급여:'#1d9e75',부수입:'#185fa5',기타:'#888780'};
+const SAVINGS_TYPES=['예금','적금','주택청약','연금','통장'];
+const LIQUID_TYPES=['예금','통장'];
+const EXCLUDE_FROM_EXPENSE=['예적금납입','카드대금납부'];
+const EMOJI={식비:'🍚',교통:'🚌',쇼핑:'🛍',의료:'🏥',문화:'🎬',교육:'📚',통신:'📱',공과금:'💡',카드결제:'💳',카드대금납부:'💸',예적금납입:'🏦',대출원금:'🏠',대출이자:'💳',급여:'💰',부수입:'📈',기타:'📌',예금:'🏦',적금:'💰',주택청약:'🏠',연금:'👴',통장:'🪙',부동산:'🏢',현금:'💵',주택담보대출:'🏠',전세대출:'🔑',신용대출:'💳',자동차할부:'🚗',기타대출:'📌'};
+const CCOLOR={식비:'#1d9e75',교통:'#185fa5',쇼핑:'#d85a30',의료:'#d4537e',문화:'#7f77dd',교육:'#ba7517',통신:'#378add',공과금:'#639922',카드결제:'#7f77dd',예적금납입:'#0f6e56',대출원금:'#993c1d',대출이자:'#d85a30',급여:'#1d9e75',부수입:'#185fa5',기타:'#888780'};
 
-let db=null, curType='expense', curY=new Date().getFullYear(), curM=new Date().getMonth();
-let chart=null, txList=[], budgetAmt=0, assetList=[], debtList=[], repayList=[], cardList=[];
-let unsubCards=null;
-let unsubTx=null, unsubBudget=null, unsubAssets=null, unsubDebts=null, unsubRepay=null;
-// 상환이력 모달 상태
-let repayFilter='month', repayPeriodY=new Date().getFullYear(), repayPeriodM=new Date().getMonth(), repayDebtId=null;
+let db=null,curType='expense',curY=new Date().getFullYear(),curM=new Date().getMonth();
+let chart=null,txList=[],budgetAmt=0,assetList=[],debtList=[],repayList=[],cardList=[];
+let unsubTx=null,unsubBudget=null,unsubAssets=null,unsubDebts=null,unsubRepay=null,unsubCards=null;
+let repayFilter='month',repayPeriodY=new Date().getFullYear(),repayPeriodM=new Date().getMonth(),repayDayOfMonth=new Date().getDate(),repayDebtId=null;
 
 const fmt=n=>Math.round(n).toLocaleString('ko-KR')+'원';
 const mk=()=>`${curY}-${String(curM+1).padStart(2,'0')}`;
 const uid=()=>'_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
 
-function showStatus(msg){
-  const el=document.getElementById('status');
-  el.textContent=msg;el.classList.add('show');
-  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1800);
+function showStatus(msg){const el=document.getElementById('status');el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1800);}
+
+function stopSubscriptions(){
+  [unsubTx,unsubBudget,unsubAssets,unsubDebts,unsubRepay,unsubCards].forEach(u=>{try{if(u)u();}catch(e){}});
+  unsubTx=unsubBudget=unsubAssets=unsubDebts=unsubRepay=unsubCards=null;
+  txList=[];budgetAmt=0;assetList=[];debtList=[];repayList=[];cardList=[];
+  if(chart){chart.destroy();chart=null;}
 }
+
 function showTab(name){
   document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(e=>e.classList.remove('active'));
@@ -417,13 +1012,10 @@ function showTab(name){
   const idx={dashboard:0,assets:1,debts:2,cards:3,budget:4}[name];
   document.querySelectorAll('.tab-btn')[idx].classList.add('active');
 }
-function openModal(id){document.getElementById(id).classList.add('open')}
-function closeModal(id){document.getElementById(id).classList.remove('open')}
-document.querySelectorAll('.modal-bg').forEach(bg=>{
-  bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('open');});
-});
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-bg').forEach(bg=>{bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('open');});});
 
-// ── 가계부 ──────────────────────────────
 function setType(t){
   curType=t;
   document.getElementById('t-exp').className='type-tab'+(t==='expense'?' exp':'');
@@ -437,43 +1029,34 @@ function updateHint(){
   const sel=document.getElementById('f-asset-sel');
   const h=document.getElementById('f-hint');
   sel.style.display='none';
-  if(cat==='예적금납입'){
-    const savings=assetList.filter(a=>a.assetType==='예금');
-    if(savings.length>1){
-      sel.style.display='';
-      sel.innerHTML=savings.map(a=>`<option value="${a.id}">${a.name} (현재 ${fmt(a.amount||0)})</option>`).join('');
-      h.textContent='✦ 선택한 예적금 자산 잔액에 자동 반영돼요.';
-    } else {
-      h.textContent='✦ 예적금 자산 잔액에 자동 반영돼요.';
-    }
-  } else if(cat==='카드결제'){
-    if(cardList.length>0){
-      sel.style.display='';
-      sel.innerHTML=cardList.map(c=>`<option value="${c.id}">${c.name} (미결제 ${fmt(c.unpaid||0)})</option>`).join('');
-    }
-    h.textContent='✦ 자산 차감 없이 카드 미결제 금액에 누적돼요.';
-  } else if(cat==='카드대금납부'){
-    if(cardList.length>0){
-      sel.style.display='';
-      sel.innerHTML=cardList.map(c=>`<option value="${c.id}">${c.name} (미결제 ${fmt(c.unpaid||0)})</option>`).join('');
-    }
-    h.textContent='✦ 카드 미결제 금액이 줄고, 연결된 예금 자산에서 차감돼요.';
-  } else if(cat==='대출원금'){
-    h.textContent='✦ 부채 잔액이 줄어들고 상환이력에 기록돼요.';
-  } else if(cat==='대출이자'){
-    h.textContent='✦ 이자 납부로 상환이력에 기록돼요.';
+  if(curType==='income'){
+    const liq=assetList.filter(a=>LIQUID_TYPES.includes(a.assetType));
+    if(liq.length>0){sel.style.display='';sel.innerHTML='<option value="">통장 선택 안 함</option>'+liq.map(a=>`<option value="${a.id}">${a.name} (${fmt(a.amount||0)})</option>`).join('');}
+    h.textContent=liq.length?'✦ 선택한 통장 잔액에 자동 반영돼요.':'';
   } else {
-    h.textContent='';
+    if(cat==='예적금납입'){
+      const sav=assetList.filter(a=>SAVINGS_TYPES.includes(a.assetType));
+      if(sav.length>1){sel.style.display='';sel.innerHTML=sav.map(a=>`<option value="${a.id}">${a.name} (${fmt(a.amount||0)})</option>`).join('');}
+      h.textContent='✦ 예적금 자산 잔액에 자동 반영돼요.';
+    } else if(cat==='카드결제'){
+      if(cardList.length>0){sel.style.display='';sel.innerHTML=cardList.map(c=>`<option value="${c.id}">${c.name} (미결제 ${fmt(c.unpaid||0)})</option>`).join('');}
+      h.textContent='✦ 자산 차감 없이 카드 미결제 금액에 누적돼요.';
+    } else if(cat==='카드대금납부'){
+      if(cardList.length>0){sel.style.display='';sel.innerHTML=cardList.map(c=>`<option value="${c.id}">${c.name} (미결제 ${fmt(c.unpaid||0)})</option>`).join('');}
+      h.textContent='✦ 카드 미결제 차감 + 연결 통장에서 차감돼요.';
+    } else if(cat==='대출원금'){h.textContent='✦ 부채 잔액이 줄어들고 상환이력에 기록돼요.';}
+    else if(cat==='대출이자'){h.textContent='✦ 이자 납부로 상환이력에 기록돼요.';}
+    else {
+      const liq=assetList.filter(a=>LIQUID_TYPES.includes(a.assetType));
+      if(liq.length>0){sel.style.display='';sel.innerHTML='<option value="">통장 선택 안 함</option>'+liq.map(a=>`<option value="${a.id}">${a.name} (${fmt(a.amount||0)})</option>`).join('');}
+      h.textContent=liq.length?'✦ 선택한 통장 잔액에서 차감돼요. (선택 안 해도 됩니다)':'';
+    }
   }
 }
-function changeMonth(d){
-  curM+=d;if(curM<0){curM=11;curY--;}if(curM>11){curM=0;curY++;}
-  updateLabel();if(db)subscribeTx();
-}
-function updateLabel(){
-  const ns=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-  document.getElementById('month-label').textContent=`${curY}년 ${ns[curM]}`;
-}
+
+function changeMonth(d){curM+=d;if(curM<0){curM=11;curY--;}if(curM>11){curM=0;curY++;}updateLabel();subscribeTx();}
+function updateLabel(){const ns=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];document.getElementById('month-label').textContent=`${curY}년 ${ns[curM]}`;}
+
 async function addTx(){
   const desc=document.getElementById('f-desc').value.trim();
   const amount=parseInt(document.getElementById('f-amount').value);
@@ -483,80 +1066,69 @@ async function addTx(){
   if(!desc){err.textContent='항목명을 입력해주세요.';return;}
   if(!amount||amount<=0){err.textContent='올바른 금액을 입력해주세요.';return;}
   if(!date){err.textContent='날짜를 선택해주세요.';return;}
-  if(!db){err.textContent='연결 중이에요. 잠시 후 다시 시도해주세요.';return;}
-  const id='tx'+uid();
+  if(!db){err.textContent='연결 중이에요.';return;}
   const sel=document.getElementById('f-asset-sel');
   const selVal=sel.style.display!=='none'?sel.value:null;
+  const id='tx'+uid();
+  let linkedAssetId=null,linkedCardId=null;
   try{
     showStatus('저장 중...');
-    let linkedAssetId=null, linkedCardId=null;
-    if(curType==='expense'){
+    if(curType==='income'){
+      linkedAssetId=selVal||null;
+    } else {
       if(cat==='예적금납입'){
-        const savings=assetList.filter(a=>a.assetType==='예금');
-        linkedAssetId=selVal||(savings.length===1?savings[0].id:null);
+        const sav=assetList.filter(a=>SAVINGS_TYPES.includes(a.assetType));
+        linkedAssetId=selVal||(sav.length===1?sav[0].id:null);
       } else if(cat==='카드결제'){
-        // 카드결제: 카드 미결제 누적만, 자산 차감 없음
         linkedCardId=selVal||(cardList.length===1?cardList[0].id:null);
       } else if(cat==='카드대금납부'){
-        // 카드대금납부: 카드 미결제 차감 + 예금자산 차감
         linkedCardId=selVal||(cardList.length===1?cardList[0].id:null);
-        const savings=assetList.filter(a=>a.assetType==='예금');
-        linkedAssetId=savings.length?savings[0].id:null;
-      }
+        if(linkedCardId){
+          const card=cardList.find(c=>c.id===linkedCardId);
+          if(card&&amount>(card.unpaid||0)){err.textContent=`카드 미결제 금액(${fmt(card.unpaid||0)})보다 납부액이 많아요.`;showStatus('');return;}
+          linkedAssetId=card?card.linkedAssetId:null;
+        }
+      } else {linkedAssetId=selVal||null;}
     }
     await db.doc(`transactions/${mk()}_${id}`).set({id,desc,amount,cat,date,type:curType,createdAt:Date.now(),month:mk(),linkedAssetId,linkedCardId});
-    if(curType==='expense'){
-      if(cat==='예적금납입') await autoUpdateAsset(amount, linkedAssetId);
-      else if(cat==='카드결제') await autoCardCharge(amount, linkedCardId);
-      else if(cat==='카드대금납부') await autoCardPayment(amount, linkedCardId, linkedAssetId);
-      else if(cat==='대출원금') await autoAddRepay(amount,'원금',date,desc);
-      else if(cat==='대출이자') await autoAddRepay(amount,'이자',date,desc);
+    if(curType==='income'){if(linkedAssetId)await autoUpdateAsset(amount,linkedAssetId);}
+    else{
+      if(cat==='예적금납입')await autoUpdateAsset(amount,linkedAssetId);
+      else if(cat==='카드결제')await autoCardCharge(amount,linkedCardId);
+      else if(cat==='카드대금납부')await autoCardPayment(amount,linkedCardId,linkedAssetId);
+      else if(cat==='대출원금')await autoAddRepay(amount,'원금',date,desc);
+      else if(cat==='대출이자')await autoAddRepay(amount,'이자',date,desc);
+      else if(linkedAssetId){const a=assetList.find(x=>x.id===linkedAssetId);if(a)await db.doc(`assets/${linkedAssetId}`).set({...a,amount:Math.max(0,(a.amount||0)-amount)});}
     }
-    document.getElementById('f-desc').value='';
-    document.getElementById('f-amount').value='';
+    document.getElementById('f-desc').value='';document.getElementById('f-amount').value='';
     showStatus('저장됨 ✓');
   }catch(e){err.textContent='저장 실패 ('+(e.code||e.message)+')';showStatus('');}
 }
-async function autoUpdateAsset(amount, linkedAssetId){
-  const savings=assetList.filter(a=>a.assetType==='예금');
-  if(!savings.length)return;
-  const t=linkedAssetId ? savings.find(a=>a.id===linkedAssetId)||savings[0] : savings[0];
+
+async function autoUpdateAsset(amount,linkedAssetId){
+  const sav=assetList.filter(a=>SAVINGS_TYPES.includes(a.assetType));
+  if(!sav.length)return;
+  const t=linkedAssetId?sav.find(a=>a.id===linkedAssetId)||sav[0]:sav[0];
   await db.doc(`assets/${t.id}`).set({...t,amount:(t.amount||0)+amount});
 }
-// 카드결제: 카드 미결제 금액 증가 (자산 변동 없음)
-async function autoCardCharge(amount, linkedCardId){
-  if(!linkedCardId) return;
-  const card=cardList.find(c=>c.id===linkedCardId);
-  if(!card) return;
-  await db.doc(`cards/${linkedCardId}`).set({...card, unpaid:(card.unpaid||0)+amount});
+async function autoCardCharge(amount,linkedCardId){
+  if(!linkedCardId)return;
+  const c=cardList.find(x=>x.id===linkedCardId);if(!c)return;
+  await db.doc(`cards/${linkedCardId}`).set({...c,unpaid:(c.unpaid||0)+amount});
 }
-// 카드대금납부: 카드 미결제 차감 + 예금자산 차감
-async function autoCardPayment(amount, linkedCardId, linkedAssetId){
+async function autoCardPayment(amount,linkedCardId,linkedAssetId){
+  let resolvedAssetId=linkedAssetId;
   if(linkedCardId){
-    const card=cardList.find(c=>c.id===linkedCardId);
-    if(card){
-      const newUnpaid=Math.max(0,(card.unpaid||0)-amount);
-      await db.doc(`cards/${linkedCardId}`).set({...card, unpaid:newUnpaid});
-    }
+    const c=cardList.find(x=>x.id===linkedCardId);
+    if(c){if(c.linkedAssetId)resolvedAssetId=c.linkedAssetId;await db.doc(`cards/${linkedCardId}`).set({...c,unpaid:Math.max(0,(c.unpaid||0)-amount)});}
   }
-  if(linkedAssetId){
-    const asset=assetList.find(a=>a.id===linkedAssetId);
-    if(asset){
-      const newAmt=Math.max(0,(asset.amount||0)-amount);
-      await db.doc(`assets/${linkedAssetId}`).set({...asset, amount:newAmt});
-    }
-  }
+  if(resolvedAssetId){const a=assetList.find(x=>x.id===resolvedAssetId);if(a)await db.doc(`assets/${resolvedAssetId}`).set({...a,amount:Math.max(0,(a.amount||0)-amount)});}
 }
 async function autoAddRepay(amount,type,date,note){
   if(!debtList.length)return;
-  const t=debtList[debtList.length-1];
-  const rid='rp'+uid();
-  const month=date.slice(0,7);
+  const t=debtList[debtList.length-1];const rid='rp'+uid();const month=date.slice(0,7);
   await db.doc(`repayments/${t.id}_${rid}`).set({id:rid,debtId:t.id,type,amount,date,month,note:note||'',createdAt:Date.now()});
-  if(type==='원금'){
-    const newRemain=Math.max(0,(t.remain||0)-amount);
-    await db.doc(`debts/${t.id}`).set({...t,remain:newRemain});
-  }
+  if(type==='원금'){await db.doc(`debts/${t.id}`).set({...t,remain:Math.max(0,(t.remain||0)-amount)});}
 }
 async function deleteTx(docId){
   if(!db)return;
@@ -565,27 +1137,23 @@ async function deleteTx(docId){
     const tx=snap.exists?snap.data():null;
     showStatus('삭제 중...');
     await db.doc(`transactions/${docId}`).delete();
-    if(tx && tx.type==='expense' && tx.amount>0){
-      if(tx.cat==='예적금납입'){
-        // 예적금납입 삭제 → 자산 차감
-        const savings=assetList.filter(a=>a.assetType==='예금');
-        const target=tx.linkedAssetId?savings.find(a=>a.id===tx.linkedAssetId)||savings[0]:savings[0];
-        if(target) await db.doc(`assets/${target.id}`).set({...target,amount:Math.max(0,(target.amount||0)-tx.amount)});
-      } else if(tx.cat==='카드결제'){
-        // 카드결제 삭제 → 카드 미결제 차감
-        if(tx.linkedCardId){
-          const card=cardList.find(c=>c.id===tx.linkedCardId);
-          if(card) await db.doc(`cards/${tx.linkedCardId}`).set({...card,unpaid:Math.max(0,(card.unpaid||0)-tx.amount)});
-        }
-      } else if(tx.cat==='카드대금납부'){
-        // 카드대금납부 삭제 → 카드 미결제 복원 + 예금자산 복원
-        if(tx.linkedCardId){
-          const card=cardList.find(c=>c.id===tx.linkedCardId);
-          if(card) await db.doc(`cards/${tx.linkedCardId}`).set({...card,unpaid:(card.unpaid||0)+tx.amount});
-        }
-        if(tx.linkedAssetId){
-          const asset=assetList.find(a=>a.id===tx.linkedAssetId);
-          if(asset) await db.doc(`assets/${tx.linkedAssetId}`).set({...asset,amount:(asset.amount||0)+tx.amount});
+    if(tx&&tx.amount>0){
+      if(tx.type==='income'&&tx.linkedAssetId){
+        const a=assetList.find(x=>x.id===tx.linkedAssetId);
+        if(a)await db.doc(`assets/${tx.linkedAssetId}`).set({...a,amount:Math.max(0,(a.amount||0)-tx.amount)});
+      } else if(tx.type==='expense'){
+        if(tx.cat==='예적금납입'){
+          const sav=assetList.filter(a=>SAVINGS_TYPES.includes(a.assetType));
+          const t=tx.linkedAssetId?sav.find(a=>a.id===tx.linkedAssetId)||sav[0]:sav[0];
+          if(t)await db.doc(`assets/${t.id}`).set({...t,amount:Math.max(0,(t.amount||0)-tx.amount)});
+        } else if(tx.cat==='카드결제'){
+          if(tx.linkedCardId){const c=cardList.find(x=>x.id===tx.linkedCardId);if(c)await db.doc(`cards/${tx.linkedCardId}`).set({...c,unpaid:Math.max(0,(c.unpaid||0)-tx.amount)});}
+        } else if(tx.cat==='카드대금납부'){
+          let restoreAssetId=tx.linkedAssetId;
+          if(tx.linkedCardId){const c=cardList.find(x=>x.id===tx.linkedCardId);if(c){if(c.linkedAssetId)restoreAssetId=c.linkedAssetId;await db.doc(`cards/${tx.linkedCardId}`).set({...c,unpaid:(c.unpaid||0)+tx.amount});}}
+          if(restoreAssetId){const a=assetList.find(x=>x.id===restoreAssetId);if(a)await db.doc(`assets/${restoreAssetId}`).set({...a,amount:(a.amount||0)+tx.amount});}
+        } else if(!['대출원금','대출이자'].includes(tx.cat)&&tx.linkedAssetId){
+          const a=assetList.find(x=>x.id===tx.linkedAssetId);if(a)await db.doc(`assets/${tx.linkedAssetId}`).set({...a,amount:(a.amount||0)+tx.amount});
         }
       }
     }
@@ -595,34 +1163,27 @@ async function deleteTx(docId){
 async function saveBudget(){
   const val=parseInt(document.getElementById('b-input').value);
   if(!val||val<=0||!db)return;
-  try{showStatus('저장 중...');await db.doc(`budgets/${mk()}`).set({amount:val,month:mk()});document.getElementById('b-input').value='';showStatus('예산 저장됨 ✓');}
-  catch(e){showStatus('저장 실패');}
+  try{showStatus('저장 중...');await db.doc(`budgets/${mk()}`).set({amount:val,month:mk()});document.getElementById('b-input').value='';showStatus('예산 저장됨 ✓');}catch(e){showStatus('저장 실패');}
 }
+
 function renderSummary(){
   const income=txList.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
-  const expense=txList.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const expense=txList.filter(t=>t.type==='expense'&&!EXCLUDE_FROM_EXPENSE.includes(t.cat)).reduce((s,t)=>s+t.amount,0);
   const bal=income-expense;
   document.getElementById('s-income').textContent='+'+fmt(income);
   document.getElementById('s-expense').textContent='−'+fmt(expense);
-  const bEl=document.getElementById('s-balance');
-  bEl.textContent=(bal>=0?'+':'−')+fmt(Math.abs(bal));
-  bEl.className='summary-value '+(bal>=0?'c-pos':'c-neg');
+  const bEl=document.getElementById('s-balance');bEl.textContent=(bal>=0?'+':'−')+fmt(Math.abs(bal));bEl.className='summary-value '+(bal>=0?'c-pos':'c-neg');
   document.getElementById('b-used').textContent=fmt(expense);
   if(budgetAmt>0){
     const pct=Math.min(Math.round((expense/budgetAmt)*100),100);
     document.getElementById('b-pct').textContent=pct+'%';
-    const bar=document.getElementById('b-bar');bar.style.width=pct+'%';
-    bar.className='bbar'+(pct>=100?' over':pct>=80?' warn':'');
+    const bar=document.getElementById('b-bar');bar.style.width=pct+'%';bar.className='bbar'+(pct>=100?' over':pct>=80?' warn':'');
     document.getElementById('b-info').textContent=pct>=100?`예산 ${fmt(budgetAmt)} 초과 — ${fmt(expense-budgetAmt)} 더 썼어요.`:`예산 ${fmt(budgetAmt)} 중 ${fmt(budgetAmt-expense)} 남았어요.`;
     document.getElementById('b-input').placeholder='현재: '+fmt(budgetAmt);
-  }else{
-    document.getElementById('b-pct').textContent='—';
-    document.getElementById('b-bar').style.width='0%';
-    document.getElementById('b-info').textContent='예산을 설정하면 현황을 볼 수 있어요.';
-  }
+  } else {document.getElementById('b-pct').textContent='—';document.getElementById('b-bar').style.width='0%';document.getElementById('b-info').textContent='예산을 설정하면 현황을 볼 수 있어요.';}
 }
 function renderChart(){
-  const bycat={};txList.filter(t=>t.type==='expense').forEach(t=>{bycat[t.cat]=(bycat[t.cat]||0)+t.amount;});
+  const bycat={};txList.filter(t=>t.type==='expense'&&!EXCLUDE_FROM_EXPENSE.includes(t.cat)).forEach(t=>{bycat[t.cat]=(bycat[t.cat]||0)+t.amount;});
   const labels=Object.keys(bycat),data=Object.values(bycat),colors=labels.map(l=>CCOLOR[l]||'#888780');
   const total=data.reduce((a,b)=>a+b,0);
   const leg=document.getElementById('legend');
@@ -645,51 +1206,29 @@ function renderTxList(){
     </div>`).join('')+'</div>';
 }
 
-// ── 자산 ──────────────────────────────
+// 자산
 async function addAsset(){
-  const name=document.getElementById('a-name').value.trim();
-  const assetType=document.getElementById('a-type').value;
-  const amount=parseInt(document.getElementById('a-amount').value);
-  const note=document.getElementById('a-note').value.trim();
+  const name=document.getElementById('a-name').value.trim(),assetType=document.getElementById('a-type').value,amount=parseInt(document.getElementById('a-amount').value),note=document.getElementById('a-note').value.trim();
   const err=document.getElementById('a-err');err.textContent='';
-  if(!name){err.textContent='자산명을 입력해주세요.';return;}
-  if(isNaN(amount)||amount<0){err.textContent='금액을 입력해주세요.';return;}
-  if(!db){err.textContent='연결 중이에요.';return;}
+  if(!name){err.textContent='자산명을 입력해주세요.';return;}if(isNaN(amount)||amount<0){err.textContent='금액을 입력해주세요.';return;}if(!db){err.textContent='연결 중이에요.';return;}
   const id='ast'+uid();
-  try{
-    showStatus('저장 중...');
-    await db.doc(`assets/${id}`).set({id,name,assetType,amount,note,createdAt:Date.now()});
-    document.getElementById('a-name').value='';document.getElementById('a-amount').value='';document.getElementById('a-note').value='';
-    showStatus('자산 추가됨 ✓');
-  }catch(e){err.textContent='저장 실패 ('+(e.code||e.message)+')';showStatus('');}
+  try{showStatus('저장 중...');await db.doc(`assets/${id}`).set({id,name,assetType,amount,note,createdAt:Date.now()});document.getElementById('a-name').value='';document.getElementById('a-amount').value='';document.getElementById('a-note').value='';showStatus('자산 추가됨 ✓');}
+  catch(e){err.textContent='저장 실패 ('+(e.code||e.message)+')';showStatus('');}
 }
 function editAsset(id){
   const a=assetList.find(x=>x.id===id);if(!a)return;
-  document.getElementById('ea-id').value=a.id;
-  document.getElementById('ea-name').value=a.name;
-  document.getElementById('ea-type').value=a.assetType;
-  document.getElementById('ea-amount').value=a.amount;
-  document.getElementById('ea-note').value=a.note||'';
-  document.getElementById('ea-err').textContent='';
+  document.getElementById('ea-id').value=a.id;document.getElementById('ea-name').value=a.name;document.getElementById('ea-type').value=a.assetType;document.getElementById('ea-amount').value=a.amount;document.getElementById('ea-note').value=a.note||'';document.getElementById('ea-err').textContent='';
   openModal('modal-asset');
 }
 async function saveAsset(){
-  const id=document.getElementById('ea-id').value;
-  const name=document.getElementById('ea-name').value.trim();
-  const assetType=document.getElementById('ea-type').value;
-  const amount=parseInt(document.getElementById('ea-amount').value);
-  const note=document.getElementById('ea-note').value.trim();
+  const id=document.getElementById('ea-id').value,name=document.getElementById('ea-name').value.trim(),assetType=document.getElementById('ea-type').value,amount=parseInt(document.getElementById('ea-amount').value),note=document.getElementById('ea-note').value.trim();
   const err=document.getElementById('ea-err');err.textContent='';
-  if(!name){err.textContent='자산명을 입력해주세요.';return;}
-  if(isNaN(amount)||amount<0){err.textContent='금액을 입력해주세요.';return;}
+  if(!name){err.textContent='자산명을 입력해주세요.';return;}if(isNaN(amount)||amount<0){err.textContent='금액을 입력해주세요.';return;}
   const orig=assetList.find(x=>x.id===id);
   try{showStatus('저장 중...');await db.doc(`assets/${id}`).set({...orig,name,assetType,amount,note});closeModal('modal-asset');showStatus('수정됨 ✓');}
   catch(e){err.textContent='저장 실패 ('+(e.code||e.message)+')';showStatus('');}
 }
-async function deleteAsset(id){
-  if(!db)return;
-  try{showStatus('삭제 중...');await db.doc(`assets/${id}`).delete();showStatus('삭제됨 ✓');}catch(e){showStatus('삭제 실패');}
-}
+async function deleteAsset(id){if(!db)return;try{showStatus('삭제 중...');await db.doc(`assets/${id}`).delete();showStatus('삭제됨 ✓');}catch(e){showStatus('삭제 실패');}}
 function renderAssets(){
   const list=document.getElementById('asset-list');
   if(!assetList.length){list.innerHTML='<div class="empty-row">등록된 자산이 없어요.</div>';renderNetworth();return;}
@@ -704,55 +1243,29 @@ function renderAssets(){
   renderNetworth();
 }
 
-// ── 부채 ──────────────────────────────
+// 부채
 async function addDebt(){
-  const name=document.getElementById('d-name').value.trim();
-  const debtType=document.getElementById('d-type').value;
-  const total=parseInt(document.getElementById('d-total').value);
-  const remainVal=document.getElementById('d-remain').value;
-  const remain=remainVal?parseInt(remainVal):total;
-  const rate=parseFloat(document.getElementById('d-rate').value||0);
+  const name=document.getElementById('d-name').value.trim(),debtType=document.getElementById('d-type').value,total=parseInt(document.getElementById('d-total').value),remainVal=document.getElementById('d-remain').value,remain=remainVal?parseInt(remainVal):total,rate=parseFloat(document.getElementById('d-rate').value||0);
   const err=document.getElementById('d-err');err.textContent='';
-  if(!name){err.textContent='부채명을 입력해주세요.';return;}
-  if(!total||total<=0){err.textContent='대출 금액을 입력해주세요.';return;}
-  if(!db){err.textContent='연결 중이에요.';return;}
+  if(!name){err.textContent='부채명을 입력해주세요.';return;}if(!total||total<=0){err.textContent='대출 금액을 입력해주세요.';return;}if(!db){err.textContent='연결 중이에요.';return;}
   const id='dbt'+uid();
-  try{
-    showStatus('저장 중...');
-    await db.doc(`debts/${id}`).set({id,name,debtType,total,remain,rate,createdAt:Date.now()});
-    document.getElementById('d-name').value='';document.getElementById('d-total').value='';document.getElementById('d-remain').value='';document.getElementById('d-rate').value='';
-    showStatus('부채 추가됨 ✓');
-  }catch(e){err.textContent='저장 실패 ('+(e.code||e.message)+')';showStatus('');}
+  try{showStatus('저장 중...');await db.doc(`debts/${id}`).set({id,name,debtType,total,remain,rate,createdAt:Date.now()});document.getElementById('d-name').value='';document.getElementById('d-total').value='';document.getElementById('d-remain').value='';document.getElementById('d-rate').value='';showStatus('부채 추가됨 ✓');}
+  catch(e){err.textContent='저장 실패 ('+(e.code||e.message)+')';showStatus('');}
 }
 function editDebt(id){
   const d=debtList.find(x=>x.id===id);if(!d)return;
-  document.getElementById('ed-id').value=d.id;
-  document.getElementById('ed-name').value=d.name;
-  document.getElementById('ed-type').value=d.debtType;
-  document.getElementById('ed-total').value=d.total;
-  document.getElementById('ed-remain').value=d.remain;
-  document.getElementById('ed-rate').value=d.rate||'';
-  document.getElementById('ed-err').textContent='';
+  document.getElementById('ed-id').value=d.id;document.getElementById('ed-name').value=d.name;document.getElementById('ed-type').value=d.debtType;document.getElementById('ed-total').value=d.total;document.getElementById('ed-remain').value=d.remain;document.getElementById('ed-rate').value=d.rate||'';document.getElementById('ed-err').textContent='';
   openModal('modal-debt');
 }
 async function saveDebt(){
-  const id=document.getElementById('ed-id').value;
-  const name=document.getElementById('ed-name').value.trim();
-  const debtType=document.getElementById('ed-type').value;
-  const total=parseInt(document.getElementById('ed-total').value);
-  const remain=parseInt(document.getElementById('ed-remain').value);
-  const rate=parseFloat(document.getElementById('ed-rate').value||0);
+  const id=document.getElementById('ed-id').value,name=document.getElementById('ed-name').value.trim(),debtType=document.getElementById('ed-type').value,total=parseInt(document.getElementById('ed-total').value),remain=parseInt(document.getElementById('ed-remain').value),rate=parseFloat(document.getElementById('ed-rate').value||0);
   const err=document.getElementById('ed-err');err.textContent='';
-  if(!name){err.textContent='부채명을 입력해주세요.';return;}
-  if(!total||total<=0){err.textContent='대출 금액을 입력해주세요.';return;}
+  if(!name){err.textContent='부채명을 입력해주세요.';return;}if(!total||total<=0){err.textContent='대출 금액을 입력해주세요.';return;}
   const orig=debtList.find(x=>x.id===id);
   try{showStatus('저장 중...');await db.doc(`debts/${id}`).set({...orig,name,debtType,total,remain:remain||total,rate});closeModal('modal-debt');showStatus('수정됨 ✓');}
   catch(e){err.textContent='저장 실패 ('+(e.code||e.message)+')';showStatus('');}
 }
-async function deleteDebt(id){
-  if(!db)return;
-  try{showStatus('삭제 중...');await db.doc(`debts/${id}`).delete();showStatus('삭제됨 ✓');}catch(e){showStatus('삭제 실패');}
-}
+async function deleteDebt(id){if(!db)return;try{showStatus('삭제 중...');await db.doc(`debts/${id}`).delete();showStatus('삭제됨 ✓');}catch(e){showStatus('삭제 실패');}}
 function renderDebts(){
   const list=document.getElementById('debt-list');
   if(!debtList.length){list.innerHTML='<div class="empty-row">등록된 부채가 없어요.</div>';renderNetworth();return;}
@@ -761,178 +1274,60 @@ function renderDebts(){
     const monthly=d.rate>0?Math.round(d.remain*(d.rate/100/12)):0;
     return `<div class="item-row">
       <div class="item-icon" style="background:#faece7">${EMOJI[d.debtType]||'📌'}</div>
-      <div class="item-info">
-        <div class="item-name">${d.name}</div>
-        <div class="item-meta">${d.debtType}${d.rate>0?' · 금리 '+d.rate+'%':''}</div>
-        <div class="loan-bar-wrap"><div class="loan-bar" style="width:${paidPct}%"></div></div>
-      </div>
-      <div class="item-right">
-        <div class="item-amount c-debt">−${fmt(d.remain||0)}</div>
-        <div class="item-sub">${monthly>0?'월이자 약 '+fmt(monthly):'상환 '+paidPct+'%'}</div>
-      </div>
-      <button class="btn-icon" onclick="openRepayModal('${d.id}')" title="상환이력">📋</button>
-      <button class="btn-icon" onclick="editDebt('${d.id}')" title="수정">✏️</button>
-      <button class="btn-icon btn-del" onclick="deleteDebt('${d.id}')" title="삭제">✕</button>
+      <div class="item-info"><div class="item-name">${d.name}</div><div class="item-meta">${d.debtType}${d.rate>0?' · 금리 '+d.rate+'%':''}</div><div class="loan-bar-wrap"><div class="loan-bar" style="width:${paidPct}%"></div></div></div>
+      <div class="item-right"><div class="item-amount c-debt">−${fmt(d.remain||0)}</div><div class="item-sub">${monthly>0?'월이자 약 '+fmt(monthly):'상환 '+paidPct+'%'}</div></div>
+      <button class="btn-icon" onclick="openRepayModal('${d.id}')">📋</button>
+      <button class="btn-icon" onclick="editDebt('${d.id}')">✏️</button>
+      <button class="btn-icon btn-del" onclick="deleteDebt('${d.id}')">✕</button>
     </div>`;
   }).join('')+'</div>';
   renderNetworth();
 }
 
-
-// ── 카드 ──────────────────────────────
+// 카드
 async function addCard(){
-  const name=document.getElementById('c-name').value.trim();
-  const linkedAssetId=document.getElementById('c-linked-asset').value||null;
+  const name=document.getElementById('c-name').value.trim(),linkedAssetId=document.getElementById('c-linked-asset').value||null;
   const err=document.getElementById('c-err');err.textContent='';
-  if(!name){err.textContent='카드명을 입력해주세요.';return;}
-  if(!db){err.textContent='연결 중이에요.';return;}
+  if(!name){err.textContent='카드명을 입력해주세요.';return;}if(!db){err.textContent='연결 중이에요.';return;}
   const id='card'+uid();
-  try{
-    showStatus('저장 중...');
-    await db.doc(`cards/${id}`).set({id,name,linkedAssetId,unpaid:0,createdAt:Date.now()});
-    document.getElementById('c-name').value='';
-    showStatus('카드 추가됨 ✓');
-  }catch(e){err.textContent='저장 실패 ('+(e.code||e.message)+')';showStatus('');}
+  try{showStatus('저장 중...');await db.doc(`cards/${id}`).set({id,name,linkedAssetId,unpaid:0,createdAt:Date.now()});document.getElementById('c-name').value='';showStatus('카드 추가됨 ✓');}
+  catch(e){err.textContent='저장 실패 ('+(e.code||e.message)+')';showStatus('');}
 }
-async function deleteCard(id){
-  if(!db)return;
-  try{showStatus('삭제 중...');await db.doc(`cards/${id}`).delete();showStatus('삭제됨 ✓');}
-  catch(e){showStatus('삭제 실패');}
+function editCard(id){
+  const c=cardList.find(x=>x.id===id);if(!c)return;
+  document.getElementById('ec-id').value=c.id;document.getElementById('ec-name').value=c.name;document.getElementById('ec-unpaid').value=c.unpaid||0;
+  const liq=assetList.filter(a=>LIQUID_TYPES.includes(a.assetType));
+  document.getElementById('ec-linked').innerHTML='<option value="">연결 통장 없음</option>'+liq.map(a=>`<option value="${a.id}"${a.id===c.linkedAssetId?' selected':''}>${a.name}</option>`).join('');
+  document.getElementById('ec-err').textContent='';openModal('modal-card');
 }
+async function saveCard(){
+  const id=document.getElementById('ec-id').value,name=document.getElementById('ec-name').value.trim(),unpaid=parseInt(document.getElementById('ec-unpaid').value)||0,linkedAssetId=document.getElementById('ec-linked').value||null;
+  const err=document.getElementById('ec-err');err.textContent='';
+  if(!name){err.textContent='카드명을 입력해주세요.';return;}
+  const orig=cardList.find(x=>x.id===id);
+  try{showStatus('저장 중...');await db.doc(`cards/${id}`).set({...orig,name,unpaid,linkedAssetId});closeModal('modal-card');showStatus('수정됨 ✓');}
+  catch(e){err.textContent='저장 실패 ('+(e.code||e.message)+')';showStatus('');}
+}
+async function deleteCard(id){if(!db)return;try{showStatus('삭제 중...');await db.doc(`cards/${id}`).delete();showStatus('삭제됨 ✓');}catch(e){showStatus('삭제 실패');}}
 function renderCards(){
-  // 카드 추가 폼의 연결 예금 셀렉트 업데이트
   const sel=document.getElementById('c-linked-asset');
-  if(sel){
-    const savings=assetList.filter(a=>a.assetType==='예금');
-    sel.innerHTML='<option value="">연결 예금 없음</option>'+savings.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
-  }
+  if(sel){const liq=assetList.filter(a=>LIQUID_TYPES.includes(a.assetType));sel.innerHTML='<option value="">연결 통장 없음</option>'+liq.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');}
   const list=document.getElementById('card-list');
   if(!cardList.length){list.innerHTML='<div class="empty-row">등록된 카드가 없어요.</div>';renderNetworth();return;}
   list.innerHTML='<div class="item-list">'+cardList.map(c=>{
     const linked=assetList.find(a=>a.id===c.linkedAssetId);
     return `<div class="item-row">
       <div class="item-icon" style="background:#f3eefa">💳</div>
-      <div class="item-info">
-        <div class="item-name">${c.name}</div>
-        <div class="item-meta">${linked?'연결: '+linked.name:'연결 예금 없음'}</div>
-      </div>
-      <div class="item-right">
-        <div class="item-amount" style="color:#7f77dd">미결제 ${fmt(c.unpaid||0)}</div>
-      </div>
+      <div class="item-info"><div class="item-name">${c.name}</div><div class="item-meta">${linked?'연결: '+linked.name:'연결 통장 없음'}</div></div>
+      <div class="item-right"><div class="item-amount" style="color:#7f77dd">미결제 ${fmt(c.unpaid||0)}</div></div>
+      <button class="btn-icon" onclick="editCard('${c.id}')">✏️</button>
       <button class="btn-icon btn-del" onclick="deleteCard('${c.id}')">✕</button>
     </div>`;
   }).join('')+'</div>';
   renderNetworth();
 }
-// ── 상환이력 ──────────────────────────────
-function openRepayModal(debtId){
-  repayDebtId=debtId;
-  repayPeriodY=new Date().getFullYear();
-  repayPeriodM=new Date().getMonth();
-  const d=debtList.find(x=>x.id===debtId);
-  document.getElementById('repay-modal-title').textContent=(d?d.name:'') + ' 상환이력';
-  document.getElementById('repay-debt-id').value=debtId;
-  document.getElementById('rp-date').value=new Date().toISOString().split('T')[0];
-  document.getElementById('rp-amount').value='';
-  document.getElementById('rp-note').value='';
-  document.getElementById('rp-err').textContent='';
-  setRepayFilter(repayFilter, true);
-  openModal('modal-repay');
-  if(db) subscribeRepay(debtId);
-}
-function setRepayFilter(f, force){
-  if(repayFilter===f && !force) return;
-  repayFilter=f;
-  document.querySelectorAll('#repay-filter-tabs .filter-tab').forEach((btn,i)=>{
-    btn.className='filter-tab'+((['day','month','year'][i]===f)?' active':'');
-  });
-  renderRepayPeriodLabel();
-  renderRepayList();
-}
-function moveRepayPeriod(d){
-  if(repayFilter==='year'){repayPeriodY+=d;}
-  else if(repayFilter==='month'){
-    repayPeriodM+=d;
-    if(repayPeriodM<0){repayPeriodM=11;repayPeriodY--;}
-    if(repayPeriodM>11){repayPeriodM=0;repayPeriodY++;}
-  }else{
-    // 일별: 현재 표시 날짜 이동
-    const cur=new Date(repayPeriodY,repayPeriodM,repayDayOfMonth||1);
-    cur.setDate(cur.getDate()+d);
-    repayPeriodY=cur.getFullYear();repayPeriodM=cur.getMonth();repayDayOfMonth=cur.getDate();
-  }
-  renderRepayPeriodLabel();renderRepayList();
-}
-let repayDayOfMonth=new Date().getDate();
-function renderRepayPeriodLabel(){
-  const mns=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-  const lbl=document.getElementById('repay-period-label');
-  if(repayFilter==='year') lbl.textContent=repayPeriodY+'년';
-  else if(repayFilter==='month') lbl.textContent=`${repayPeriodY}년 ${mns[repayPeriodM]}`;
-  else lbl.textContent=`${repayPeriodY}년 ${mns[repayPeriodM]} ${repayDayOfMonth}일`;
-}
-function getFilteredRepay(){
-  if(!repayDebtId) return [];
-  const all=repayList.filter(r=>r.debtId===repayDebtId);
-  if(repayFilter==='year') return all.filter(r=>r.date.startsWith(String(repayPeriodY)));
-  if(repayFilter==='month'){
-    const mk=`${repayPeriodY}-${String(repayPeriodM+1).padStart(2,'0')}`;
-    return all.filter(r=>r.date.startsWith(mk));
-  }
-  // 일별
-  const dk=`${repayPeriodY}-${String(repayPeriodM+1).padStart(2,'0')}-${String(repayDayOfMonth).padStart(2,'0')}`;
-  return all.filter(r=>r.date===dk);
-}
-function renderRepayList(){
-  renderRepayPeriodLabel();
-  const filtered=getFilteredRepay().sort((a,b)=>b.date.localeCompare(a.date));
-  const prin=filtered.filter(r=>r.type==='원금').reduce((s,r)=>s+r.amount,0);
-  const intr=filtered.filter(r=>r.type==='이자').reduce((s,r)=>s+r.amount,0);
-  document.getElementById('rs-prin').textContent=fmt(prin);
-  document.getElementById('rs-int').textContent=fmt(intr);
-  const wrap=document.getElementById('repay-list');
-  if(!filtered.length){wrap.innerHTML='<div class="empty-row">이 기간에 상환 내역이 없어요.</div>';return;}
-  wrap.innerHTML=filtered.map(r=>`
-    <div class="repay-item">
-      <span class="repay-badge ${r.type==='원금'?'badge-prin':'badge-int'}">${r.type}</span>
-      <div class="repay-info">
-        <div class="repay-note">${r.note||'—'}</div>
-        <div class="repay-date">${r.date}</div>
-      </div>
-      <div class="repay-amount ${r.type==='원금'?'c-prin':'c-int'}">${fmt(r.amount)}</div>
-      <button class="btn-icon btn-del" onclick="deleteRepay('${r.debtId}_${r.id}')">✕</button>
-    </div>`).join('');
-}
-async function addRepay(){
-  const debtId=document.getElementById('repay-debt-id').value;
-  const type=document.getElementById('rp-type').value;
-  const amount=parseInt(document.getElementById('rp-amount').value);
-  const date=document.getElementById('rp-date').value;
-  const note=document.getElementById('rp-note').value.trim();
-  const err=document.getElementById('rp-err');err.textContent='';
-  if(!amount||amount<=0){err.textContent='금액을 입력해주세요.';return;}
-  if(!date){err.textContent='날짜를 선택해주세요.';return;}
-  if(!db){err.textContent='연결 중이에요.';return;}
-  const month=date.slice(0,7);
-  const rid='rp'+uid();
-  try{
-    showStatus('저장 중...');
-    await db.doc(`repayments/${debtId}_${rid}`).set({id:rid,debtId,type,amount,date,month,note,createdAt:Date.now()});
-    if(type==='원금'){
-      const d=debtList.find(x=>x.id===debtId);
-      if(d){const newRemain=Math.max(0,(d.remain||0)-amount);await db.doc(`debts/${debtId}`).set({...d,remain:newRemain});}
-    }
-    document.getElementById('rp-amount').value='';document.getElementById('rp-note').value='';
-    showStatus('상환이력 추가됨 ✓');
-  }catch(e){err.textContent='저장 실패 ('+(e.code||e.message)+')';showStatus('');}
-}
-async function deleteRepay(docId){
-  if(!db)return;
-  try{showStatus('삭제 중...');await db.doc(`repayments/${docId}`).delete();showStatus('삭제됨 ✓');}
-  catch(e){showStatus('삭제 실패');}
-}
 
-// ── 순자산 ──────────────────────────────
+// 순자산
 function renderNetworth(){
   const totalA=assetList.reduce((s,a)=>s+(a.amount||0),0);
   const totalCard=cardList.reduce((s,c)=>s+(c.unpaid||0),0);
@@ -940,122 +1335,128 @@ function renderNetworth(){
   const net=totalA-totalD;
   document.getElementById('net-asset').textContent=fmt(totalA);
   document.getElementById('net-debt').textContent=fmt(totalD);
-  const nEl=document.getElementById('net-value');
-  nEl.textContent=(net>=0?'':'-')+fmt(Math.abs(net));
-  nEl.className='net-value '+(net>=0?'c-pos':'c-neg');
+  const nEl=document.getElementById('net-value');nEl.textContent=(net>=0?'':'-')+fmt(Math.abs(net));nEl.className='net-value '+(net>=0?'c-pos':'c-neg');
   const dA=document.getElementById('dash-assets'),dD=document.getElementById('dash-debts');
-  dA.innerHTML=!assetList.length?'<div class="empty-row">자산 탭에서 추가해주세요.</div>':
-    '<div class="item-list">'+assetList.map(a=>`<div class="item-row"><div class="item-icon" style="background:#e1f5ee;font-size:14px">${EMOJI[a.assetType]||'📌'}</div><div class="item-info"><div class="item-name">${a.name}</div><div class="item-meta">${a.assetType}</div></div><div class="item-amount c-asset">${fmt(a.amount||0)}</div></div>`).join('')+'</div>';
+  dA.innerHTML=!assetList.length?'<div class="empty-row">자산 탭에서 추가해주세요.</div>':'<div class="item-list">'+assetList.map(a=>`<div class="item-row"><div class="item-icon" style="background:#e1f5ee;font-size:14px">${EMOJI[a.assetType]||'📌'}</div><div class="item-info"><div class="item-name">${a.name}</div><div class="item-meta">${a.assetType}</div></div><div class="item-amount c-asset">${fmt(a.amount||0)}</div></div>`).join('')+'</div>';
   const debtItems=[...debtList.map(d=>`<div class="item-row"><div class="item-icon" style="background:#faece7;font-size:14px">${EMOJI[d.debtType]||'📌'}</div><div class="item-info"><div class="item-name">${d.name}</div><div class="item-meta">${d.debtType}</div></div><div class="item-amount c-debt">−${fmt(d.remain||0)}</div></div>`),...cardList.filter(c=>c.unpaid>0).map(c=>`<div class="item-row"><div class="item-icon" style="background:#f3eefa;font-size:14px">💳</div><div class="item-info"><div class="item-name">${c.name}</div><div class="item-meta">카드 미결제</div></div><div class="item-amount" style="color:#7f77dd">−${fmt(c.unpaid||0)}</div></div>`)];
   dD.innerHTML=!debtItems.length?'<div class="empty-row">부채/카드 탭에서 추가해주세요.</div>':'<div class="item-list">'+debtItems.join('')+'</div>';
 }
 
-// ── 구독 ──────────────────────────────
+// 상환이력
+function openRepayModal(debtId){
+  repayDebtId=debtId;repayPeriodY=new Date().getFullYear();repayPeriodM=new Date().getMonth();repayDayOfMonth=new Date().getDate();
+  const d=debtList.find(x=>x.id===debtId);
+  document.getElementById('repay-modal-title').textContent=(d?d.name:'')+' 상환이력';
+  document.getElementById('repay-debt-id').value=debtId;
+  document.getElementById('rp-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('rp-amount').value='';document.getElementById('rp-note').value='';document.getElementById('rp-err').textContent='';
+  setRepayFilter('month',true);openModal('modal-repay');
+  if(db)subscribeRepay(debtId);
+}
+function setRepayFilter(f,force){
+  if(repayFilter===f&&!force)return;repayFilter=f;
+  document.querySelectorAll('#repay-filter-tabs .filter-tab').forEach((btn,i)=>{btn.className='filter-tab'+(['day','month','year'][i]===f?' active':'');});
+  renderRepayPeriodLabel();renderRepayList();
+}
+function moveRepayPeriod(d){
+  if(repayFilter==='year'){repayPeriodY+=d;}
+  else if(repayFilter==='month'){repayPeriodM+=d;if(repayPeriodM<0){repayPeriodM=11;repayPeriodY--;}if(repayPeriodM>11){repayPeriodM=0;repayPeriodY++;}}
+  else{const cur=new Date(repayPeriodY,repayPeriodM,repayDayOfMonth);cur.setDate(cur.getDate()+d);repayPeriodY=cur.getFullYear();repayPeriodM=cur.getMonth();repayDayOfMonth=cur.getDate();}
+  renderRepayPeriodLabel();renderRepayList();
+}
+function renderRepayPeriodLabel(){
+  const ns=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  const lbl=document.getElementById('repay-period-label');
+  if(repayFilter==='year')lbl.textContent=repayPeriodY+'년';
+  else if(repayFilter==='month')lbl.textContent=`${repayPeriodY}년 ${ns[repayPeriodM]}`;
+  else lbl.textContent=`${repayPeriodY}년 ${ns[repayPeriodM]} ${repayDayOfMonth}일`;
+}
+function getFilteredRepay(){
+  if(!repayDebtId)return[];
+  const all=repayList.filter(r=>r.debtId===repayDebtId);
+  if(repayFilter==='year')return all.filter(r=>r.date.startsWith(String(repayPeriodY)));
+  if(repayFilter==='month'){const mk2=`${repayPeriodY}-${String(repayPeriodM+1).padStart(2,'0')}`;return all.filter(r=>r.date.startsWith(mk2));}
+  const dk=`${repayPeriodY}-${String(repayPeriodM+1).padStart(2,'0')}-${String(repayDayOfMonth).padStart(2,'0')}`;return all.filter(r=>r.date===dk);
+}
+function renderRepayList(){
+  renderRepayPeriodLabel();
+  const filtered=getFilteredRepay().sort((a,b)=>b.date.localeCompare(a.date));
+  const prin=filtered.filter(r=>r.type==='원금').reduce((s,r)=>s+r.amount,0);
+  const intr=filtered.filter(r=>r.type==='이자').reduce((s,r)=>s+r.amount,0);
+  document.getElementById('rs-prin').textContent=fmt(prin);document.getElementById('rs-int').textContent=fmt(intr);
+  const wrap=document.getElementById('repay-list');
+  if(!filtered.length){wrap.innerHTML='<div class="empty-row">이 기간에 상환 내역이 없어요.</div>';return;}
+  wrap.innerHTML=filtered.map(r=>`
+    <div class="repay-item">
+      <span class="repay-badge ${r.type==='원금'?'badge-prin':'badge-int'}">${r.type}</span>
+      <div class="repay-info"><div class="repay-note">${r.note||'—'}</div><div class="repay-date">${r.date}</div></div>
+      <div class="repay-amount ${r.type==='원금'?'c-prin':'c-int'}">${fmt(r.amount)}</div>
+      <button class="btn-icon btn-del" onclick="deleteRepay('${r.debtId}_${r.id}')">✕</button>
+    </div>`).join('');
+}
+async function addRepay(){
+  const debtId=document.getElementById('repay-debt-id').value,type=document.getElementById('rp-type').value,amount=parseInt(document.getElementById('rp-amount').value),date=document.getElementById('rp-date').value,note=document.getElementById('rp-note').value.trim();
+  const err=document.getElementById('rp-err');err.textContent='';
+  if(!amount||amount<=0){err.textContent='금액을 입력해주세요.';return;}if(!date){err.textContent='날짜를 선택해주세요.';return;}if(!db){err.textContent='연결 중이에요.';return;}
+  const rid='rp'+uid();const month=date.slice(0,7);
+  try{
+    showStatus('저장 중...');
+    await db.doc(`repayments/${debtId}_${rid}`).set({id:rid,debtId,type,amount,date,month,note,createdAt:Date.now()});
+    if(type==='원금'){const d=debtList.find(x=>x.id===debtId);if(d){await db.doc(`debts/${debtId}`).set({...d,remain:Math.max(0,(d.remain||0)-amount)});}}
+    document.getElementById('rp-amount').value='';document.getElementById('rp-note').value='';showStatus('상환이력 추가됨 ✓');
+  }catch(e){err.textContent='저장 실패 ('+(e.code||e.message)+')';showStatus('');}
+}
+async function deleteRepay(docId){if(!db)return;try{showStatus('삭제 중...');await db.doc(`repayments/${docId}`).delete();showStatus('삭제됨 ✓');}catch(e){showStatus('삭제 실패');}}
+
+// 구독
 function subscribeTx(){
-  if(unsubTx){unsubTx();unsubTx=null;}
-  if(unsubBudget){unsubBudget();unsubBudget=null;}
+  if(unsubTx){unsubTx();unsubTx=null;}if(unsubBudget){unsubBudget();unsubBudget=null;}
   const key=mk();
-  unsubBudget=db.doc(`budgets/${key}`).onSnapshot(snap=>{
-    budgetAmt=snap.exists?(snap.data()?.amount||0):0;renderSummary();
-  },e=>console.error('budget',e));
-  unsubTx=db.collection('transactions').where('month','==',key).onSnapshot(snap=>{
-    txList=snap.docs.filter(d=>d.exists).map(d=>d.data());
-    renderSummary();renderChart();renderTxList();
-  },e=>console.error('tx',e));
+  unsubBudget=db.doc(`budgets/${key}`).onSnapshot(snap=>{budgetAmt=snap.exists?(snap.data()?.amount||0):0;renderSummary();},e=>console.error('budget',e));
+  unsubTx=db.collection('transactions').where('month','==',key).onSnapshot(snap=>{txList=snap.docs.filter(d=>d.exists).map(d=>d.data());renderSummary();renderChart();renderTxList();},e=>console.error('tx',e));
 }
 function subscribeAssets(){
   if(unsubAssets){unsubAssets();unsubAssets=null;}
-  unsubAssets=db.collection('assets').onSnapshot(snap=>{
-    assetList=snap.docs.filter(d=>d.exists).map(d=>d.data());renderAssets();updateHint();
-  },e=>console.error('assets',e));
+  unsubAssets=db.collection('assets').onSnapshot(snap=>{assetList=snap.docs.filter(d=>d.exists).map(d=>d.data());renderAssets();renderCards();updateHint();},e=>console.error('assets',e));
 }
 function subscribeDebts(){
   if(unsubDebts){unsubDebts();unsubDebts=null;}
-  unsubDebts=db.collection('debts').onSnapshot(snap=>{
-    debtList=snap.docs.filter(d=>d.exists).map(d=>d.data());renderDebts();
-  },e=>console.error('debts',e));
+  unsubDebts=db.collection('debts').onSnapshot(snap=>{debtList=snap.docs.filter(d=>d.exists).map(d=>d.data());renderDebts();},e=>console.error('debts',e));
 }
 function subscribeCards(){
   if(unsubCards){unsubCards();unsubCards=null;}
-  unsubCards=db.collection('cards').onSnapshot(snap=>{
-    cardList=snap.docs.filter(d=>d.exists).map(d=>d.data());
-    renderCards();updateHint();
-  },e=>console.error('cards',e));
+  unsubCards=db.collection('cards').onSnapshot(snap=>{cardList=snap.docs.filter(d=>d.exists).map(d=>d.data());renderCards();updateHint();},e=>console.error('cards',e));
 }
 function subscribeRepay(debtId){
   if(unsubRepay){unsubRepay();unsubRepay=null;}
-  unsubRepay=db.collection('repayments').where('debtId','==',debtId).onSnapshot(snap=>{
-    repayList=snap.docs.filter(d=>d.exists).map(d=>d.data());
-    renderRepayList();
-  },e=>console.error('repay',e));
+  unsubRepay=db.collection('repayments').where('debtId','==',debtId).onSnapshot(snap=>{repayList=snap.docs.filter(d=>d.exists).map(d=>d.data());renderRepayList();},e=>console.error('repay',e));
 }
 
-function init(){
+function initApp(){
+  txList=[];budgetAmt=0;assetList=[];debtList=[];repayList=[];cardList=[];
+  if(chart){chart.destroy();chart=null;}
+  curY=new Date().getFullYear();curM=new Date().getMonth();
+  curType='expense';
   updateLabel();setType('expense');
   document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
-  // Firebase 준비될 때까지 대기
-  function startWithDb(){
-    db=window._fbDb;
-    document.getElementById('sync-label').textContent='실시간 공유 중 ✓ — 링크를 와이프와 공유하세요';
-    subscribeTx();subscribeAssets();subscribeDebts();subscribeCards();
-  }
-  if(window._fbReady){ startWithDb(); }
-  else { window.addEventListener('fbReady', startWithDb, {once:true}); }
+  showTab('dashboard');
+  document.getElementById('sync-label').textContent='연결 중...';
+  subscribeTx();subscribeAssets();subscribeDebts();subscribeCards();
+  document.getElementById('sync-label').textContent='실시간 공유 중 ✓';
 }
-init();
 </script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyAOeHgseYEGdyGN6HcgUfBHD4LHhEm69tU",
-  authDomain: "yil-hyun.firebaseapp.com",
-  projectId: "yil-hyun",
-  storageBucket: "yil-hyun.firebasestorage.app",
-  messagingSenderId: "86114194305",
-  appId: "1:86114194305:web:b468c93429a19c40bb4e80"
-};
-
-firebase.initializeApp(firebaseConfig);
-const fdb = firebase.firestore();
-
-// 기존 코드와 호환되는 래퍼
-window._fbDb = {
-  doc: (path) => {
-    const parts = path.split('/');
-    const colName = parts[0];
-    const docId = parts.slice(1).join('_');
-    const ref = fdb.collection(colName).doc(docId);
-    return {
-      set:    (data)   => ref.set(data),
-      update: (data)   => ref.set(data, {merge:true}),
-      delete: ()       => ref.delete(),
-      get:    async () => {
-        const s = await ref.get();
-        return { exists: s.exists, data: () => s.data() };
-      },
-      onSnapshot: (cb, err) => ref.onSnapshot(s => {
-        cb({ exists: s.exists, data: () => s.data() });
-      }, err||console.error)
-    };
-  },
-  collection: (colName) => ({
-    where: (field, op, val) => ({
-      onSnapshot: (cb, err) => {
-        return fdb.collection(colName).where(field, op, val).onSnapshot(s => {
-          cb({ docs: s.docs.map(d => ({ exists: d.exists, data: () => d.data() })) });
-        }, err||console.error);
-      }
-    }),
-    onSnapshot: (cb, err) => fdb.collection(colName).onSnapshot(s => {
-      cb({ docs: s.docs.map(d => ({ exists: d.exists, data: () => d.data() })) });
-    }, err||console.error)
-  })
-};
-
-window._fbReady = true;
-window.dispatchEvent(new Event('fbReady'));
+(function(){
+  function tryInitCal(){
+    if(typeof makeDb==='function'){
+      initCal();
+    } else {
+      setTimeout(tryInitCal,50);
+    }
+  }
+  tryInitCal();
+})();
 </script>
 </body>
 </html>
