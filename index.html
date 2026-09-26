@@ -37,6 +37,7 @@ body{font-family:-apple-system,sans-serif;background:var(--surface-0,#f5f5f3);co
 .cal-cell:active{background:#f0efe8}
 .cal-cell.today{border-color:#185fa5;border-width:2px;background:#eef4fd}
 .cal-cell.other-month{opacity:.35}
+.cal-cell.has-event{border:2px solid #e05050;}
 .cal-day{font-size:11px;text-align:center;font-weight:500;margin-bottom:2px}
 .cal-cell.sun .cal-day{color:#e05050}
 .cal-cell.sat .cal-day{color:#3a7bd5}
@@ -67,6 +68,18 @@ body{font-family:-apple-system,sans-serif;background:var(--surface-0,#f5f5f3);co
 .sched-memo-input:focus{outline:none;border-color:#185fa5}
 .sched-save-btn{width:100%;padding:10px;background:#1a1a18;border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:4px}
 .sched-delete-btn{width:100%;padding:8px;background:transparent;border:0.5px solid #d8d6ce;border-radius:8px;color:#d85a30;font-size:13px;cursor:pointer;font-family:inherit;margin-top:6px}
+
+
+/* 목표 저축 */
+.goal-item{padding:0.75rem 0;border-bottom:0.5px solid var(--border)}
+.goal-item:last-child{border-bottom:none}
+.goal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.goal-name{font-size:14px;font-weight:500}
+.goal-amount{font-size:12px;color:var(--text-secondary)}
+.goal-bar-wrap{height:8px;background:var(--surface-0,#f0efe8);border-radius:4px;overflow:hidden;margin-bottom:4px}
+.goal-bar{height:100%;border-radius:4px;background:#185fa5;transition:width .4s}
+.goal-bar.done{background:#0f6e56}
+.goal-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--text-secondary)}
 
 /* ── 잠금 화면 ── */
 #screen-lock{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem 1rem}
@@ -192,6 +205,48 @@ canvas{width:100%!important}
 .app-header-title{font-size:14px;font-weight:500}
 .app-header-btns{display:flex;gap:8px;align-items:center}
 .header-btn{font-size:11px;color:#888;background:none;border:0.5px solid #d8d6ce;border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit}
+
+/* ── 다크모드 ── */
+:root {
+  --surface-0: #f5f5f3;
+  --surface-1: #f0efe8;
+  --surface-2: #ffffff;
+  --surface-3: #e8e7e0;
+  --text-primary: #1a1a18;
+  --text-secondary: #666;
+  --text-muted: #aaa;
+  --border: #d8d6ce;
+  --border-strong: #b4b2a9;
+}
+[data-theme="dark"] {
+  --surface-0: #1a1a1a;
+  --surface-1: #242424;
+  --surface-2: #2e2e2e;
+  --surface-3: #383838;
+  --text-primary: #f0efe8;
+  --text-secondary: #aaa;
+  --text-muted: #666;
+  --border: #444;
+  --border-strong: #666;
+}
+[data-theme="dark"] body { background: var(--surface-0); color: var(--text-primary); }
+[data-theme="dark"] .cal-cell { background: var(--surface-2); border-color: var(--border); }
+[data-theme="dark"] .cal-cell.today { background: #1a2d4a; }
+[data-theme="dark"] .badge-off { background: #333; color: #aaa; }
+[data-theme="dark"] .badge-night { background: #1a1050; color: #c8bfff; }
+[data-theme="dark"] .badge-day { background: #0a2a1a; color: #5dc49a; }
+[data-theme="dark"] .badge-wife-off { background: #2a1020; color: #f09ec0; }
+[data-theme="dark"] .badge-wife-leave { background: #2a1020; color: #f09ec0; }
+[data-theme="dark"] .lock-box { background: var(--surface-2); border-color: var(--border); }
+[data-theme="dark"] .lock-pw-input { background: var(--surface-1); color: var(--text-primary); border-color: var(--border); }
+[data-theme="dark"] .main-card { background: var(--surface-2); border-color: var(--border); }
+[data-theme="dark"] .modal { background: var(--surface-2); }
+[data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea { background: var(--surface-1); color: var(--text-primary); border-color: var(--border); }
+[data-theme="dark"] .app-header { background: var(--surface-2); border-color: var(--border); }
+[data-theme="dark"] .tab-nav { background: var(--surface-2); border-color: var(--border); }
+[data-theme="dark"] .sched-modal { background: var(--surface-2); }
+[data-theme="dark"] .lock-setpw-row input { background: var(--surface-1); color: var(--text-primary); }
+
 </style>
 </head>
 <body>
@@ -202,7 +257,7 @@ canvas{width:100%!important}
     <h1>태일❤️솔현 HOME</h1>
     <p>사용할 가계부를 선택해 주세요</p>
   </div>
-
+  <button onclick="toggleDark()" id="main-dark-btn" style="position:fixed;top:12px;right:12px;background:var(--surface-2,#fff);border:0.5px solid var(--border,#d8d6ce);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;z-index:10">🌙</button>
   <!-- 일정표 -->
   <div class="cal-wrap">
     <div class="cal-header">
@@ -243,6 +298,14 @@ canvas{width:100%!important}
   </div>
 
   <div class="main-cards">
+    <div class="main-card" onclick="openTravel()">
+      <div class="main-icon" style="background:#e8f4fd">✈️</div>
+      <div class="main-info">
+        <div class="main-title">여행 플랜</div>
+        <div class="main-desc">여행 일정, 숙박, 예산 관리</div>
+      </div>
+      <span class="main-arrow">›</span>
+    </div>
     <div class="main-card" onclick="openApp('shared')">
       <div class="main-icon" style="background:#e1f5ee">👫</div>
       <div class="main-info">
@@ -316,6 +379,164 @@ canvas{width:100%!important}
   </div>
 </div>
 
+
+<!-- ④ 여행 플랜 화면 -->
+<div id="screen-travel" style="display:none">
+  <div class="app-header">
+    <button class="header-btn" onclick="goMain()">← 메인</button>
+    <span class="app-header-title">✈️ 여행 플랜</span>
+    <div class="app-header-btns">
+      <button class="header-btn" id="travel-dark-btn" onclick="toggleDark()">🌙</button>
+    </div>
+  </div>
+  <div style="font-size:11px;color:var(--text-secondary);padding:0.4rem 1rem;max-width:680px;margin:0 auto" id="travel-sync-label">연결 중...</div>
+
+  <div class="page">
+    <!-- 여행 목록 or 여행 상세 -->
+    <div id="travel-list-view">
+      <div class="card">
+        <div class="card-title">✈️ 여행 목록</div>
+        <div id="trip-list"><div class="empty-row">등록된 여행이 없어요.</div></div>
+        <div class="form-section">
+          <div class="card-sub">새 여행 추가</div>
+          <div class="form-row">
+            <input type="text" id="tr-name" placeholder="여행명 (예: 제주도 여행)">
+            <input type="text" id="tr-dest" placeholder="여행지">
+          </div>
+          <div class="form-row" style="margin-bottom:2px">
+            <label style="font-size:11px;color:var(--text-secondary)">출발일</label>
+            <label style="font-size:11px;color:var(--text-secondary)">귀국일</label>
+          </div>
+          <div class="form-row">
+            <input type="date" id="tr-start">
+            <input type="date" id="tr-end">
+          </div>
+
+          <div class="err" id="tr-err"></div>
+          <button class="btn-primary" onclick="addTrip()">여행 추가</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 여행 상세 -->
+    <div id="travel-detail-view" style="display:none">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem">
+        <button onclick="backToTripList()" style="background:none;border:0.5px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;font-family:inherit;color:var(--text-secondary)">← 목록</button>
+        <div style="flex:1">
+          <div style="font-size:16px;font-weight:500" id="detail-title"></div>
+          <div style="font-size:12px;color:var(--text-secondary)" id="detail-meta"></div>
+        </div>
+        <button class="btn-icon btn-del" onclick="deleteCurrentTrip()">✕</button>
+      </div>
+
+
+
+      <!-- 탭 -->
+      <div style="display:flex;gap:6px;margin-bottom:1rem;overflow-x:auto;padding-bottom:2px">
+        <button class="filter-tab active" onclick="showTripTab('expense')" id="ttab-expense">💸 지출</button>
+        <button class="filter-tab" onclick="showTripTab('hotel')" id="ttab-hotel">🏨 숙박</button>
+        <button class="filter-tab" onclick="showTripTab('schedule')" id="ttab-schedule">📅 일정</button>
+        <button class="filter-tab" onclick="showTripTab('checklist')" id="ttab-checklist">✅ 체크리스트</button>
+      </div>
+
+      <!-- 지출 탭 -->
+      <div id="tripcontent-expense">
+        <div class="card">
+          <div class="card-title">지출 내역</div>
+          <div id="trip-expense-list"><div class="empty-row">지출 내역이 없어요.</div></div>
+          <div class="form-section">
+            <div class="card-sub">지출 추가</div>
+            <div class="form-row">
+              <input type="text" id="te-desc" placeholder="항목 (예: 호텔)">
+              <input type="number" id="te-amount" placeholder="금액 (원)">
+            </div>
+            <div class="form-row">
+              <select id="te-cat">
+                <option value="항공">✈️ 항공</option>
+                <option value="숙박">🏨 숙박</option>
+                <option value="식비">🍚 식비</option>
+                <option value="관광">🗺 관광</option>
+                <option value="쇼핑">🛍 쇼핑</option>
+                <option value="교통">🚌 교통</option>
+                <option value="기타">📌 기타</option>
+              </select>
+              <input type="date" id="te-date">
+            </div>
+            <div class="err" id="te-err"></div>
+            <button class="btn-primary" onclick="addTripExpense()">추가</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 숙박 탭 -->
+      <div id="tripcontent-hotel" style="display:none">
+        <div class="card">
+          <div class="card-title">숙박 일정</div>
+          <div id="trip-hotel-list"><div class="empty-row">숙박 정보가 없어요.</div></div>
+          <div class="form-section">
+            <div class="card-sub">숙박 추가</div>
+            <div class="form-row">
+              <input type="text" id="th-name" placeholder="호텔명">
+              <input type="text" id="th-booking" placeholder="예약번호">
+            </div>
+            <div class="form-row" style="margin-bottom:2px">
+              <label style="font-size:11px;color:var(--text-secondary)">체크인</label>
+              <label style="font-size:11px;color:var(--text-secondary)">체크아웃</label>
+            </div>
+            <div class="form-row">
+              <input type="date" id="th-in">
+              <input type="date" id="th-out">
+            </div>
+            <div class="form-row full">
+              <input type="text" id="th-addr" placeholder="주소 또는 메모">
+            </div>
+            <div class="err" id="th-err"></div>
+            <button class="btn-primary" onclick="addTripHotel()">추가</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 일정 탭 -->
+      <div id="tripcontent-schedule" style="display:none">
+        <div class="card">
+          <div class="card-title">날짜별 일정</div>
+          <div id="trip-schedule-list"><div class="empty-row">일정이 없어요.</div></div>
+          <div class="form-section">
+            <div class="card-sub">일정 추가</div>
+            <div class="form-row" style="margin-bottom:2px">
+              <label style="font-size:11px;color:var(--text-secondary)">날짜</label>
+              <label style="font-size:11px;color:var(--text-secondary)">시간</label>
+            </div>
+            <div class="form-row">
+              <input type="date" id="ts-date">
+              <input type="time" id="ts-time">
+            </div>
+            <div class="form-row full">
+              <input type="text" id="ts-desc" placeholder="일정 내용 (예: 성산일출봉 방문)">
+            </div>
+            <div class="err" id="ts-err"></div>
+            <button class="btn-primary" onclick="addTripSchedule()">추가</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 체크리스트 탭 -->
+      <div id="tripcontent-checklist" style="display:none">
+        <div class="card">
+          <div class="card-title">준비물 체크리스트</div>
+          <div id="trip-check-list"><div class="empty-row">체크리스트가 없어요.</div></div>
+          <div class="form-section">
+            <div class="form-row full">
+              <input type="text" id="tc-item" placeholder="준비물 (예: 여권, 수영복)" maxlength="30">
+            </div>
+            <button class="btn-primary" onclick="addTripCheck()">추가</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
 <!-- ③ 가계부 앱 화면 -->
 <div id="screen-app" style="display:none">
   <div class="app-header">
@@ -323,6 +544,7 @@ canvas{width:100%!important}
     <span class="app-header-title" id="app-header-title">가계부</span>
     <div class="app-header-btns">
       <button class="header-btn" id="lock-app-btn" onclick="lockApp()" style="display:none">🔒 잠금</button>
+      <button class="header-btn" onclick="toggleDark()" id="dark-btn">🌙</button>
     </div>
   </div>
   <div style="font-size:11px;color:var(--text-secondary);padding:0.4rem 1rem;max-width:680px;margin:0 auto" id="sync-label">연결 중...</div>
@@ -344,6 +566,10 @@ canvas{width:100%!important}
 
     <!-- 자산 탭 -->
     <div id="tab-assets" class="tab-content">
+      <div class="card">
+        <div class="card-title">자산 변동 히스토리 <span style="font-size:11px;color:var(--text-secondary);font-weight:400">(월별 총자산)</span></div>
+        <div style="height:150px;position:relative"><canvas id="asset-history-chart"></canvas></div>
+      </div>
       <div class="card">
         <div class="card-title">자산 목록</div>
         <div id="asset-list"><div class="empty-row">등록된 자산이 없어요.</div></div>
@@ -368,6 +594,28 @@ canvas{width:100%!important}
           </div>
           <div class="err" id="a-err"></div>
           <button class="btn-primary" onclick="addAsset()">자산 추가</button>
+        </div>
+      </div>
+      <div class="card" id="goal-card">
+        <div class="card-title">목표 저축</div>
+        <div id="goal-list"><div class="empty-row">등록된 목표가 없어요.</div></div>
+        <div class="form-section">
+          <div class="card-sub">목표 추가</div>
+          <div class="form-row">
+            <input type="text" id="g-name" placeholder="목표명 (예: 제주도 여행)">
+            <input type="number" id="g-target" placeholder="목표 금액 (원)">
+          </div>
+          <div class="form-row">
+            <input type="number" id="g-current" placeholder="현재 모은 금액 (원)">
+            <input type="date" id="g-date" placeholder="목표 날짜">
+          </div>
+          <div class="form-row full">
+            <select id="g-asset">
+              <option value="">연결 통장 없음 (직접 입력)</option>
+            </select>
+          </div>
+          <div class="err" id="g-err"></div>
+          <button class="btn-primary" onclick="addGoal()">목표 추가</button>
         </div>
       </div>
     </div>
@@ -440,6 +688,14 @@ canvas{width:100%!important}
         <div style="display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border)">
           <input type="number" id="b-input" placeholder="이번 달 예산 입력" style="flex:1;min-width:0;width:auto">
           <button onclick="saveBudget()" style="padding:9px 16px;border:0.5px solid #d8d6ce;border-radius:8px;background:#f0efe8;cursor:pointer;font-size:13px;font-family:inherit;white-space:nowrap;color:#1a1a18;flex-shrink:0;width:auto;-webkit-appearance:none">설정</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">월별 지출 추이 <span style="font-size:11px;color:var(--text-secondary);font-weight:400">(최근 6개월)</span></div>
+        <div style="height:150px;position:relative"><canvas id="trend-chart"></canvas></div>
+        <div style="display:flex;gap:12px;margin-top:6px;font-size:11px;color:var(--text-secondary)">
+          <span><span style="display:inline-block;width:10px;height:10px;background:rgba(15,110,86,0.7);border-radius:2px;margin-right:4px;vertical-align:middle"></span>수입</span>
+          <span><span style="display:inline-block;width:10px;height:10px;background:rgba(217,90,48,0.7);border-radius:2px;margin-right:4px;vertical-align:middle"></span>지출</span>
         </div>
       </div>
       <div class="card">
@@ -585,6 +841,102 @@ canvas{width:100%!important}
   </div>
 </div>
 
+
+<!-- 여행 기본정보 수정 모달 -->
+<div class="modal-bg" id="modal-trip">
+  <div class="modal">
+    <div class="modal-title">여행 수정 <button class="modal-close" onclick="closeModal('modal-trip')">✕</button></div>
+    <input type="hidden" id="et-id">
+    <div class="form-row">
+      <input type="text" id="et-name" placeholder="여행명">
+      <input type="text" id="et-dest" placeholder="여행지">
+    </div>
+    <div class="form-row">
+      <input type="date" id="et-start">
+      <input type="date" id="et-end">
+    </div>
+    <div class="err" id="et-err"></div>
+    <button class="btn-primary" onclick="saveTrip()">수정 저장</button>
+  </div>
+</div>
+
+<!-- 지출 수정 모달 -->
+<div class="modal-bg" id="modal-trip-expense">
+  <div class="modal">
+    <div class="modal-title">지출 수정 <button class="modal-close" onclick="closeModal('modal-trip-expense')">✕</button></div>
+    <input type="hidden" id="ete-id">
+    <div class="form-row">
+      <input type="text" id="ete-desc" placeholder="항목">
+      <input type="number" id="ete-amount" placeholder="금액 (원)">
+    </div>
+    <div class="form-row">
+      <select id="ete-cat">
+        <option value="항공">✈️ 항공</option>
+        <option value="숙박">🏨 숙박</option>
+        <option value="식비">🍚 식비</option>
+        <option value="관광">🗺 관광</option>
+        <option value="쇼핑">🛍 쇼핑</option>
+        <option value="교통">🚌 교통</option>
+        <option value="기타">📌 기타</option>
+      </select>
+      <input type="date" id="ete-date">
+    </div>
+    <div class="err" id="ete-err"></div>
+    <button class="btn-primary" onclick="saveTripExpense()">수정 저장</button>
+  </div>
+</div>
+
+<!-- 숙박 수정 모달 -->
+<div class="modal-bg" id="modal-trip-hotel">
+  <div class="modal">
+    <div class="modal-title">숙박 수정 <button class="modal-close" onclick="closeModal('modal-trip-hotel')">✕</button></div>
+    <input type="hidden" id="eth-id">
+    <div class="form-row">
+      <input type="text" id="eth-name" placeholder="호텔명">
+      <input type="text" id="eth-booking" placeholder="예약번호">
+    </div>
+    <div class="form-row">
+      <input type="date" id="eth-in">
+      <input type="date" id="eth-out">
+    </div>
+    <div class="form-row full">
+      <input type="text" id="eth-addr" placeholder="주소 또는 메모">
+    </div>
+    <div class="err" id="eth-err"></div>
+    <button class="btn-primary" onclick="saveTripHotel()">수정 저장</button>
+  </div>
+</div>
+
+<!-- 일정 수정 모달 -->
+<div class="modal-bg" id="modal-trip-schedule">
+  <div class="modal">
+    <div class="modal-title">일정 수정 <button class="modal-close" onclick="closeModal('modal-trip-schedule')">✕</button></div>
+    <input type="hidden" id="ets-id">
+    <div class="form-row">
+      <input type="date" id="ets-date">
+      <input type="time" id="ets-time">
+    </div>
+    <div class="form-row full">
+      <input type="text" id="ets-desc" placeholder="일정 내용">
+    </div>
+    <div class="err" id="ets-err"></div>
+    <button class="btn-primary" onclick="saveTripSchedule()">수정 저장</button>
+  </div>
+</div>
+
+<!-- 체크리스트 수정 모달 -->
+<div class="modal-bg" id="modal-trip-check">
+  <div class="modal">
+    <div class="modal-title">항목 수정 <button class="modal-close" onclick="closeModal('modal-trip-check')">✕</button></div>
+    <input type="hidden" id="etc-id">
+    <div class="form-row full">
+      <input type="text" id="etc-item" placeholder="준비물" maxlength="30">
+    </div>
+    <div class="err" id="etc-err"></div>
+    <button class="btn-primary" onclick="saveTripCheck()">수정 저장</button>
+  </div>
+</div>
+
 <div class="status" id="status"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -643,29 +995,43 @@ let curApp=null, setPwTarget=null;
 
 // 비밀번호는 Firebase shared_passwords 에 저장 (두 폰 공유)
 let _pwCache={}; // {mine_pw:'', wife_pw:''}
-let _pwLoaded=false;
+let _pwUnsub=null;
 
-async function loadPasswords(){
-  if(!_pwLoaded){
-    try{
-      const pwDb=makeDb('shared_');
-      const snap=await pwDb.doc('passwords/main').get();
+// 실시간 구독으로 비밀번호 변경 즉시 반영
+function subscribePw(){
+  if(_pwUnsub){_pwUnsub();_pwUnsub=null;}
+  try{
+    const pwDb=makeDb('shared_');
+    _pwUnsub=fdb.collection('shared_passwords').doc('main').onSnapshot(snap=>{
       _pwCache=snap.exists?(snap.data()||{}):{};
-      _pwLoaded=true;
+      updateMainDesc();
+    },e=>console.error('pw sub fail',e));
+  }catch(e){console.error('pw sub error',e);}
+}
+
+// 항상 최신 캐시에서 읽기 (구독으로 실시간 업데이트됨)
+async function loadPasswords(){
+  // 구독이 없으면 한 번만 직접 읽기
+  if(!_pwUnsub){
+    try{
+      const snap=await fdb.collection('shared_passwords').doc('main').get();
+      _pwCache=snap.exists?(snap.data()||{}):{};
     }catch(e){console.error('pw load fail',e);}
   }
   return _pwCache;
 }
 
 function getSavedPw(prefix){
-  // 캐시에서 읽기 (loadPasswords 호출 후 사용)
   return _pwCache[prefix+'pw']||DEFAULT_PW;
 }
 
 async function savePwToFirebase(prefix, pw){
   const pwDb=makeDb('shared_');
   _pwCache[prefix+'pw']=pw;
-  await pwDb.doc('passwords/main').set(_pwCache);
+  // merge:true로 해당 앱 비번만 업데이트 (다른 앱 비번 유지)
+  const updateData={};
+  updateData[prefix+'pw']=pw;
+  await fdb.collection('shared_passwords').doc('main').set(updateData,{merge:true});
 }
 
 // 메인화면 비번 상태 표시 업데이트
@@ -774,6 +1140,28 @@ async function setNewPw(){
   }catch(e){msg.style.color='#d85a30';msg.textContent='저장 실패: '+e.message;}
 }
 
+
+// ── 다크모드 ──────────────────────────────
+function initTheme(){
+  const saved=localStorage.getItem('theme')||'light';
+  document.documentElement.setAttribute('data-theme',saved);
+  updateDarkBtn(saved);
+}
+function toggleDark(){
+  const current=document.documentElement.getAttribute('data-theme')||'light';
+  const next=current==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  localStorage.setItem('theme',next);
+  updateDarkBtn(next);
+}
+function updateDarkBtn(theme){
+  const isDark=theme==='dark';
+  document.querySelectorAll('#dark-btn,#main-dark-btn,#travel-dark-btn').forEach(btn=>{
+    if(btn) btn.textContent=isDark?'☀️':'🌙';
+  });
+}
+initTheme();
+
 // 페이지 로드 시 메인 설명 업데이트
 updateMainDesc();
 // Firebase 비밀번호 미리 로드 (tryInitCal 이후 실행됨)
@@ -784,26 +1172,40 @@ updateMainDesc();
 
 // ── 한국 공휴일 ──────────────────────────────
 const HOLIDAYS = {
+  // 2025년
+  '2025-01-01':'신정',
+  '2025-01-28':'설날연휴','2025-01-29':'설날','2025-01-30':'설날연휴',
+  '2025-03-01':'삼일절',
+  '2025-05-05':'어린이날','2025-05-06':'부처님오신날',
+  '2025-06-06':'현충일',
+  '2025-08-15':'광복절',
+  '2025-10-02':'추석연휴','2025-10-03':'추석·개천절','2025-10-04':'추석연휴','2025-10-05':'추석연휴',
+  '2025-10-09':'한글날',
+  '2025-12-25':'크리스마스',
   // 2026년
-  '2026-01-01':'신정','2026-01-28':'설날연휴','2026-01-29':'설날','2026-01-30':'설날연휴',
-  '2026-03-01':'삼일절','2026-05-05':'어린이날','2026-05-24':'부처님오신날',
-  '2026-06-06':'현충일','2026-08-15':'광복절',
+  '2026-01-01':'신정',
+  '2026-02-16':'설날연휴','2026-02-17':'설날','2026-02-18':'설날연휴',
+  '2026-03-01':'삼일절','2026-03-02':'삼일절대체',
+  '2026-05-05':'어린이날',
+  '2026-05-24':'부처님오신날','2026-05-25':'부처님오신날대체',
+  '2026-06-06':'현충일',
+  '2026-08-15':'광복절','2026-08-17':'광복절대체',
   '2026-09-24':'추석연휴','2026-09-25':'추석','2026-09-26':'추석연휴',
-  '2026-10-03':'개천절','2026-10-09':'한글날',
+  '2026-10-03':'개천절','2026-10-05':'개천절대체',
+  '2026-10-09':'한글날',
   '2026-12-25':'크리스마스',
   // 2027년
-  '2027-01-01':'신정','2027-01-17':'설날연휴','2027-01-18':'설날','2027-01-19':'설날연휴',
-  '2027-03-01':'삼일절','2027-05-05':'어린이날','2027-05-13':'부처님오신날',
-  '2027-06-06':'현충일','2027-08-15':'광복절',
+  '2027-01-01':'신정',
+  '2027-02-06':'설날연휴','2027-02-07':'설날','2027-02-08':'설날연휴','2027-02-09':'설날연휴',
+  '2027-03-01':'삼일절',
+  '2027-05-05':'어린이날',
+  '2027-05-13':'부처님오신날',
+  '2027-06-06':'현충일','2027-06-07':'현충일대체',
+  '2027-08-15':'광복절','2027-08-16':'광복절대체',
   '2027-09-14':'추석연휴','2027-09-15':'추석','2027-09-16':'추석연휴',
-  '2027-10-03':'개천절','2027-10-09':'한글날',
-  '2027-12-25':'크리스마스',
-  // 2025년 (이전 달 표시용)
-  '2025-01-01':'신정','2025-01-28':'설날연휴','2025-01-29':'설날','2025-01-30':'설날연휴',
-  '2025-03-01':'삼일절','2025-05-05':'어린이날','2025-05-06':'부처님오신날',
-  '2025-06-06':'현충일','2025-08-15':'광복절',
-  '2025-10-02':'추석연휴','2025-10-03':'추석·개천절','2025-10-04':'추석연휴','2025-10-05':'추석연휴',
-  '2025-10-09':'한글날','2025-12-25':'크리스마스',
+  '2027-10-03':'개천절','2027-10-04':'개천절대체',
+  '2027-10-09':'한글날','2027-10-11':'한글날대체',
+  '2027-12-25':'크리스마스','2027-12-27':'크리스마스대체',
 };
 const PATTERN_START = new Date(2026,8,21); // 2026-09-21
 const PATTERN = ['휴무','휴무','휴무','야간','야간','야간','휴무','휴무','휴무','주간','주간','주간'];
@@ -858,6 +1260,9 @@ function renderCal(){
     const myS=getMySchedule(date);
     const data=schedData[dateStr]||{};
 
+    const bothOff = myS==='휴무' && data && (data.wife==='off'||data.wife==='leave');
+    const hasMemo = data && typeof data.memo==='string' && data.memo.trim().length>0;
+
     const cell=document.createElement('div');
     let cls='cal-cell';
     if(otherMonth)cls+=' other-month';
@@ -865,12 +1270,24 @@ function renderCal(){
     if(dow===0)cls+=' sun';
     if(dow===6)cls+=' sat';
     cell.className=cls;
+    // 동시 휴무: 노란 배경 (important로 CSS 우선순위 강제)
+    if(bothOff) cell.setAttribute('style','background:#fff8e1!important');
+    // 메모 있으면 빨간 테두리 (동시 휴무와 겹쳐도 적용)
+    if(hasMemo) cell.setAttribute('style',(bothOff?'background:#fff8e1!important;':'')+'border:2.5px solid #e05050!important;border-radius:8px');
     cell.onclick=()=>openSchedModal(dateStr,d,m,y);
 
     // 날짜 숫자
     const dayEl=document.createElement('div');
     dayEl.className='cal-day';dayEl.textContent=d;
     cell.appendChild(dayEl);
+
+    // 동시 휴무: 빨간 하트
+    if(bothOff){
+      const bothEl=document.createElement('div');
+      bothEl.style.cssText='font-size:13px;text-align:center;line-height:1.3';
+      bothEl.textContent='❤️';
+      cell.appendChild(bothEl);
+    }
 
     // 내 스케줄 뱃지
     const myBadge=document.createElement('span');
@@ -950,18 +1367,20 @@ async function saveSchedModal(){
   const wife=window._wifeSelected||'';
   const memo=document.getElementById('sched-memo').value.trim();
   const dateKey=schedModal_date;
-  closeSchedModal(); // 먼저 닫기
+  closeSchedModal();
   try{
-    await calDb.doc(`schedules/${dateKey}`).set({date:dateKey,wife,memo,updatedAt:Date.now()});
+    // memo 없으면 null로 명확히 저장 (빈 문자열로 인한 테두리 오표시 방지)
+    await calDb.doc(`schedules/${dateKey}`).set({date:dateKey,wife,memo:memo||null,updatedAt:Date.now()});
   }catch(e){console.error('저장 실패:',e.message);}
 }
 
 async function deleteSchedModal(){
   if(!schedModal_date||!calDb)return;
+  const dateKey=schedModal_date;
+  closeSchedModal();
   try{
-    await calDb.doc(`schedules/${schedModal_date}`).delete();
-    closeSchedModal();
-  }catch(e){alert('삭제 실패: '+e.message);}
+    await calDb.doc(`schedules/${dateKey}`).delete();
+  }catch(e){console.error('삭제 실패:',e.message);}
 }
 
 function subscribeSchedules(){
@@ -992,8 +1411,10 @@ function lockApp(){
 
 function goMain(){
   stopSubscriptions();
+  [unsubTrips,unsubTripExp,unsubTripHotel,unsubTripSched,unsubTripCheck].forEach(u=>{try{if(u)u();}catch(e){}});
   document.getElementById('screen-lock').style.display='none';
   document.getElementById('screen-app').style.display='none';
+  document.getElementById('screen-travel').style.display='none';
   document.getElementById('screen-main').style.display='flex';
   curApp=null;
 }
@@ -1021,8 +1442,8 @@ const EMOJI={식비:'🍚',교통:'🚌',쇼핑:'🛍',의료:'🏥',문화:'�
 const CCOLOR={식비:'#1d9e75',교통:'#185fa5',쇼핑:'#d85a30',의료:'#d4537e',문화:'#7f77dd',교육:'#ba7517',통신:'#378add',공과금:'#639922',카드결제:'#7f77dd',예적금납입:'#0f6e56',대출원금:'#993c1d',대출이자:'#d85a30',급여:'#1d9e75',부수입:'#185fa5',기타:'#888780'};
 
 let db=null,curType='expense',curY=new Date().getFullYear(),curM=new Date().getMonth();
-let chart=null,txList=[],budgetAmt=0,assetList=[],debtList=[],repayList=[],cardList=[];
-let unsubTx=null,unsubBudget=null,unsubAssets=null,unsubDebts=null,unsubRepay=null,unsubCards=null;
+let chart=null,txList=[],budgetAmt=0,assetList=[],debtList=[],repayList=[],cardList=[],goalList=[];
+let unsubTx=null,unsubBudget=null,unsubAssets=null,unsubDebts=null,unsubRepay=null,unsubCards=null,unsubGoals=null;
 let repayFilter='month',repayPeriodY=new Date().getFullYear(),repayPeriodM=new Date().getMonth(),repayDayOfMonth=new Date().getDate(),repayDebtId=null;
 
 const fmt=n=>Math.round(n).toLocaleString('ko-KR')+'원';
@@ -1032,9 +1453,9 @@ const uid=()=>'_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
 function showStatus(msg){const el=document.getElementById('status');el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1800);}
 
 function stopSubscriptions(){
-  [unsubTx,unsubBudget,unsubAssets,unsubDebts,unsubRepay,unsubCards].forEach(u=>{try{if(u)u();}catch(e){}});
+  [unsubTx,unsubBudget,unsubAssets,unsubDebts,unsubRepay,unsubCards,unsubGoals].forEach(u=>{try{if(u)u();}catch(e){}});
   unsubTx=unsubBudget=unsubAssets=unsubDebts=unsubRepay=unsubCards=null;
-  txList=[];budgetAmt=0;assetList=[];debtList=[];repayList=[];cardList=[];
+  txList=[];budgetAmt=0;assetList=[];debtList=[];repayList=[];cardList=[];goalList=[];
   if(chart){chart.destroy();chart=null;}
 }
 
@@ -1199,6 +1620,162 @@ async function saveBudget(){
   try{showStatus('저장 중...');await db.doc(`budgets/${mk()}`).set({amount:val,month:mk()});document.getElementById('b-input').value='';showStatus('예산 저장됨 ✓');}catch(e){showStatus('저장 실패');}
 }
 
+
+
+// ── 자산 변동 히스토리 ──────────────────────────────
+let assetHistoryChart=null;
+
+async function saveAssetSnapshot(){
+  if(!db) return;
+  const totalAsset=assetList.reduce((s,a)=>s+(a.amount||0),0);
+  const totalDebt=debtList.reduce((s,d)=>s+(d.remain||0),0);
+  const totalCard=cardList.reduce((s,c)=>s+(c.unpaid||0),0);
+  const net=totalAsset-totalDebt-totalCard;
+  const mk2=`${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
+  try{
+    await db.doc(`asset_history/${mk2}`).set({
+      month:mk2,
+      totalAsset,
+      totalDebt:totalDebt+totalCard,
+      net,
+      updatedAt:Date.now()
+    });
+  }catch(e){console.error('asset snapshot fail',e);}
+}
+
+async function loadAssetHistory(){
+  if(!db) return;
+  // 최근 6개월 스냅샷 로드
+  const months=[];
+  const now=new Date();
+  for(let i=5;i>=0;i--){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    months.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
+  }
+  const results=[];
+  for(const mk2 of months){
+    try{
+      const snap=await db.doc(`asset_history/${mk2}`).get();
+      results.push({month:mk2, data:snap.exists?snap.data():null});
+    }catch(e){results.push({month:mk2,data:null});}
+  }
+  renderAssetHistoryChart(results);
+}
+
+function renderAssetHistoryChart(results){
+  const canvas=document.getElementById('asset-history-chart');
+  if(!canvas) return;
+  const labels=results.map(r=>r.month.split('-')[1]+'월');
+  const assets=results.map(r=>r.data?r.data.totalAsset:null);
+  const nets=results.map(r=>r.data?r.data.net:null);
+
+  const ctx=canvas.getContext('2d');
+  if(assetHistoryChart) assetHistoryChart.destroy();
+  assetHistoryChart=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {
+          label:'총자산',
+          data:assets,
+          borderColor:'#0f6e56',
+          backgroundColor:'rgba(15,110,86,0.08)',
+          borderWidth:2,
+          pointRadius:4,
+          pointBackgroundColor:'#0f6e56',
+          fill:true,
+          tension:0.3,
+          spanGaps:true
+        },
+        {
+          label:'순자산',
+          data:nets,
+          borderColor:'#185fa5',
+          backgroundColor:'rgba(24,95,165,0.05)',
+          borderWidth:2,
+          pointRadius:4,
+          pointBackgroundColor:'#185fa5',
+          fill:false,
+          tension:0.3,
+          spanGaps:true
+        }
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:true,position:'top',labels:{font:{size:10},boxWidth:10,padding:8}},
+        tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${Math.round(c.raw||0).toLocaleString('ko-KR')}원`}}
+      },
+      scales:{
+        y:{ticks:{callback:v=>{if(v>=100000000)return (v/100000000).toFixed(1)+'억';if(v>=10000)return (v/10000)+'만';return v;},font:{size:9}},grid:{color:'rgba(0,0,0,0.05)'}},
+        x:{ticks:{font:{size:10}},grid:{display:false}}
+      }
+    }
+  });
+}
+
+// ── 월별 지출 추이 차트 ──────────────────────────────
+let trendChart=null;
+let trendData={}; // {monthKey: {income, expense}}
+
+async function loadTrendData(){
+  if(!db) return;
+  // 최근 6개월 데이터 로드
+  const months=[];
+  for(let i=5;i>=0;i--){
+    const d=new Date(curY,curM-i,1);
+    months.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
+  }
+  const promises=months.map(async mk=>{
+    return new Promise(resolve=>{
+      let unsub=db.collection('transactions').where('month','==',mk).onSnapshot(snap=>{
+        const txs=snap.docs.filter(d=>d.exists).map(d=>d.data());
+        const income=txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+        const expense=txs.filter(t=>t.type==='expense'&&!EXCLUDE_FROM_EXPENSE.includes(t.cat)).reduce((s,t)=>s+t.amount,0);
+        trendData[mk]={income,expense};
+        unsub();
+        resolve();
+      },e=>{resolve();});
+    });
+  });
+  await Promise.all(promises);
+  renderTrendChart(months);
+}
+
+function renderTrendChart(months){
+  const canvas=document.getElementById('trend-chart');
+  if(!canvas) return;
+  const labels=months.map(mk=>{
+    const [y,m]=mk.split('-');
+    return m+'월';
+  });
+  const incomes=months.map(mk=>(trendData[mk]||{}).income||0);
+  const expenses=months.map(mk=>(trendData[mk]||{}).expense||0);
+
+  const ctx=canvas.getContext('2d');
+  if(trendChart) trendChart.destroy();
+  trendChart=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'수입',data:incomes,backgroundColor:'rgba(15,110,86,0.7)',borderRadius:4},
+        {label:'지출',data:expenses,backgroundColor:'rgba(217,90,48,0.7)',borderRadius:4}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${Math.round(c.raw).toLocaleString('ko-KR')}원`}}},
+      scales:{
+        y:{ticks:{callback:v=>v>=10000?(v/10000)+'만':''+v,font:{size:9}},grid:{color:'rgba(0,0,0,0.05)'}},
+        x:{ticks:{font:{size:10}},grid:{display:false}}
+      }
+    }
+  });
+}
+
 function renderSummary(){
   const income=txList.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
   const expense=txList.filter(t=>t.type==='expense'&&!EXCLUDE_FROM_EXPENSE.includes(t.cat)).reduce((s,t)=>s+t.amount,0);
@@ -1258,7 +1835,7 @@ async function saveAsset(){
   const err=document.getElementById('ea-err');err.textContent='';
   if(!name){err.textContent='자산명을 입력해주세요.';return;}if(isNaN(amount)||amount<0){err.textContent='금액을 입력해주세요.';return;}
   const orig=assetList.find(x=>x.id===id);
-  try{showStatus('저장 중...');await db.doc(`assets/${id}`).set({...orig,name,assetType,amount,note});closeModal('modal-asset');showStatus('수정됨 ✓');}
+  try{closeModal('modal-asset');showStatus('저장 중...');await db.doc(`assets/${id}`).set({...orig,name,assetType,amount,note});showStatus('수정됨 ✓');}
   catch(e){err.textContent='저장 실패 ('+(e.code||e.message)+')';showStatus('');}
 }
 async function deleteAsset(id){if(!db)return;try{showStatus('삭제 중...');await db.doc(`assets/${id}`).delete();showStatus('삭제됨 ✓');}catch(e){showStatus('삭제 실패');}}
@@ -1295,7 +1872,7 @@ async function saveDebt(){
   const err=document.getElementById('ed-err');err.textContent='';
   if(!name){err.textContent='부채명을 입력해주세요.';return;}if(!total||total<=0){err.textContent='대출 금액을 입력해주세요.';return;}
   const orig=debtList.find(x=>x.id===id);
-  try{showStatus('저장 중...');await db.doc(`debts/${id}`).set({...orig,name,debtType,total,remain:remain||total,rate});closeModal('modal-debt');showStatus('수정됨 ✓');}
+  try{closeModal('modal-debt');showStatus('저장 중...');await db.doc(`debts/${id}`).set({...orig,name,debtType,total,remain:remain||total,rate});showStatus('수정됨 ✓');}
   catch(e){err.textContent='저장 실패 ('+(e.code||e.message)+')';showStatus('');}
 }
 async function deleteDebt(id){if(!db)return;try{showStatus('삭제 중...');await db.doc(`debts/${id}`).delete();showStatus('삭제됨 ✓');}catch(e){showStatus('삭제 실패');}}
@@ -1338,7 +1915,7 @@ async function saveCard(){
   const err=document.getElementById('ec-err');err.textContent='';
   if(!name){err.textContent='카드명을 입력해주세요.';return;}
   const orig=cardList.find(x=>x.id===id);
-  try{showStatus('저장 중...');await db.doc(`cards/${id}`).set({...orig,name,unpaid,linkedAssetId});closeModal('modal-card');showStatus('수정됨 ✓');}
+  try{closeModal('modal-card');showStatus('저장 중...');await db.doc(`cards/${id}`).set({...orig,name,unpaid,linkedAssetId});showStatus('수정됨 ✓');}
   catch(e){err.textContent='저장 실패 ('+(e.code||e.message)+')';showStatus('');}
 }
 async function deleteCard(id){if(!db)return;try{showStatus('삭제 중...');await db.doc(`cards/${id}`).delete();showStatus('삭제됨 ✓');}catch(e){showStatus('삭제 실패');}}
@@ -1358,6 +1935,109 @@ function renderCards(){
     </div>`;
   }).join('')+'</div>';
   renderNetworth();
+}
+
+// ── 목표 저축 ──────────────────────────────
+async function addGoal(){
+  const name=document.getElementById('g-name').value.trim();
+  const target=parseInt(document.getElementById('g-target').value);
+  const current=parseInt(document.getElementById('g-current').value)||0;
+  const date=document.getElementById('g-date').value;
+  const linkedAssetId=document.getElementById('g-asset').value||null;
+  const err=document.getElementById('g-err');err.textContent='';
+  if(!name){err.textContent='목표명을 입력해주세요.';return;}
+  if(!target||target<=0){err.textContent='목표 금액을 입력해주세요.';return;}
+  if(!db){err.textContent='연결 중이에요.';return;}
+  const id='goal'+uid();
+  try{
+    showStatus('저장 중...');
+    await db.doc(`goals/${id}`).set({id,name,target,current,date:date||null,linkedAssetId,createdAt:Date.now()});
+    document.getElementById('g-name').value='';document.getElementById('g-target').value='';
+    document.getElementById('g-current').value='';document.getElementById('g-date').value='';
+    document.getElementById('g-asset').value='';
+    showStatus('목표 추가됨 ✓');
+  }catch(e){err.textContent='저장 실패 ('+(e.code||e.message)+')';showStatus('');}
+}
+async function updateGoalAmount(id,delta){
+  if(!db)return;
+  const g=goalList.find(x=>x.id===id);if(!g)return;
+  const newCurrent=Math.max(0,Math.min(g.target,(g.current||0)+delta));
+  try{await db.doc(`goals/${id}`).set({...g,current:newCurrent});showStatus('업데이트됨 ✓');}
+  catch(e){showStatus('저장 실패');}
+}
+async function deleteGoal(id){
+  if(!db)return;
+  try{showStatus('삭제 중...');await db.doc(`goals/${id}`).delete();showStatus('삭제됨 ✓');}
+  catch(e){showStatus('삭제 실패');}
+}
+function renderGoals(){
+  const list=document.getElementById('goal-list');
+  if(!goalList.length){list.innerHTML='<div class="empty-row">등록된 목표가 없어요.</div>';return;}
+  const today=new Date();
+  list.innerHTML=goalList.map(g=>{
+    const pct=Math.min(Math.round(((g.current||0)/g.target)*100),100);
+    const done=pct>=100;
+    const remain=g.target-(g.current||0);
+    let dday='';
+    if(g.date){const diff=Math.ceil((new Date(g.date)-today)/(1000*60*60*24));dday=diff>0?`D-${diff}`:diff===0?'D-Day':'기한 초과';}
+    const linkedAsset=g.linkedAssetId?assetList.find(a=>a.id===g.linkedAssetId):null;
+    const displayCurrent=linkedAsset?(linkedAsset.amount||0):(g.current||0);
+    const displayPct=Math.min(Math.round((displayCurrent/g.target)*100),100);
+    const displayRemain=Math.max(0,g.target-displayCurrent);
+    // 월 납입액 계산 (기준일 21일)
+    let monthlyMsg='';
+    if(g.date && displayRemain>0){
+      const now=new Date();
+      // 이번달 21일 이후면 다음달 21일부터 카운트
+      const base=now.getDate()>=21
+        ? new Date(now.getFullYear(),now.getMonth()+1,21)
+        : new Date(now.getFullYear(),now.getMonth(),21);
+      const target=new Date(g.date);
+      // 남은 월 수 계산
+      const months=(target.getFullYear()-base.getFullYear())*12+(target.getMonth()-base.getMonth())+1;
+      if(months>0){
+        const monthly=Math.ceil(displayRemain/months);
+        monthlyMsg=`매월 21일 기준 <strong>${fmt(monthly)}</strong> 씩 ${months}개월`;
+      } else {
+        monthlyMsg='목표일이 다음 납입일보다 빨라요!';
+      }
+    }
+    return `<div class="goal-item">
+      <div class="goal-header">
+        <span class="goal-name">${displayPct>=100?'✅':'🎯'} ${g.name}</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          ${dday?`<span style="font-size:11px;color:${dday.includes('초과')?'#d85a30':'#185fa5'}">${dday}</span>`:''}
+          <button class="btn-icon btn-del" onclick="deleteGoal('${g.id}')">✕</button>
+        </div>
+      </div>
+      ${linkedAsset?`<div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px">🏦 ${linkedAsset.name} 잔액 자동 연동</div>`:''}
+      <div class="goal-bar-wrap"><div class="goal-bar${displayPct>=100?' done':''}" style="width:${displayPct}%"></div></div>
+      <div class="goal-meta">
+        <span>${fmt(displayCurrent)} / ${fmt(g.target)} (${displayPct}%)</span>
+        <span>${displayPct>=100?'🎉 달성!':'남은 금액 '+fmt(displayRemain)}</span>
+      </div>
+      ${monthlyMsg?`<div style="font-size:12px;color:#185fa5;margin-top:5px;padding:5px 8px;background:#e8f1fa;border-radius:6px">📅 ${monthlyMsg}</div>`:''}
+      ${!linkedAsset?`<div style="display:flex;gap:6px;margin-top:8px">
+        <input type="number" id="gi-${g.id}" placeholder="금액 입력" style="flex:1;padding:7px 10px;border:0.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--surface-0);min-width:0">
+        <button onclick="updateGoalAmount('${g.id}',parseInt(document.getElementById('gi-${g.id}').value)||0)" style="padding:7px 10px;border:0.5px solid #0f6e56;border-radius:8px;background:#e1f5ee;color:#0f6e56;cursor:pointer;font-size:12px;font-family:inherit;white-space:nowrap">+추가</button>
+        <button onclick="updateGoalAmount('${g.id}',-(parseInt(document.getElementById('gi-${g.id}').value)||0))" style="padding:7px 10px;border:0.5px solid #993c1d;border-radius:8px;background:#faece7;color:#993c1d;cursor:pointer;font-size:12px;font-family:inherit;white-space:nowrap">-차감</button>
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+function subscribeGoals(){
+  if(unsubGoals){unsubGoals();unsubGoals=null;}
+  unsubGoals=db.collection('goals').onSnapshot(snap=>{
+    goalList=snap.docs.filter(d=>d.exists).map(d=>d.data());
+    updateGoalAssetSelect();
+    renderGoals();
+  },e=>console.error('goals',e));
+}
+function updateGoalAssetSelect(){
+  const sel=document.getElementById('g-asset');
+  if(!sel) return;
+  const savings=assetList.filter(a=>['예금','적금','주택청약','연금','통장'].includes(a.assetType));
+  sel.innerHTML='<option value="">연결 통장 없음 (직접 입력)</option>'+savings.map(a=>`<option value="${a.id}">${a.name} (${fmt(a.amount||0)})</option>`).join('');
 }
 
 // 순자산
@@ -1446,11 +2126,11 @@ function subscribeTx(){
   if(unsubTx){unsubTx();unsubTx=null;}if(unsubBudget){unsubBudget();unsubBudget=null;}
   const key=mk();
   unsubBudget=db.doc(`budgets/${key}`).onSnapshot(snap=>{budgetAmt=snap.exists?(snap.data()?.amount||0):0;renderSummary();},e=>console.error('budget',e));
-  unsubTx=db.collection('transactions').where('month','==',key).onSnapshot(snap=>{txList=snap.docs.filter(d=>d.exists).map(d=>d.data());renderSummary();renderChart();renderTxList();},e=>console.error('tx',e));
+  unsubTx=db.collection('transactions').where('month','==',key).onSnapshot(snap=>{txList=snap.docs.filter(d=>d.exists).map(d=>d.data());renderSummary();renderChart();renderTxList();loadTrendData();},e=>console.error('tx',e));
 }
 function subscribeAssets(){
   if(unsubAssets){unsubAssets();unsubAssets=null;}
-  unsubAssets=db.collection('assets').onSnapshot(snap=>{assetList=snap.docs.filter(d=>d.exists).map(d=>d.data());renderAssets();renderCards();updateHint();},e=>console.error('assets',e));
+  unsubAssets=db.collection('assets').onSnapshot(snap=>{assetList=snap.docs.filter(d=>d.exists).map(d=>d.data());renderAssets();renderCards();updateHint();saveAssetSnapshot();loadAssetHistory();updateGoalAssetSelect();renderGoals();},e=>console.error('assets',e));
 }
 function subscribeDebts(){
   if(unsubDebts){unsubDebts();unsubDebts=null;}
@@ -1465,8 +2145,377 @@ function subscribeRepay(debtId){
   unsubRepay=db.collection('repayments').where('debtId','==',debtId).onSnapshot(snap=>{repayList=snap.docs.filter(d=>d.exists).map(d=>d.data());renderRepayList();},e=>console.error('repay',e));
 }
 
+
+// ── 여행 플랜 ──────────────────────────────
+let travelDb=null, currentTripId=null, currentTripData=null;
+let tripList=[], tripExpenses=[], tripHotels=[], tripSchedules=[], tripChecks=[];
+let unsubTrips=null, unsubTripExp=null, unsubTripHotel=null, unsubTripSched=null, unsubTripCheck=null;
+let currentTripTab='expense';
+
+function openTravel(){
+  travelDb=makeDb('shared_');
+  document.getElementById('screen-main').style.display='none';
+  document.getElementById('screen-travel').style.display='block';
+  document.getElementById('travel-sync-label').textContent='실시간 공유 중 ✓';
+  subscribeTrips();
+  updateDarkBtn(document.documentElement.getAttribute('data-theme')||'light');
+}
+
+function backToTripList(){
+  currentTripId=null; currentTripData=null;
+  // 구독 해제
+  [unsubTripExp,unsubTripHotel,unsubTripSched,unsubTripCheck].forEach(u=>{try{if(u)u();}catch(e){}});
+  unsubTripExp=unsubTripHotel=unsubTripSched=unsubTripCheck=null;
+  document.getElementById('travel-list-view').style.display='';
+  document.getElementById('travel-detail-view').style.display='none';
+}
+
+function goMain(){
+  // 기존 goMain 대신 travel도 닫기
+  [unsubTrips,unsubTripExp,unsubTripHotel,unsubTripSched,unsubTripCheck].forEach(u=>{try{if(u)u();}catch(e){}});
+  document.getElementById('screen-travel').style.display='none';
+  stopSubscriptions();
+  document.getElementById('screen-lock').style.display='none';
+  document.getElementById('screen-app').style.display='none';
+  document.getElementById('screen-main').style.display='flex';
+  curApp=null;
+}
+
+function showTripTab(tab){
+  currentTripTab=tab;
+  ['expense','hotel','schedule','checklist','memo'].forEach(t=>{
+    document.getElementById('tripcontent-'+t).style.display=t===tab?'':'none';
+    document.getElementById('ttab-'+t).className='filter-tab'+(t===tab?' active':'');
+  });
+}
+
+// 여행 목록
+async function addTrip(){
+  const name=document.getElementById('tr-name').value.trim();
+  const dest=document.getElementById('tr-dest').value.trim();
+  const start=document.getElementById('tr-start').value;
+  const end=document.getElementById('tr-end').value;
+  const budget=0;
+  const err=document.getElementById('tr-err');err.textContent='';
+  if(!name){err.textContent='여행명을 입력해주세요.';return;}
+  if(!dest){err.textContent='여행지를 입력해주세요.';return;}
+  if(!start||!end){err.textContent='날짜를 입력해주세요.';return;}
+  const id='trip'+uid();
+  try{
+    await travelDb.doc(`trips/${id}`).set({id,name,dest,start,end,budget,star:0,memo:'',createdAt:Date.now()});
+    ['tr-name','tr-dest','tr-start','tr-end'].forEach(i=>document.getElementById(i).value='');
+  }catch(e){err.textContent='저장 실패';}
+}
+
+async function deleteCurrentTrip(){
+  if(!currentTripId||!travelDb)return;
+  try{
+    await travelDb.doc(`trips/${currentTripId}`).delete();
+    backToTripList();
+  }catch(e){}
+}
+
+function openTripDetail(trip){
+  currentTripId=trip.id; currentTripData=trip;
+  document.getElementById('travel-list-view').style.display='none';
+  document.getElementById('travel-detail-view').style.display='';
+  document.getElementById('detail-title').textContent='✈️ '+trip.name+' — '+trip.dest;
+  document.getElementById('detail-meta').textContent=trip.start+' ~ '+trip.end;
+  showTripTab('expense');
+  subscribeTripDetail(trip.id);
+}
+
+function subscribeTrips(){
+  if(unsubTrips){unsubTrips();unsubTrips=null;}
+  unsubTrips=travelDb.collection('trips').onSnapshot(snap=>{
+    tripList=snap.docs.filter(d=>d.exists).map(d=>d.data()).sort((a,b)=>b.createdAt-a.createdAt);
+    renderTripList();
+  },e=>console.error('trips',e));
+}
+
+function renderTripList(){
+  const list=document.getElementById('trip-list');
+  if(!tripList.length){list.innerHTML='<div class="empty-row">등록된 여행이 없어요.</div>';return;}
+  list.innerHTML='<div class="item-list">'+tripList.map(t=>{
+    const days=t.start&&t.end?Math.ceil((new Date(t.end)-new Date(t.start))/(1000*60*60*24))+1:0;
+    return `<div class="item-row" onclick="openTripDetail(${JSON.stringify(t).replace(/"/g,'&quot;')})" style="cursor:pointer">
+      <div class="item-icon" style="background:#e8f4fd;font-size:20px">✈️</div>
+      <div class="item-info">
+        <div class="item-name">${t.name}</div>
+        <div class="item-meta">${t.dest} · ${t.start||'?'} ~ ${t.end||'?'} (${days}일)</div>
+      </div>
+<div class="item-right"></div>
+      <button class="btn-icon" onclick="event.stopPropagation();editTrip(${JSON.stringify(t).replace(/"/g,'&quot;')})">✏️</button>
+    </div>`;
+  }).join('')+'</div>';
+}
+
+// 여행 상세 구독
+function subscribeTripDetail(tripId){
+  if(unsubTripExp){unsubTripExp();} if(unsubTripHotel){unsubTripHotel();}
+  if(unsubTripSched){unsubTripSched();} if(unsubTripCheck){unsubTripCheck();}
+
+  unsubTripExp=travelDb.collection('trip_expenses').where('tripId','==',tripId).onSnapshot(snap=>{
+    tripExpenses=snap.docs.filter(d=>d.exists).map(d=>d.data()).sort((a,b)=>a.date.localeCompare(b.date));
+    renderTripExpenses();
+
+  });
+  unsubTripHotel=travelDb.collection('trip_hotels').where('tripId','==',tripId).onSnapshot(snap=>{
+    tripHotels=snap.docs.filter(d=>d.exists).map(d=>d.data()).sort((a,b)=>a.checkin.localeCompare(b.checkin));
+    renderTripHotels();
+  });
+  unsubTripSched=travelDb.collection('trip_schedules').where('tripId','==',tripId).onSnapshot(snap=>{
+    tripSchedules=snap.docs.filter(d=>d.exists).map(d=>d.data()).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+    renderTripSchedules();
+  });
+  unsubTripCheck=travelDb.collection('trip_checks').where('tripId','==',tripId).onSnapshot(snap=>{
+    tripChecks=snap.docs.filter(d=>d.exists).map(d=>d.data());
+    renderTripChecks();
+  });
+}
+
+// 지출
+async function addTripExpense(){
+  const desc=document.getElementById('te-desc').value.trim();
+  const amount=parseInt(document.getElementById('te-amount').value);
+  const cat=document.getElementById('te-cat').value;
+  const date=document.getElementById('te-date').value;
+  const err=document.getElementById('te-err');err.textContent='';
+  if(!desc){err.textContent='항목을 입력해주세요.';return;}
+  if(!amount||amount<=0){err.textContent='금액을 입력해주세요.';return;}
+  if(!date){err.textContent='날짜를 선택해주세요.';return;}
+  const id='te'+uid();
+  await travelDb.doc(`trip_expenses/${id}`).set({id,tripId:currentTripId,desc,amount,cat,date,createdAt:Date.now()});
+  document.getElementById('te-desc').value='';document.getElementById('te-amount').value='';
+}
+async function deleteTripExpense(id){await travelDb.doc(`trip_expenses/${id}`).delete();}
+function renderTripExpenses(){
+  const list=document.getElementById('trip-expense-list');
+  if(!tripExpenses.length){list.innerHTML='<div class="empty-row">지출 내역이 없어요.</div>';return;}
+  const EMOJI2={항공:'✈️',숙박:'🏨',식비:'🍚',관광:'🗺',쇼핑:'🛍',교통:'🚌',기타:'📌'};
+  const total=tripExpenses.reduce((s,e)=>s+e.amount,0);
+  list.innerHTML=`<div style="font-size:12px;color:var(--text-secondary);padding:6px 0;border-bottom:0.5px solid var(--border);margin-bottom:4px">총 지출 ${fmt(total)}</div>`+
+    '<div class="item-list">'+tripExpenses.map(e=>`
+    <div class="item-row">
+      <div class="item-icon" style="background:#f0efe8;font-size:14px">${EMOJI2[e.cat]||'📌'}</div>
+      <div class="item-info"><div class="item-name">${e.desc}</div><div class="item-meta">${e.date} · ${e.cat}</div></div>
+      <div class="item-amount c-expense">−${fmt(e.amount)}</div>
+      <button class="btn-icon" onclick="editTripExpense(${JSON.stringify(e).replace(/"/g,'&quot;')})">✏️</button>
+      <button class="btn-icon btn-del" onclick="deleteTripExpense('${e.id}')">✕</button>
+    </div>`).join('')+'</div>';
+}
+
+// 숙박
+async function addTripHotel(){
+  const name=document.getElementById('th-name').value.trim();
+  const booking=document.getElementById('th-booking').value.trim();
+  const checkin=document.getElementById('th-in').value;
+  const checkout=document.getElementById('th-out').value;
+  const addr=document.getElementById('th-addr').value.trim();
+  const err=document.getElementById('th-err');err.textContent='';
+  if(!name){err.textContent='호텔명을 입력해주세요.';return;}
+  if(!checkin||!checkout){err.textContent='날짜를 입력해주세요.';return;}
+  const id='th'+uid();
+  await travelDb.doc(`trip_hotels/${id}`).set({id,tripId:currentTripId,name,booking,checkin,checkout,addr,createdAt:Date.now()});
+  ['th-name','th-booking','th-in','th-out','th-addr'].forEach(i=>document.getElementById(i).value='');
+}
+async function deleteTripHotel(id){await travelDb.doc(`trip_hotels/${id}`).delete();}
+function renderTripHotels(){
+  const list=document.getElementById('trip-hotel-list');
+  if(!tripHotels.length){list.innerHTML='<div class="empty-row">숙박 정보가 없어요.</div>';return;}
+  list.innerHTML='<div class="item-list">'+tripHotels.map(h=>{
+    const nights=Math.ceil((new Date(h.checkout)-new Date(h.checkin))/(1000*60*60*24));
+    return `<div class="item-row">
+      <div class="item-icon" style="background:#f0efe8;font-size:18px">🏨</div>
+      <div class="item-info">
+        <div class="item-name">${h.name}</div>
+        <div class="item-meta">${h.checkin} ~ ${h.checkout} (${nights}박)${h.booking?' · 예약번호: '+h.booking:''}</div>
+        ${h.addr?`<div class="item-meta">${h.addr}</div>`:''}
+      </div>
+      <button class="btn-icon" onclick="editTripHotel(${JSON.stringify(h).replace(/"/g,'&quot;')})">✏️</button>
+      <button class="btn-icon btn-del" onclick="deleteTripHotel('${h.id}')">✕</button>
+    </div>`;
+  }).join('')+'</div>';
+}
+
+// 일정
+async function addTripSchedule(){
+  const date=document.getElementById('ts-date').value;
+  const time=document.getElementById('ts-time').value;
+  const desc=document.getElementById('ts-desc').value.trim();
+  const err=document.getElementById('ts-err');err.textContent='';
+  if(!date){err.textContent='날짜를 선택해주세요.';return;}
+  if(!desc){err.textContent='일정 내용을 입력해주세요.';return;}
+  const id='ts'+uid();
+  await travelDb.doc(`trip_schedules/${id}`).set({id,tripId:currentTripId,date,time:time||'',desc,createdAt:Date.now()});
+  document.getElementById('ts-desc').value='';document.getElementById('ts-time').value='';
+}
+async function deleteTripSchedule(id){await travelDb.doc(`trip_schedules/${id}`).delete();}
+function renderTripSchedules(){
+  const list=document.getElementById('trip-schedule-list');
+  if(!tripSchedules.length){list.innerHTML='<div class="empty-row">일정이 없어요.</div>';return;}
+  // 날짜별 그룹핑
+  const grouped={};
+  tripSchedules.forEach(s=>{if(!grouped[s.date])grouped[s.date]=[];grouped[s.date].push(s);});
+  list.innerHTML=Object.entries(grouped).sort((a,b)=>a[0].localeCompare(b[0])).map(([date,items])=>`
+    <div style="font-size:12px;font-weight:500;color:var(--text-secondary);padding:6px 0 4px">${date}</div>
+    ${items.map(s=>`<div class="item-row">
+      <div style="font-size:11px;color:#185fa5;width:36px;flex-shrink:0;text-align:center">${s.time||'—'}</div>
+      <div class="item-info"><div class="item-name">${s.desc}</div></div>
+      <button class="btn-icon" onclick="editTripSchedule(${JSON.stringify(s).replace(/"/g,'&quot;')})">✏️</button>
+      <button class="btn-icon btn-del" onclick="deleteTripSchedule('${s.id}')">✕</button>
+    </div>`).join('')}`).join('');
+}
+
+// 체크리스트
+async function addTripCheck(){
+  const item=document.getElementById('tc-item').value.trim();
+  if(!item)return;
+  const id='tc'+uid();
+  await travelDb.doc(`trip_checks/${id}`).set({id,tripId:currentTripId,item,checked:false,createdAt:Date.now()});
+  document.getElementById('tc-item').value='';
+}
+async function toggleTripCheck(id,checked){
+  const c=tripChecks.find(x=>x.id===id);if(!c)return;
+  await travelDb.doc(`trip_checks/${id}`).set({...c,checked:!checked});
+}
+async function deleteTripCheck(id){await travelDb.doc(`trip_checks/${id}`).delete();}
+function renderTripChecks(){
+  const list=document.getElementById('trip-check-list');
+  if(!tripChecks.length){list.innerHTML='<div class="empty-row">체크리스트가 없어요.</div>';return;}
+  const sorted=[...tripChecks].sort((a,b)=>a.createdAt-b.createdAt);
+  list.innerHTML='<div class="item-list">'+sorted.map(c=>`
+    <div class="item-row">
+      <input type="checkbox" ${c.checked?'checked':''} onchange="toggleTripCheck('${c.id}',${c.checked})" style="width:18px;height:18px;flex-shrink:0;cursor:pointer">
+      <div class="item-info"><div class="item-name" style="${c.checked?'text-decoration:line-through;color:var(--text-secondary)':''}">${c.item}</div></div>
+      <button class="btn-icon" onclick="editTripCheck(${JSON.stringify(c).replace(/"/g,'&quot;')})">✏️</button>
+      <button class="btn-icon btn-del" onclick="deleteTripCheck('${c.id}')">✕</button>
+    </div>`).join('')+'</div>';
+}
+
+// ── 여행 수정 함수들 ──────────────────────────────
+function editTrip(t){
+  document.getElementById('et-id').value=t.id;
+  document.getElementById('et-name').value=t.name;
+  document.getElementById('et-dest').value=t.dest;
+  document.getElementById('et-start').value=t.start||'';
+  document.getElementById('et-end').value=t.end||'';
+  document.getElementById('et-budget').value=t.budget||'';
+  document.getElementById('et-err').textContent='';
+  openModal('modal-trip');
+}
+async function saveTrip(){
+  const id=document.getElementById('et-id').value;
+  const name=document.getElementById('et-name').value.trim();
+  const dest=document.getElementById('et-dest').value.trim();
+  const start=document.getElementById('et-start').value;
+  const end=document.getElementById('et-end').value;
+  const budget=0;
+  const err=document.getElementById('et-err');err.textContent='';
+  if(!name){err.textContent='여행명을 입력해주세요.';return;}
+  if(!dest){err.textContent='여행지를 입력해주세요.';return;}
+  const orig=tripList.find(x=>x.id===id);
+  try{
+    closeModal('modal-trip');
+    await travelDb.doc(`trips/${id}`).set({...orig,name,dest,start,end,budget});
+    showStatus('수정됨 ✓');
+  }catch(e){err.textContent='저장 실패';}
+}
+
+function editTripExpense(e){
+  document.getElementById('ete-id').value=e.id;
+  document.getElementById('ete-desc').value=e.desc;
+  document.getElementById('ete-amount').value=e.amount;
+  document.getElementById('ete-cat').value=e.cat;
+  document.getElementById('ete-date').value=e.date;
+  document.getElementById('ete-err').textContent='';
+  openModal('modal-trip-expense');
+}
+async function saveTripExpense(){
+  const id=document.getElementById('ete-id').value;
+  const desc=document.getElementById('ete-desc').value.trim();
+  const amount=parseInt(document.getElementById('ete-amount').value);
+  const cat=document.getElementById('ete-cat').value;
+  const date=document.getElementById('ete-date').value;
+  const err=document.getElementById('ete-err');err.textContent='';
+  if(!desc){err.textContent='항목을 입력해주세요.';return;}
+  if(!amount||amount<=0){err.textContent='금액을 입력해주세요.';return;}
+  const orig=tripExpenses.find(x=>x.id===id);
+  try{
+    closeModal('modal-trip-expense');
+    await travelDb.doc(`trip_expenses/${id}`).set({...orig,desc,amount,cat,date});showStatus('수정됨 ✓');
+  }catch(e){err.textContent='저장 실패';}
+}
+
+function editTripHotel(h){
+  document.getElementById('eth-id').value=h.id;
+  document.getElementById('eth-name').value=h.name;
+  document.getElementById('eth-booking').value=h.booking||'';
+  document.getElementById('eth-in').value=h.checkin;
+  document.getElementById('eth-out').value=h.checkout;
+  document.getElementById('eth-addr').value=h.addr||'';
+  document.getElementById('eth-err').textContent='';
+  openModal('modal-trip-hotel');
+}
+async function saveTripHotel(){
+  const id=document.getElementById('eth-id').value;
+  const name=document.getElementById('eth-name').value.trim();
+  const booking=document.getElementById('eth-booking').value.trim();
+  const checkin=document.getElementById('eth-in').value;
+  const checkout=document.getElementById('eth-out').value;
+  const addr=document.getElementById('eth-addr').value.trim();
+  const err=document.getElementById('eth-err');err.textContent='';
+  if(!name){err.textContent='호텔명을 입력해주세요.';return;}
+  const orig=tripHotels.find(x=>x.id===id);
+  try{
+    closeModal('modal-trip-hotel');
+    await travelDb.doc(`trip_hotels/${id}`).set({...orig,name,booking,checkin,checkout,addr});showStatus('수정됨 ✓');
+  }catch(e){err.textContent='저장 실패';}
+}
+
+function editTripSchedule(s){
+  document.getElementById('ets-id').value=s.id;
+  document.getElementById('ets-date').value=s.date;
+  document.getElementById('ets-time').value=s.time||'';
+  document.getElementById('ets-desc').value=s.desc;
+  document.getElementById('ets-err').textContent='';
+  openModal('modal-trip-schedule');
+}
+async function saveTripSchedule(){
+  const id=document.getElementById('ets-id').value;
+  const date=document.getElementById('ets-date').value;
+  const time=document.getElementById('ets-time').value;
+  const desc=document.getElementById('ets-desc').value.trim();
+  const err=document.getElementById('ets-err');err.textContent='';
+  if(!date){err.textContent='날짜를 선택해주세요.';return;}
+  if(!desc){err.textContent='일정 내용을 입력해주세요.';return;}
+  const orig=tripSchedules.find(x=>x.id===id);
+  try{
+    closeModal('modal-trip-schedule');
+    await travelDb.doc(`trip_schedules/${id}`).set({...orig,date,time,desc});showStatus('수정됨 ✓');
+  }catch(e){err.textContent='저장 실패';}
+}
+
+function editTripCheck(c){
+  document.getElementById('etc-id').value=c.id;
+  document.getElementById('etc-item').value=c.item;
+  document.getElementById('etc-err').textContent='';
+  openModal('modal-trip-check');
+}
+async function saveTripCheck(){
+  const id=document.getElementById('etc-id').value;
+  const item=document.getElementById('etc-item').value.trim();
+  const err=document.getElementById('etc-err');err.textContent='';
+  if(!item){err.textContent='항목을 입력해주세요.';return;}
+  const orig=tripChecks.find(x=>x.id===id);
+  try{
+    closeModal('modal-trip-check');
+    await travelDb.doc(`trip_checks/${id}`).set({...orig,item});showStatus('수정됨 ✓');
+  }catch(e){err.textContent='저장 실패';}
+}
+
 function initApp(){
-  txList=[];budgetAmt=0;assetList=[];debtList=[];repayList=[];cardList=[];
+  txList=[];budgetAmt=0;assetList=[];debtList=[];repayList=[];cardList=[];goalList=[];
   if(chart){chart.destroy();chart=null;}
   curY=new Date().getFullYear();curM=new Date().getMonth();
   curType='expense';
@@ -1474,7 +2523,7 @@ function initApp(){
   document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
   showTab('dashboard');
   document.getElementById('sync-label').textContent='연결 중...';
-  subscribeTx();subscribeAssets();subscribeDebts();subscribeCards();
+  subscribeTx();subscribeAssets();subscribeDebts();subscribeCards();subscribeGoals();setTimeout(()=>{updateGoalAssetSelect();renderGoals();},500);
   document.getElementById('sync-label').textContent='실시간 공유 중 ✓';
 }
 </script>
@@ -1484,6 +2533,7 @@ function initApp(){
   function tryInitCal(){
     if(typeof makeDb==='function'){
       initCal();
+      subscribePw(); // 비밀번호 실시간 구독 시작
     } else {
       setTimeout(tryInitCal,50);
     }
