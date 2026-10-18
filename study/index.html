@@ -4,136 +4,251 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>자격증 노트</title>
-<meta name="theme-color" content="#1f6f68">
+<meta name="theme-color" content="#F5F4F0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1113" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 :root{
-  --bg:#f4f5f2; --surface:#ffffff; --surface2:#eef0ec; --line:#dcdfd8;
-  --ink:#1b1f1d; --ink2:#4b524e; --muted:#838a85;
-  --accent:#1f6f68; --accent-ink:#ffffff; --accent-soft:#dcefec;
-  --bad:#c0392b; --bad-soft:#fbe7e4; --good:#2c7a3f; --good-soft:#e2f2e5;
-  --warn:#b36b00; --warn-soft:#fff1d9;
-  --radius:14px; --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 14px rgba(0,0,0,.04);
+  --bg:#F5F4F0; --surface:#FFFFFF; --surface2:#F0EEE9; --line:#E5E2DB; --line2:#EEECE6;
+  --ink:#17191C; --ink2:#4A4F57; --muted:#8B9098;
+  --accent:#1F3A5C; --accent-ink:#FFFFFF; --accent-soft:#E7EDF5;
+  --good:#2F7A55; --good-soft:#E4F1E9; --bad:#B9432E; --bad-soft:#F8E7E2; --warn:#A06512; --warn-soft:#FAEFD9;
+  --hero:#17191C; --hero-ink:#F5F4F0; --hero-sub:#A9ADB4;
+  --r:16px; --r-sm:10px;
+  --shadow:0 1px 0 rgba(23,25,28,.03), 0 6px 20px -12px rgba(23,25,28,.18);
+  --nav-h:64px;
 }
 @media (prefers-color-scheme: dark){
   :root{
-    --bg:#121514; --surface:#1b1f1e; --surface2:#242928; --line:#323837;
-    --ink:#eef1ef; --ink2:#b8bfbb; --muted:#7f8783;
-    --accent:#5cc2b6; --accent-ink:#0d1f1d; --accent-soft:#1d3532;
-    --bad:#f07a6b; --bad-soft:#3a201d; --good:#6fcf86; --good-soft:#1c3122;
-    --warn:#f0b34f; --warn-soft:#3a2c14;
+    --bg:#0F1113; --surface:#17191D; --surface2:#1F2227; --line:#2A2E34; --line2:#23262B;
+    --ink:#ECEDEF; --ink2:#B4B8BF; --muted:#7D828A;
+    --accent:#9DB8DE; --accent-ink:#0F1113; --accent-soft:#1D2734;
+    --good:#6CC495; --good-soft:#18291F; --bad:#EE8A78; --bad-soft:#33201C; --warn:#E2B15C; --warn-soft:#30261A;
+    --hero:#ECEDEF; --hero-ink:#0F1113; --hero-sub:#5B6068;
     --shadow:none;
   }
 }
-*{box-sizing:border-box}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--ink);
   font-family:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-  font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
-button,input,select,textarea{font:inherit;color:inherit}
+  font-size:15px;line-height:1.55;letter-spacing:-.01em;-webkit-text-size-adjust:100%;font-feature-settings:"tnum" 1}
+button,input,select,textarea{font:inherit;color:inherit;letter-spacing:inherit}
 button{cursor:pointer}
-.wrap{max-width:860px;margin:0 auto;padding:0 16px 96px}
-header.top{position:sticky;top:0;z-index:20;background:var(--bg);padding-top:env(safe-area-inset-top)}
-.top-row{display:flex;align-items:center;gap:10px;padding:14px 0 10px}
-.brand{font-weight:800;font-size:19px;letter-spacing:-.02em;margin-right:auto}
-.brand small{font-weight:500;color:var(--muted);font-size:12px;margin-left:6px}
-.seg{display:inline-flex;background:var(--surface2);border-radius:999px;padding:3px}
-.seg button{border:0;background:transparent;padding:6px 16px;border-radius:999px;font-weight:600;color:var(--ink2)}
-.seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
-.icon-btn{border:0;background:var(--surface2);width:36px;height:36px;border-radius:50%;font-size:17px;display:grid;place-items:center}
-nav.views{display:flex;gap:6px;overflow-x:auto;padding:4px 0 12px;scrollbar-width:none}
-nav.views::-webkit-scrollbar{display:none}
-nav.views button{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:600;color:var(--ink2)}
-nav.views button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.demo-bar{background:var(--warn-soft);color:var(--warn);font-size:13px;padding:8px 12px;border-radius:10px;margin-bottom:10px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+svg.i{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.wrap{max-width:720px;margin:0 auto;padding:0 18px}
+main.wrap{padding-bottom:calc(var(--nav-h) + 96px + env(safe-area-inset-bottom))}
+main.wrap.focus{padding-bottom:40px}
+
+/* header */
+header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb, var(--bg) 88%, transparent);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);padding-top:env(safe-area-inset-top)}
+.top-row{display:flex;align-items:center;gap:10px;height:56px}
+.brand{font-weight:700;font-size:16px;letter-spacing:-.02em;margin-right:auto;display:flex;align-items:center;gap:8px}
+.brand i{width:8px;height:8px;border-radius:2px;background:var(--accent);display:inline-block;transform:rotate(45deg)}
+.seg{display:inline-flex;background:var(--surface2);border-radius:999px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;padding:6px 14px;border-radius:999px;font-weight:600;font-size:13.5px;color:var(--muted);white-space:nowrap}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.icon-btn{border:0;background:transparent;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:var(--ink2)}
+.icon-btn:hover{background:var(--surface2)}
+.icon-btn.sm{width:32px;height:32px;border-radius:10px}
+
+/* page */
+.page-head{padding:14px 0 18px}
+.eyebrow{font-size:13px;color:var(--muted);font-weight:500;margin-bottom:2px}
+h1{font-size:26px;line-height:1.25;letter-spacing:-.03em;margin:0;font-weight:700}
+h2{font-size:17px;margin:0;letter-spacing:-.02em;font-weight:650}
+h3{font-size:15px;margin:0;font-weight:650}
+.sec{margin-top:28px}
+.sec-title{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600;color:var(--muted);margin:0 2px 10px;letter-spacing:0}
+.link{border:0;background:none;color:var(--accent);font-weight:600;font-size:13px;padding:4px 0;display:inline-flex;align-items:center;gap:2px}
+.link svg.i{width:15px;height:15px}
 .stack>*+*{margin-top:12px}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .between{justify-content:space-between}
-.grow{flex:1}
-h2{font-size:17px;margin:0;letter-spacing:-.01em}
-h3{font-size:15px;margin:0}
-.muted{color:var(--muted)} .sm{font-size:13px} .xs{font-size:12px}
-.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 14px;font-weight:600}
+.grow{flex:1;min-width:0}
+.muted{color:var(--muted)} .sm{font-size:13.5px} .xs{font-size:12px}
+.card{background:var(--surface);border:1px solid var(--line2);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+.empty{text-align:center;color:var(--muted);padding:40px 16px}
+.empty b{display:block;color:var(--ink);font-size:16px;font-weight:650;margin-bottom:6px}
+.empty .btn{margin-top:16px}
+
+/* buttons */
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:9px 15px;font-weight:600;font-size:14.5px;display:inline-flex;align-items:center;justify-content:center;gap:6px;color:var(--ink)}
+.btn svg.i{width:17px;height:17px}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.dark{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .btn.ghost{background:transparent;border-color:transparent;color:var(--ink2)}
 .btn.danger{color:var(--bad)}
-.btn.sm{padding:5px 10px;font-size:13px;border-radius:8px}
-.btn:disabled{opacity:.5;cursor:default}
-.btn.pick{display:block;width:100%;text-align:left;font-weight:500;padding:11px 14px}
-.btn.pick:disabled{opacity:1}
-.chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:600;color:var(--ink2)}
-.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
-.tag{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--surface2);color:var(--ink2)}
-.tag.bad{background:var(--bad-soft);color:var(--bad)} .tag.good{background:var(--good-soft);color:var(--good)} .tag.warn{background:var(--warn-soft);color:var(--warn)}
-.empty{text-align:center;color:var(--muted);padding:36px 12px}
-.empty b{display:block;color:var(--ink2);font-size:16px;margin-bottom:4px}
-/* hero */
-.hero{background:var(--accent);color:var(--accent-ink);border-radius:18px;padding:20px;display:flex;align-items:center;gap:18px}
-.hero .dd{font-size:44px;font-weight:800;letter-spacing:-.03em;line-height:1}
-.hero .t1{font-weight:700;font-size:16px}
-.hero .t2{opacity:.85;font-size:13px}
-.dd-badge{font-weight:800;font-variant-numeric:tabular-nums;min-width:58px;text-align:center;padding:3px 8px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-size:13px}
-.dd-badge.today{background:var(--bad);color:#fff}
-.dd-badge.soon{background:var(--bad-soft);color:var(--bad)}
-.dd-badge.past{background:var(--surface2);color:var(--muted)}
-.ev{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px dashed var(--line)}
-.ev:first-child{border-top:0}
-.ev .lbl{font-weight:600}
-.ev.past{opacity:.55}
-/* table */
-.tbl-wrap{overflow-x:auto;margin:0 -16px;padding:0 16px}
+.btn.sm{padding:6px 11px;font-size:13px;border-radius:10px}
+.btn.lg{padding:13px 20px;font-size:15.5px;border-radius:14px}
+.btn.block{width:100%}
+.btn:disabled{opacity:.45;cursor:default}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 13px;font-size:13.5px;font-weight:600;color:var(--ink2);display:inline-flex;gap:6px;align-items:center}
+.chip .n{color:var(--muted);font-weight:500}
+.chip.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.chip.on .n{color:inherit;opacity:.65}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--surface2);color:var(--ink2);white-space:nowrap}
+.tag.bad{background:var(--bad-soft);color:var(--bad)} .tag.good{background:var(--good-soft);color:var(--good)} .tag.warn{background:var(--warn-soft);color:var(--warn)} .tag.accent{background:var(--accent-soft);color:var(--accent)}
+
+/* hero (D-day) */
+.hero{background:var(--hero);color:var(--hero-ink);border-radius:22px;padding:22px 22px 20px;display:flex;align-items:flex-end;gap:16px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-40px;top:-60px;width:180px;height:180px;border-radius:50%;border:1px solid color-mix(in srgb,var(--hero-ink) 12%,transparent)}
+.hero-k{font-size:12.5px;font-weight:600;color:var(--hero-sub);letter-spacing:.02em}
+.hero-t{font-size:18px;font-weight:700;margin-top:4px;letter-spacing:-.02em}
+.hero-d{font-size:13px;color:var(--hero-sub);margin-top:2px}
+.hero-dd{margin-left:auto;font-size:44px;font-weight:750;letter-spacing:-.04em;line-height:.95;white-space:nowrap}
+.hero-dd.small{font-size:26px}
+
+/* review summary */
+.rev-card{display:flex;align-items:center;gap:16px}
+.big-num{font-size:40px;font-weight:750;letter-spacing:-.04em;line-height:1.05}
+.big-num span{font-size:16px;font-weight:600;color:var(--muted);margin-left:3px;letter-spacing:0}
+.label{font-size:13px;color:var(--muted);font-weight:600}
+.done-state{display:flex;align-items:center;gap:8px;color:var(--good);font-weight:650}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line2);border-radius:14px;padding:14px}
+.stat b{display:block;font-size:22px;font-weight:700;letter-spacing:-.03em}
+.stat span{font-size:12px;color:var(--muted);font-weight:500}
+
+/* list rows */
+.list{padding:4px 0}
+.list .item{display:flex;align-items:center;gap:12px;padding:12px 18px}
+.list .item+.item{border-top:1px solid var(--line2)}
+.dd-badge{font-weight:700;font-variant-numeric:tabular-nums;min-width:56px;text-align:center;padding:4px 8px;border-radius:8px;background:var(--surface2);color:var(--ink2);font-size:12.5px;flex:none}
+.dd-badge.soon{background:var(--accent-soft);color:var(--accent)}
+.dd-badge.today{background:var(--ink);color:var(--bg)}
+.dd-badge.past{background:transparent;color:var(--muted);border:1px dashed var(--line)}
+.ev-main{flex:1;min-width:0}
+.ev-main .lbl{font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev-main .date{font-size:12.5px;color:var(--muted)}
+.item.past{opacity:.55}
+
+/* cert card */
+.cert{padding:0;overflow:hidden}
+.cert-h{display:flex;align-items:flex-start;gap:8px;padding:18px 14px 10px 18px}
+.cert-h .meta{font-size:12.5px;color:var(--muted);margin-top:2px}
+.cert .list{border-top:1px solid var(--line2)}
+.cert-f{display:flex;gap:6px;padding:10px 12px;border-top:1px solid var(--line2);background:color-mix(in srgb,var(--surface2) 45%,var(--surface))}
+
+/* score table (기존) */
+.tbl-wrap{overflow-x:auto;margin:0 -18px;padding:0 18px}
 table.sc{border-collapse:separate;border-spacing:0;min-width:100%;font-variant-numeric:tabular-nums}
-table.sc th,table.sc td{padding:4px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+table.sc th,table.sc td{padding:5px 4px;border-bottom:1px solid var(--line2);text-align:center;white-space:nowrap}
 table.sc th{font-size:12px;color:var(--muted);font-weight:600}
 table.sc td.name{text-align:left;position:sticky;left:0;background:var(--surface);min-width:118px}
-table.sc input{width:56px;text-align:center;border:1px solid transparent;background:var(--surface2);border-radius:8px;padding:6px 2px}
+table.sc input{width:56px;text-align:center;border:1px solid transparent;background:var(--surface2);border-radius:9px;padding:7px 2px}
 table.sc input:focus{outline:2px solid var(--accent);background:var(--surface)}
 table.sc input.fail{color:var(--bad);font-weight:700}
 table.sc input.pass{color:var(--good);font-weight:700}
 table.sc td.avg{font-weight:700;color:var(--ink2)}
 table.sc input.name-in{width:100%;min-width:104px;border:0;background:transparent;font-weight:600;padding:4px 0;text-align:left}
-/* chart */
 .chart{position:relative}
 .chart svg{display:block;width:100%;height:auto;overflow:visible}
 .chart .tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12px;padding:6px 9px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-110%);opacity:0;transition:opacity .1s}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin-top:6px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin-top:8px}
 .legend i{display:inline-block;width:16px;height:0;border-top:2px solid;vertical-align:middle;margin-right:5px}
-/* wrong notes */
-.wn{display:flex;gap:12px;align-items:flex-start;cursor:pointer}
-.wn img{width:64px;height:64px;object-fit:cover;border-radius:10px;flex:none;background:var(--surface2)}
-.wn .q{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.choices{margin:6px 0 0;padding-left:0;list-style:none}
-.choices li{padding:2px 0}
-.qimg{max-width:100%;border-radius:10px;border:1px solid var(--line)}
-/* forms */
-label.f{display:block;font-size:13px;font-weight:600;color:var(--ink2);margin-bottom:4px}
-.in,select.in,textarea.in{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 11px}
-textarea.in{min-height:72px;resize:vertical}
+
+/* notes */
+.note{display:flex;gap:14px;align-items:flex-start;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line2);border-radius:var(--r);padding:14px;box-shadow:var(--shadow)}
+.note+.note{margin-top:10px}
+.note img{width:68px;height:68px;object-fit:cover;border-radius:10px;flex:none;background:var(--surface2);border:1px solid var(--line2)}
+.note .meta{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.note .q{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:550;margin:3px 0 8px;font-size:14.5px}
+.note-f{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.lv{display:inline-flex;gap:3px;align-items:center}
+.lv i{width:6px;height:6px;border-radius:50%;background:var(--line)}
+.lv i.on{background:var(--accent)}
+.lv.done i{background:var(--good)}
+.next{font-size:12px;color:var(--muted);margin-left:auto}
+.next.due{color:var(--accent);font-weight:650}
+.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0 14px}
+.sel{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:6px 28px 6px 10px;font-size:13px;font-weight:600;color:var(--ink2);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238B9098' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center}
+.kcard{display:flex;gap:12px;align-items:center;padding:14px 18px;width:100%;text-align:left;background:none;border:0}
+.kcard+.kcard{border-top:1px solid var(--line2)}
+.kcard .f{font-weight:600}
+.kcard .b{font-size:13.5px;color:var(--muted)}
+
+/* detail */
+.big-q{font-size:17px;font-weight:600;line-height:1.6;white-space:pre-wrap;letter-spacing:-.015em}
+.qimg{max-width:100%;border-radius:12px;border:1px solid var(--line2);display:block}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);width:100%;text-align:left;font-weight:500;font-size:15px}
+.opt+.opt{margin-top:8px}
+.opt .no{color:var(--muted);font-weight:600;flex:none}
+.opt.good{border-color:var(--good);background:var(--good-soft);color:var(--good)}
+.opt.good .no{color:inherit}
+.opt.bad{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.opt.bad .no{color:inherit}
+.opt:disabled{cursor:default}
+.answer-box{background:var(--accent-soft);border-radius:14px;padding:14px 16px;white-space:pre-wrap;line-height:1.65}
+.answer-box.bad{background:var(--bad-soft)}
+.answer-box.good{background:var(--good-soft)}
+.answer-box .h{font-weight:700;display:block;margin-bottom:4px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13.5px}
+.kv dt{color:var(--muted)} .kv dd{margin:0;font-weight:550}
+
+/* session */
+.sess-top{display:flex;align-items:center;gap:12px;padding:12px 0 18px}
+.progress{flex:1;height:5px;background:var(--surface2);border-radius:999px;overflow:hidden}
+.progress>div{height:100%;background:var(--accent);border-radius:999px;transition:width .25s}
+.count{font-size:13px;color:var(--muted);font-weight:600;font-variant-numeric:tabular-nums}
+.sess-card{padding:22px}
+.grade{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grade .btn{flex-direction:column;gap:0;padding:12px}
+.grade .btn small{font-size:12px;font-weight:500;opacity:.75}
+.flip{min-height:220px;display:grid;place-items:center;text-align:center;font-size:21px;font-weight:650;white-space:pre-wrap;cursor:pointer;user-select:none;letter-spacing:-.02em}
+.flip.back{background:var(--accent-soft)}
+.flip .hint{font-size:12px;color:var(--muted);font-weight:500;margin-top:14px}
+
+/* forms (오답 입력 화면 등) */
+label.f{display:block;font-size:13px;font-weight:600;color:var(--ink2);margin-bottom:5px}
+.in,select.in,textarea.in{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px}
+textarea.in{min-height:76px;resize:vertical}
 .in:focus{outline:2px solid var(--accent);outline-offset:-1px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media (max-width:520px){.grid2{grid-template-columns:1fr}}
-/* dialog */
-dialog{border:0;padding:0;border-radius:18px;background:var(--surface);color:var(--ink);width:min(560px,calc(100vw - 24px));max-height:calc(100vh - 32px)}
-dialog::backdrop{background:rgba(0,0,0,.45)}
-.dlg-h{display:flex;align-items:center;padding:16px 18px 6px}
+
+/* sheet (dialog) */
+dialog{border:0;padding:0;border-radius:22px;background:var(--surface);color:var(--ink);width:min(560px,calc(100vw - 24px));max-height:calc(100vh - 40px);box-shadow:0 30px 80px -20px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(15,17,19,.42);backdrop-filter:blur(2px)}
+.dlg-h{display:flex;align-items:center;gap:8px;padding:18px 16px 6px 22px}
 .dlg-h h2{margin-right:auto}
-.dlg-b{padding:8px 18px 16px;overflow-y:auto;max-height:calc(100vh - 160px)}
-.dlg-f{display:flex;gap:8px;justify-content:flex-end;padding:10px 18px 16px;border-top:1px solid var(--line)}
+.dlg-b{padding:8px 22px 18px;overflow-y:auto;max-height:calc(100vh - 190px)}
+.dlg-f{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--line2)}
+@media (max-width:640px){
+  dialog{margin:auto 0 0;width:100%;max-width:100%;border-radius:22px 22px 0 0;max-height:94vh;animation:up .22s ease-out}
+  .dlg-b{max-height:calc(94vh - 140px)}
+  dialog::before{content:"";display:block;width:38px;height:4px;border-radius:9px;background:var(--line);margin:8px auto 0}
+}
+@keyframes up{from{transform:translateY(30px);opacity:.4}to{transform:none;opacity:1}}
+.action{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;background:none;padding:14px 4px;border-radius:12px}
+.action+.action{border-top:1px solid var(--line2)}
+.action .ic{width:42px;height:42px;border-radius:12px;background:var(--surface2);display:grid;place-items:center;color:var(--ink);flex:none}
+.action .t{font-weight:650}
+.action .d{font-size:12.5px;color:var(--muted)}
+.action:disabled{opacity:.4}
+
+/* tab bar + fab */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:color-mix(in srgb, var(--surface) 92%, transparent);backdrop-filter:saturate(1.4) blur(16px);-webkit-backdrop-filter:saturate(1.4) blur(16px);border-top:1px solid var(--line2);padding-bottom:env(safe-area-inset-bottom)}
+.tabbar .in-nav{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:var(--nav-h)}
+.tabbar button{border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:600;color:var(--muted);position:relative}
+.tabbar button svg.i{width:22px;height:22px}
+.tabbar button.on{color:var(--ink)}
+.tabbar button.on svg.i{stroke-width:2.2}
+.badge{position:absolute;top:8px;left:calc(50% + 6px);min-width:17px;height:17px;padding:0 5px;border-radius:999px;background:var(--bad);color:#fff;font-size:10.5px;font-weight:700;display:grid;place-items:center;line-height:1}
+.fab{position:fixed;right:max(18px, calc(50% - 342px));bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom));z-index:31;width:56px;height:56px;border-radius:18px;border:0;background:var(--ink);color:var(--bg);display:grid;place-items:center;box-shadow:0 10px 28px -8px rgba(0,0,0,.45)}
+.fab svg.i{width:24px;height:24px;stroke-width:2.2}
+
+.demo-bar{background:var(--warn-soft);color:var(--warn);font-size:12.5px;padding:8px 12px;border-radius:10px;margin-top:6px}
 .spinner{display:inline-block;width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-3px}
 @keyframes sp{to{transform:rotate(360deg)}}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;z-index:99;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw}
+.toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + 24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;z-index:99;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw}
 .toast.on{opacity:1}
-/* review & cards */
-.big-q{font-size:17px;font-weight:600;white-space:pre-wrap}
-.answer-box{background:var(--accent-soft);border-radius:12px;padding:12px;white-space:pre-wrap}
-.flip{min-height:200px;display:grid;place-items:center;text-align:center;font-size:20px;font-weight:700;white-space:pre-wrap;cursor:pointer;user-select:none}
-.flip.back{background:var(--accent-soft);color:var(--ink)}
-.progress{height:6px;background:var(--surface2);border-radius:999px;overflow:hidden}
-.progress>div{height:100%;background:var(--accent)}
-.streak{letter-spacing:2px}
-.login{min-height:70vh;display:grid;place-items:center;text-align:center}
-.fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:15;border:0;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:13px 18px;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.login{min-height:80vh;display:grid;place-items:center;text-align:center}
+.katex{font-size:1.05em}
 </style>
 </head>
 <body>
@@ -214,15 +329,70 @@ const Store = {
   }
 };
 
+/* ---------------- 수식 표시 (KaTeX) ---------------- */
+let katexReady=false;
+(function loadKatex(){
+  const v="0.16.11", base=`https://cdn.jsdelivr.net/npm/katex@${v}/dist/`;
+  const l=document.createElement("link"); l.rel="stylesheet"; l.href=base+"katex.min.css"; document.head.appendChild(l);
+  const sc=document.createElement("script"); sc.src=base+"katex.min.js";
+  sc.onload=()=>{ katexReady=true; if (S.ready) render(); }; document.head.appendChild(sc);
+})();
+const HANGUL=/[가-힣]/;
+const RAW_TEX=/\\(?:d?frac|sqrt)\s*(?:\[[^\]]*\])?\{[^{}]*\}(?:\{[^{}]*\})?|[A-Za-z0-9)]*(?:\^|_)\{[^{}]*\}/g;
+function katexOne(src, display=false){
+  try { return window.katex.renderToString(src, { throwOnError:false, displayMode:display, strict:"ignore" }); }
+  catch { return esc(src); }
+}
+// "$…$" 구간은 수식으로, 그 밖에서도 \frac{}{} 같은 LaTeX가 보이면 수식으로 그림
+function tex(str){
+  str=String(str??""); if (!katexReady || !/[\\$^_]/.test(str)) return esc(str);
+  const out=[]; const re=/\$\$([\s\S]+?)\$\$|\$([^$\n]+?)\$|\\\(([\s\S]+?)\\\)/g; let last=0, m;
+  const plain = t => {
+    if (!t) return "";
+    if (!HANGUL.test(t) && /\\[a-zA-Z]+|[\^_]\{/.test(t)) return katexOne(t.trim());   // 한글 없는 순수 수식
+    let o="", k=0, mm; RAW_TEX.lastIndex=0;
+    while ((mm=RAW_TEX.exec(t))){ o+=esc(t.slice(k,mm.index))+katexOne(mm[0]); k=mm.index+mm[0].length; }
+    return o+esc(t.slice(k));
+  };
+  while ((m=re.exec(str))){ out.push(plain(str.slice(last,m.index))); out.push(katexOne(m[1]??m[2]??m[3], !!m[1])); last=m.index+m[0].length; }
+  out.push(plain(str.slice(last)));
+  return out.join("");
+}
+
+/* ---------------- 아이콘 ---------------- */
+const svg = d => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+const I = {
+  today:  svg('<path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/>'),
+  plan:   svg('<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/>'),
+  score:  svg('<path d="M4 20h16M7 16.5V11M12 16.5V6.5M17 16.5v-4"/>'),
+  notes:  svg('<path d="M6.5 3.5h9l3 3v14h-12a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2z"/><path d="M9 9.5h6M9 13h6M9 16.5h3.5"/>'),
+  review: svg('<path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 5v6h-6"/>'),
+  plus:   svg('<path d="M12 5v14M5 12h14"/>'),
+  close:  svg('<path d="M6 6l12 12M18 6 6 18"/>'),
+  gear:   svg('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'),
+  camera: svg('<path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.6l1.4-2h5l1.4 2h1.6A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.5" r="3.5"/>'),
+  pen:    svg('<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="m13.5 6.5 4 4"/>'),
+  cards:  svg('<rect x="3" y="6" width="13" height="15" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v12"/>'),
+  badge:  svg('<circle cx="12" cy="9" r="5.5"/><path d="M8.5 13.5 7 21l5-2.5 5 2.5-1.5-7.5"/>'),
+  more:   svg('<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>'),
+  right:  svg('<path d="m9 6 6 6-6 6"/>'),
+  down:   svg('<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>'),
+  check:  svg('<path d="m5 12.5 4.5 4.5L19 7.5"/>'),
+  spark:  svg('<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/>')
+};
+
 /* ---------------- 상태 ---------------- */
 const S = {
-  tab: localStorage.getItem("study_tab") || "cert",   // cert | lang
-  view: "home",                                        // home | score | wrong | review | cards
-  certs: [], wrongs: [], cards: [], settings: { id:"main", serviceKey:"", proxy:"", aiModel:"" },
+  tab: localStorage.getItem("study_tab") || "cert",            // cert | lang
+  view: localStorage.getItem("study_view") || "today",         // today | plan | score | notes | review
+  certs: [], wrongs: [], cards: [], settings: { id:"main", serviceKey:"", proxy:"", aiModel:"", geminiKey:"" },
   sel: {}, ready:false, showPast:false,
-  wf: { cert:"", stage:"", subject:"", status:"active" },
-  review: null, study: null
+  wf: { cert:"", stage:"", subject:"", status:"active" },      // 노트 필터
+  notesMode: "wrong",                                           // wrong | card
+  rf: { cert:"" },                                              // 복습 범위
+  session: null
 };
+if (!["today","plan","score","notes","review"].includes(S.view)) S.view="today";
 const save = (name, obj) => Store.put(name, obj).catch(e => { console.error(e); toast("저장 실패: "+(e.message||e)); });
 const certsOfTab = () => S.certs.filter(c => c.kind === S.tab).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
 const certById = id => S.certs.find(c=>c.id===id);
@@ -234,13 +404,42 @@ function curCert(){
 const L = () => S.tab==="cert"
   ? { item:"자격증", round:"회차", read:"회독", stagesDefault:"필기, 실기", pass:60, max:100 }
   : { item:"어학 시험", round:"모의고사", read:"회차", stagesDefault:"모의고사", pass:800, max:990 };
+const go = v => { S.view=v; try{localStorage.setItem("study_view",v);}catch{} render(); window.scrollTo(0,0); };
 
 async function loadAll(){
   const [certs, wrongs, cards, settings] = await Promise.all([Store.list("certs"), Store.list("wrongs"), Store.list("cards"), Store.list("settings")]);
   Object.assign(S, { certs, wrongs, cards }); if (settings[0]) S.settings = { ...S.settings, ...settings[0] };
+  S.wrongs.forEach(w=>normW(w)); S.cards.forEach(normC);
   S.ready = true;
 }
 
+/* ---------------- 간격 반복 복습 (1 → 3 → 7 → 14 → 30일) ---------------- */
+const SRS = [1,3,7,14,30];
+const addDays = n => { const d=new Date(); d.setDate(d.getDate()+n); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; };
+const isDue = x => !x.graduated && (!x.due || x.due <= todayStr());
+const lvlOf = x => Math.min(x.level||0, SRS.length);
+function srsMigrate(x, legacy){
+  if (x.level===undefined) x.level = x.graduated ? SRS.length : Math.min(legacy||0, 2);
+  if (x.graduated) x.due = null; else if (!x.due) x.due = todayStr();
+  return x;
+}
+function normC(c){ return srsMigrate(c, c.box); }
+function srsNext(x, ok){
+  const lv = x.level||0;
+  if (ok){
+    if (lv >= SRS.length){ x.graduated = true; x.due = null; x.graduatedAt = Date.now(); }
+    else { x.due = addDays(SRS[lv]); x.level = lv+1; }
+  } else { x.level = 0; x.due = addDays(1); x.graduated = false; x.wrongCount = (x.wrongCount||1)+1; }
+  x.lastReviewed = Date.now();
+}
+const nextLabel = x => { const lv=x.level||0; if (lv>=SRS.length) return "졸업"; const d=SRS[lv]; return d===1?"내일":`${d}일 후`; };
+const lvDots = x => `<span class="lv ${x.graduated?"done":""}" title="복습 ${lvlOf(x)}/${SRS.length}단계">${Array.from({length:SRS.length},(_,i)=>`<i class="${i<lvlOf(x)||x.graduated?"on":""}"></i>`).join("")}</span>`;
+const dueText = x => x.graduated ? `<span class="next">졸업</span>` : (isDue(x) ? `<span class="next due">오늘 복습</span>` : `<span class="next">${fmtDate(x.due)} 복습</span>`);
+function reviewPool(certId){
+  const ids = new Set(certsOfTab().map(c=>c.id));
+  const ok = x => ids.has(x.certId) && (!certId || x.certId===certId) && !x.graduated;
+  return [ ...S.wrongs.filter(ok).map(x=>({k:"w", x})), ...S.cards.filter(ok).map(x=>({k:"c", x})) ];
+}
 /* ---------------- D-day 계산 ---------------- */
 // 이벤트: {id, label, date, end?}  — 기간 일정은 시작 전엔 시작일, 기간 중엔 마감일 기준으로 표시
 function evState(ev){
@@ -254,53 +453,100 @@ function upcoming(cert){ return (cert.events||[]).map(e=>({...e, st:evState(e)})
 const fmtRange = e => e.end && e.end!==e.date ? `${fmtDate(e.date)} ~ ${fmtDate(e.end)}` : fmtDate(e.date);
 
 /* =========================================================
-   렌더링
+   화면
    ========================================================= */
+const TABS = [["today","오늘",I.today],["plan","일정",I.plan],["score","성적",I.score],["notes","노트",I.notes],["review","복습",I.review]];
+const longDate = () => { const d=new Date(); return `${d.getMonth()+1}월 ${d.getDate()}일 ${"일월화수목금토"[d.getDay()]}요일`; };
+
 function render(){
   const app = $("#app");
   if (!DEMO && !Store.fb){ app.innerHTML = `<div class="wrap login"><span class="spinner"></span></div>`; return; }
   if (!DEMO && !Store.user){
-    app.innerHTML = `<div class="wrap login"><div class="stack"><div style="font-size:40px">📘</div><h2>자격증 노트</h2>
-      <p class="muted sm">가계부와 같은 Google 계정으로 로그인하세요.</p>
-      <button class="btn primary" id="loginBtn">Google로 로그인</button></div></div>`;
+    app.innerHTML = `<div class="wrap login"><div class="stack" style="max-width:300px">
+      <div style="display:grid;place-items:center"><div class="hero" style="width:64px;height:64px;padding:0;display:grid;place-items:center;border-radius:18px">${I.notes}</div></div>
+      <h1>자격증 노트</h1><p class="muted sm" style="margin:0">일정 · 성적 · 오답 · 복습을 한 곳에서</p>
+      <button class="btn dark lg block" id="loginBtn">Google 계정으로 시작하기</button></div></div>`;
     $("#loginBtn").onclick = () => Store.login().catch(e=>toast("로그인 실패: "+e.message));
     return;
   }
   if (!S.ready){ app.innerHTML = `<div class="wrap login"><span class="spinner"></span></div>`; loadAll().then(render).catch(e=>{ app.innerHTML=`<div class="wrap login"><p>불러오기 실패: ${esc(e.message)}</p></div>`; }); return; }
 
-  const views = [["home","일정"],["score","점수"],["wrong","오답노트"],["review","다시 풀기"],["cards","암기카드"]];
+  const focus = S.view==="review" && S.session;
+  const dueN = reviewPool().filter(o=>isDue(o.x)).length;
   app.innerHTML = `
-  <header class="top"><div class="wrap" style="padding-bottom:0">
-    <div class="top-row">
-      <div class="brand">자격증 노트</div>
+  ${focus ? "" : `<header class="top"><div class="wrap top-row">
+      <div class="brand"><i></i>자격증 노트</div>
       <div class="seg"><button data-tab="cert" class="${S.tab==="cert"?"on":""}">자격증</button><button data-tab="lang" class="${S.tab==="lang"?"on":""}">어학</button></div>
-      <button class="icon-btn" id="setBtn" title="설정" aria-label="설정">⚙︎</button>
-    </div>
-    <nav class="views">${views.map(([k,t])=>`<button data-view="${k}" class="${S.view===k?"on":""}">${t}</button>`).join("")}</nav>
-  </div></header>
-  <main class="wrap">
-    ${DEMO?`<div class="demo-bar">데모 모드 — 이 브라우저에만 저장됩니다. Firebase 설정을 넣으면 폰·PC에서 같이 쓸 수 있어요.</div>`:""}
+      <button class="icon-btn" id="setBtn" aria-label="설정">${I.gear}</button>
+    </div></header>`}
+  <main class="wrap ${focus?"focus":""}">
+    ${DEMO && !focus ? `<div class="demo-bar">데모 모드 — 이 브라우저에만 저장됩니다.</div>` : ""}
     <div id="view"></div>
-  </main>`;
-  app.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{ S.tab=b.dataset.tab; localStorage.setItem("study_tab",S.tab); S.review=null; S.study=null; render(); });
-  app.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>{ S.view=b.dataset.view; render(); });
-  $("#setBtn").onclick = openSettings;
-  ({home:viewHome, score:viewScore, wrong:viewWrong, review:viewReview, cards:viewCards})[S.view]($("#view"));
+  </main>
+  ${focus ? "" : `<button class="fab" id="fab" aria-label="새로 추가">${I.plus}</button>
+  <nav class="tabbar"><div class="in-nav">${TABS.map(([k,t,ic])=>`<button data-view="${k}" class="${S.view===k?"on":""}" aria-label="${t}">${ic}<span>${t}</span>${k==="review"&&dueN?`<b class="badge">${dueN>99?"99+":dueN}</b>`:""}</button>`).join("")}</div></nav>`}`;
+  app.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{ S.tab=b.dataset.tab; try{localStorage.setItem("study_tab",S.tab);}catch{} S.session=null; S.wf.cert=""; S.rf.cert=""; render(); });
+  app.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>go(b.dataset.view));
+  $("#setBtn") && ($("#setBtn").onclick = openSettings);
+  $("#fab") && ($("#fab").onclick = openAddSheet);
+  ({today:viewToday, plan:viewPlan, score:viewScorePage, notes:viewNotes, review:viewReview})[S.view]($("#view"));
 }
 
-/* ---------------- 일정 / D-day ---------------- */
-function viewHome(el){
-  const list = certsOfTab(), l=L();
-  const all = list.flatMap(c => upcoming(c).map(e=>({...e, cert:c})) ).sort((a,b)=>a.st.d-b.st.d);
-  const next = all[0];
+function noCert(el){
+  const l=L();
+  el.innerHTML = `<div class="page-head"><div class="eyebrow">${longDate()}</div><h1>시작해 볼까요</h1></div>
+    <div class="card empty"><b>먼저 ${l.item}을 등록하세요</b>${S.tab==="cert"?"가스기능장, 전기기사처럼 준비 중인 자격증을 추가하면<br>일정·성적·오답을 따로 관리할 수 있어요.":"TOEIC, OPIc처럼 준비 중인 시험을 추가하세요."}
+    <div><button class="btn dark" id="firstCert">${I.plus} ${l.item} 추가</button></div></div>`;
+  $("#firstCert").onclick = () => openCertForm();
+}
+
+/* ---------------- 오늘 ---------------- */
+function viewToday(el){
+  const list = certsOfTab(); if (!list.length) return noCert(el);
+  const evs = list.flatMap(c => upcoming(c).map(e=>({...e, cert:c}))).sort((a,b)=>a.st.d-b.st.d);
+  const next = evs[0];
+  const pool = reviewPool(), due = pool.filter(o=>isDue(o.x));
+  const dw = due.filter(o=>o.k==="w").length, dc = due.length-dw;
+  const ids = new Set(list.map(c=>c.id));
+  const wAll = S.wrongs.filter(w=>ids.has(w.certId)), grad = wAll.filter(w=>w.graduated).length;
+  const cAll = S.cards.filter(c=>ids.has(c.certId)).length;
+  const nextDue = pool.filter(o=>!isDue(o.x)).map(o=>o.x.due).sort()[0];
   el.innerHTML = `
-  <div class="stack">
-    ${next ? `<div class="hero"><div class="dd">${esc(next.st.txt)}</div><div><div class="t1">${esc(next.cert.name)} · ${esc(next.label)}</div><div class="t2">${fmtRange(next)}${next.st.note?" · "+next.st.note:""}</div></div></div>`
-           : list.length ? `<div class="card muted sm">다가오는 일정이 없어요. ${S.tab==="cert"?"‘일정 불러오기’로 큐넷 일정을 가져올 수 있어요.":"시험 일정을 등록해 보세요."}</div>` : ""}
-    ${list.length? list.map(c=>certCard(c)).join("") : `<div class="card empty"><b>등록된 ${l.item}이 없어요</b>${S.tab==="cert"?"예: 가스기능장, 전기기사":"예: 토익, 오픽"}</div>`}
-    <div class="row"><button class="btn primary" id="addCert">+ ${l.item} 추가</button>
-      ${list.some(c=>(c.events||[]).some(e=>evState(e).past))?`<button class="btn ghost sm" id="togglePast">${S.showPast?"지난 일정 숨기기":"지난 일정 보기"}</button>`:""}</div>
-  </div>`;
+  <div class="page-head"><div class="eyebrow">${longDate()}</div><h1>오늘의 학습</h1></div>
+  ${next ? `<div class="hero">
+      <div><div class="hero-k">${esc(next.cert.name)}</div><div class="hero-t">${esc(next.label)}</div><div class="hero-d">${fmtRange(next)}${next.st.note?" · "+next.st.note:""}</div></div>
+      <div class="hero-dd ${next.st.txt.length>5?"small":""}">${esc(next.st.txt)}</div></div>`
+    : `<div class="card sm muted">다가오는 시험 일정이 없어요. <button class="link" data-go="plan">일정 등록하기 ${I.right}</button></div>`}
+  <div class="sec"><div class="sec-title">오늘 복습</div>
+    <div class="card rev-card">
+      <div class="grow">${due.length
+        ? `<div class="big-num">${due.length}<span>개</span></div><div class="sm muted">오답 ${dw} · 암기카드 ${dc}</div>`
+        : `<div class="done-state">${I.check} 오늘 복습을 모두 마쳤어요</div><div class="sm muted" style="margin-top:2px">${nextDue?`다음 복습은 ${fmtDate(nextDue)}`:"오답을 등록하면 복습 일정이 자동으로 잡혀요"}</div>`}</div>
+      ${due.length ? `<button class="btn primary lg" id="startDue">시작</button>` : ""}
+    </div></div>
+  <div class="sec"><div class="sec-title">다가오는 일정 <button class="link" data-go="plan">전체 ${I.right}</button></div>
+    ${evs.length>1 ? `<div class="card list" style="padding:4px 0">${evs.slice(1,5).map(e=>`<div class="item"><span class="dd-badge ${e.st.cls}">${esc(e.st.txt)}</span><div class="ev-main"><div class="lbl">${esc(e.label)}</div><div class="date">${esc(e.cert.name)} · ${fmtRange(e)}</div></div></div>`).join("")}</div>`
+      : `<div class="card sm muted">이후 일정이 없어요.</div>`}</div>
+  <div class="sec"><div class="sec-title">학습 현황</div>
+    <div class="stats">
+      <div class="stat"><b>${wAll.length-grad}</b><span>복습 중인 오답</span></div>
+      <div class="stat"><b>${grad}</b><span>졸업한 오답</span></div>
+      <div class="stat"><b>${cAll}</b><span>암기카드</span></div>
+    </div></div>`;
+  el.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
+  $("#startDue") && ($("#startDue").onclick = () => { startSession(due); });
+}
+
+/* ---------------- 일정 ---------------- */
+function viewPlan(el){
+  const list = certsOfTab(), l=L();
+  if (!list.length) return noCert(el);
+  const hasPast = list.some(c=>(c.events||[]).some(e=>evState(e).past));
+  el.innerHTML = `
+  <div class="page-head row between" style="align-items:flex-end"><div><div class="eyebrow">${l.item} ${list.length}개</div><h1>시험 일정</h1></div>
+    ${hasPast?`<button class="btn ghost sm" id="togglePast">${S.showPast?"지난 일정 숨기기":"지난 일정 보기"}</button>`:""}</div>
+  <div class="stack">${list.map(certCard).join("")}</div>
+  <button class="btn block" id="addCert" style="margin-top:14px">${I.plus} ${l.item} 추가</button>`;
   $("#addCert").onclick = () => openCertForm();
   $("#togglePast") && ($("#togglePast").onclick = () => { S.showPast=!S.showPast; render(); });
   el.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{
@@ -311,25 +557,308 @@ function viewHome(el){
 function certCard(c){
   const evs = (c.events||[]).map(e=>({...e, st:evState(e)})).filter(e=>S.showPast||!e.st.past)
     .sort((a,b)=> (a.st.past?1:0)-(b.st.past?1:0) || a.date.localeCompare(b.date));
-  return `<div class="card">
-    <div class="row between"><div><h2>${esc(c.name)}</h2><div class="xs muted">${(c.stages||[]).map(esc).join(" · ")} · 합격 ${c.pass}/${c.max}</div></div>
-      <div class="row">
-        ${S.tab==="cert"?`<button class="btn sm" data-act="import" data-id="${c.id}">일정 불러오기</button>`:""}
-        <button class="btn sm" data-act="events" data-id="${c.id}">일정 편집</button>
-        <button class="btn sm ghost" data-act="edit" data-id="${c.id}" aria-label="수정">⋯</button></div></div>
-    <div style="margin-top:8px">${evs.length? evs.map(e=>`<div class="ev ${e.st.past?"past":""}"><span class="dd-badge ${e.st.cls}">${esc(e.st.txt)}</span><span class="lbl grow">${esc(e.label)}</span><span class="sm muted">${fmtRange(e)}</span></div>`).join("") : `<div class="sm muted" style="padding-top:6px">등록된 일정 없음</div>`}</div>
+  return `<div class="card cert">
+    <div class="cert-h"><div class="grow"><h2>${esc(c.name)}</h2><div class="meta">${(c.stages||[]).map(esc).join(" · ")} · ${S.tab==="cert"?"합격":"목표"} ${c.pass}점</div></div>
+      <button class="icon-btn sm" data-act="edit" data-id="${c.id}" aria-label="${esc(c.name)} 설정">${I.more}</button></div>
+    ${evs.length ? `<div class="list">${evs.map(e=>`<div class="item ${e.st.past?"past":""}"><span class="dd-badge ${e.st.cls}">${esc(e.st.txt)}</span><div class="ev-main"><div class="lbl">${esc(e.label)}</div><div class="date">${fmtRange(e)}${e.st.note?" · "+e.st.note:""}</div></div></div>`).join("")}</div>`
+      : `<div class="list"><div class="item sm muted">등록된 일정이 없어요</div></div>`}
+    <div class="cert-f">
+      ${S.tab==="cert"?`<button class="btn sm ghost" data-act="import" data-id="${c.id}">${I.down} 큐넷 일정 불러오기</button>`:""}
+      <button class="btn sm ghost" data-act="events" data-id="${c.id}">${I.pen} 직접 편집</button>
+    </div>
   </div>`;
 }
+
+/* ---------------- 성적 ---------------- */
+function viewScorePage(el){
+  if (!certsOfTab().length) return noCert(el);
+  el.innerHTML = `<div class="page-head"><div class="eyebrow">${L().round} × ${L().read}</div><h1>성적</h1></div><div id="scoreBody"></div>`;
+  viewScore($("#scoreBody"));
+}
+
+/* ---------------- 노트 (오답 · 암기카드) ---------------- */
+function viewNotes(el){
+  const list = certsOfTab(); if (!list.length) return noCert(el);
+  const ids = new Set(list.map(c=>c.id)), f=S.wf;
+  if (f.cert && !ids.has(f.cert)) { f.cert=""; f.stage=""; f.subject=""; }
+  const inTab = x => ids.has(x.certId);
+  const nW = S.wrongs.filter(inTab).length, nC = S.cards.filter(inTab).length;
+  const countOf = (arr, id) => arr.filter(x=>x.certId===id && !x.graduated).length;
+  const src = S.notesMode==="wrong" ? S.wrongs : S.cards;
+  el.innerHTML = `
+  <div class="page-head"><div class="eyebrow">오답 ${nW} · 암기카드 ${nC}</div><h1>노트</h1></div>
+  <div class="row between" style="margin-bottom:12px">
+    <div class="seg"><button data-nm="wrong" class="${S.notesMode==="wrong"?"on":""}">오답노트</button><button data-nm="card" class="${S.notesMode==="card"?"on":""}">암기카드</button></div>
+  </div>
+  <div class="chips"><button class="chip ${!f.cert?"on":""}" data-fc="">전체 <span class="n">${src.filter(x=>inTab(x)&&!x.graduated).length}</span></button>
+    ${list.map(c=>`<button class="chip ${f.cert===c.id?"on":""}" data-fc="${c.id}">${esc(c.name)} <span class="n">${countOf(src,c.id)}</span></button>`).join("")}</div>
+  <div id="notesBody"></div>`;
+  el.querySelectorAll("[data-nm]").forEach(b=>b.onclick=()=>{ S.notesMode=b.dataset.nm; render(); });
+  el.querySelectorAll("[data-fc]").forEach(b=>b.onclick=()=>{ f.cert=b.dataset.fc; f.stage=""; f.subject=""; render(); });
+  (S.notesMode==="wrong" ? notesWrong : notesCards)($("#notesBody"), ids);
+}
+function notesWrong(box, ids){
+  const f=S.wf;
+  let items = S.wrongs.filter(w=>ids.has(w.certId)).map(normW);
+  if (f.cert) items = items.filter(w=>w.certId===f.cert);
+  const stages = [...new Set(f.cert ? certById(f.cert).stages : items.map(w=>w.stage).filter(Boolean))];
+  if (f.stage && !stages.includes(f.stage)) f.stage="";
+  if (f.stage) items = items.filter(w=>w.stage===f.stage);
+  const subjects = [...new Set(items.map(w=>w.subject).filter(Boolean))];
+  if (f.subject && !subjects.includes(f.subject)) f.subject="";
+  if (f.subject) items = items.filter(w=>w.subject===f.subject);
+  const counts = { active: items.filter(w=>!w.graduated).length, done: items.filter(w=>w.graduated).length, all: items.length };
+  if (f.status==="active") items=items.filter(w=>!w.graduated); else if (f.status==="done") items=items.filter(w=>w.graduated);
+  items.sort((a,b)=> (isDue(b)?1:0)-(isDue(a)?1:0) || (b.createdAt||0)-(a.createdAt||0));
+  box.innerHTML = `
+  <div class="filters">
+    <select class="sel" id="fSt" aria-label="상태"><option value="active" ${f.status==="active"?"selected":""}>복습 중 ${counts.active}</option><option value="done" ${f.status==="done"?"selected":""}>졸업 ${counts.done}</option><option value="all" ${f.status==="all"?"selected":""}>전체 ${counts.all}</option></select>
+    ${stages.length>1?`<select class="sel" id="fStage" aria-label="단계"><option value="">모든 단계</option>${stages.map(s=>`<option ${f.stage===s?"selected":""}>${esc(s)}</option>`).join("")}</select>`:""}
+    ${subjects.length?`<select class="sel" id="fSub" aria-label="과목"><option value="">모든 과목</option>${subjects.map(s=>`<option ${f.subject===s?"selected":""}>${esc(s)}</option>`).join("")}</select>`:""}
+  </div>
+  ${items.length ? items.map(w=>{ const c=certById(w.certId);
+    const meta=[c?.name, w.stage, w.round, w.number?w.number+"번":"", w.subject].filter(Boolean).map(esc).join(" · ");
+    return `<button class="note" data-w="${w.id}">
+      ${w.qImages[0]?`<img src="${w.qImages[0]}" alt="">`:""}
+      <div class="grow">
+        <div class="meta">${meta}</div>
+        <div class="q">${w.question?tex(w.question):"<span class='muted'>사진 문제</span>"}</div>
+        <div class="note-f"><span class="tag">${w.type==="choice"?"객관식":"주관식"}</span>${w.answerSource==="ai"?`<span class="tag warn">AI 답</span>`:""}${lvDots(w)}${dueText(w)}</div>
+      </div></button>`; }).join("")
+    : `<div class="card empty"><b>${f.status==="done"?"아직 졸업한 문제가 없어요":"등록된 오답이 없어요"}</b>틀린 문제를 사진으로 찍으면 문제·보기·정답이 자동으로 입력돼요.
+        <div><button class="btn dark" id="emptyShot">${I.camera} 문제 촬영</button></div></div>`}`;
+  $("#fSt").onchange = e => { f.status=e.target.value; render(); };
+  $("#fStage") && ($("#fStage").onchange = e => { f.stage=e.target.value; f.subject=""; render(); });
+  $("#fSub") && ($("#fSub").onchange = e => { f.subject=e.target.value; render(); });
+  $("#emptyShot") && ($("#emptyShot").onclick = shootPhoto);
+  box.querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>openNote(S.wrongs.find(w=>w.id===b.dataset.w)));
+}
+function notesCards(box, ids){
+  const f=S.wf;
+  let items = S.cards.filter(k=>ids.has(k.certId)).map(normC);
+  if (f.cert) items = items.filter(k=>k.certId===f.cert);
+  items.sort((a,b)=> (isDue(b)?1:0)-(isDue(a)?1:0) || lvlOf(a)-lvlOf(b) || (b.createdAt||0)-(a.createdAt||0));
+  box.innerHTML = `
+  <div class="row" style="margin:12px 0 14px"><button class="btn sm" id="kOne">${I.plus} 카드 추가</button><button class="btn sm ghost" id="kBulk">여러 장 한 번에</button></div>
+  ${items.length ? `<div class="card" style="padding:4px 0">${items.map(k=>`<button class="kcard" data-k="${k.id}"><div class="grow"><div class="f">${tex(k.front)}</div><div class="b">${tex(k.back)}</div></div><div style="text-align:right">${lvDots(k)}<div>${dueText(k)}</div></div></button>`).join("")}</div>`
+    : `<div class="card empty"><b>암기카드가 없어요</b>공식, 법규 수치처럼 외워야 할 것을 앞·뒤 카드로 만들어 두세요.</div>`}`;
+  $("#kOne").onclick = () => openCard(null);
+  $("#kBulk").onclick = openBulkCards;
+  box.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>openCard(S.cards.find(k=>k.id===b.dataset.k)));
+}
+
+/* 오답 상세 보기 */
+function openNote(w){
+  w = normW(w); const c = certById(w.certId);
+  const imgs = arr => arr.map(s=>`<img class="qimg" src="${s}" alt="">`).join("");
+  const meta = [w.round, w.number?w.number+"번":"", w.subject].filter(Boolean).map(esc).join(" · ");
+  dialog(`${esc(c?.name||"")} <span class="muted" style="font-weight:500">· ${esc(w.stage||"")}</span>`, `
+    <div class="stack">
+      ${meta?`<div class="xs muted">${meta}</div>`:""}
+      ${w.question?`<div class="big-q">${tex(w.question)}</div>`:""}
+      ${imgs(w.qImages)}
+      ${w.type==="choice"
+        ? `<div>${[0,1,2,3].map(i=>`<div class="opt ${i===w.answerIdx?"good":(i===w.myIdx?"bad":"")}"><span class="no">${CIRC[i]}</span><span class="grow">${tex(w.choices[i])}</span>${i===w.answerIdx?`<span class="tag good">정답</span>`:(i===w.myIdx?`<span class="tag bad">내 답</span>`:"")}</div>`).join("")}</div>`
+        : `<div class="answer-box"><span class="h">정답${w.answerSource==="ai"?` <span class="tag warn">AI가 푼 답</span>`:""}</span>${tex(answerText(w))}</div>${w.myAnswer?`<div class="sm"><span class="muted">내가 쓴 답</span> ${tex(w.myAnswer)}</div>`:""}`}
+      ${imgs(w.aImages)}
+      ${w.explanation?`<div><div class="sec-title" style="margin:6px 0 6px">해설</div><div style="white-space:pre-wrap">${tex(w.explanation)}</div></div>`:""}
+      <dl class="kv" style="margin-top:6px">
+        <dt>복습 단계</dt><dd>${lvDots(w)} ${w.graduated?"졸업":`${lvlOf(w)}/${SRS.length}`}</dd>
+        <dt>다음 복습</dt><dd>${w.graduated?"—":(isDue(w)?"오늘":fmtDate(w.due))}</dd>
+        <dt>틀린 횟수</dt><dd>${w.wrongCount||1}회</dd>
+      </dl>
+    </div>`,
+    `<button class="btn ghost danger" id="nDel" style="margin-right:auto">삭제</button>${w.graduated?`<button class="btn" id="nBack">복습으로 되돌리기</button>`:""}<button class="btn primary" id="nEdit">${I.pen} 수정</button>`,
+    () => {
+      $("#nEdit").onclick = () => openWrong(w);
+      $("#nBack") && ($("#nBack").onclick = async () => { w.graduated=false; w.level=0; w.due=todayStr(); await save("wrongs", w); closeDlg(); render(); toast("오늘 복습에 다시 넣었어요"); });
+      $("#nDel").onclick = async () => { if(!confirm("이 오답을 삭제할까요?")) return; S.wrongs=S.wrongs.filter(x=>x.id!==w.id); await Store.del("wrongs", w.id); closeDlg(); render(); };
+    });
+}
+
+/* 암기카드 추가·수정 */
+function openCard(k){
+  const isNew=!k, list=certsOfTab();
+  k = k || { id:uid(), certId:S.wf.cert||curCert().id, front:"", back:"", level:0, due:todayStr(), createdAt:Date.now() };
+  dialog(isNew?"암기카드 추가":"암기카드 수정", `<div class="stack">
+    <div><label class="f">${L().item}</label><select class="in" id="kC">${list.map(c=>`<option value="${c.id}" ${c.id===k.certId?"selected":""}>${esc(c.name)}</option>`).join("")}</select></div>
+    <div><label class="f">앞면 (질문)</label><textarea class="in" id="kF" rows="2" placeholder="예: LPG 폭발범위">${esc(k.front)}</textarea></div>
+    <div><label class="f">뒷면 (답)</label><textarea class="in" id="kB" rows="2" placeholder="예: 2.1~9.5%">${esc(k.back)}</textarea></div>
+    ${isNew?"":`<div class="xs muted">복습 ${k.graduated?"졸업":`${lvlOf(k)}/${SRS.length}단계 · 다음 ${isDue(k)?"오늘":fmtDate(k.due)}`}</div>`}
+  </div>`, `${isNew?"":`<button class="btn ghost danger" id="kDel" style="margin-right:auto">삭제</button>`}<button class="btn" data-close>취소</button><button class="btn primary" id="kSave">${isNew?"추가":"저장"}</button>`, ()=>{
+    $("#kSave").onclick = async () => {
+      const f=$("#kF").value.trim(), b=$("#kB").value.trim(); if(!f||!b) return toast("앞면과 뒷면을 모두 입력하세요");
+      Object.assign(k,{ certId:$("#kC").value, front:f, back:b });
+      if (isNew) S.cards.push(k); await save("cards", k);
+      if (isNew){ toast("추가했어요 — 이어서 입력하세요"); $("#kF").value=""; $("#kB").value=""; $("#kF").focus(); k = { id:uid(), certId:k.certId, front:"", back:"", level:0, due:todayStr(), createdAt:Date.now() }; render(); }
+      else { closeDlg(); render(); }
+    };
+    $("#kDel") && ($("#kDel").onclick = async () => { if(!confirm("이 카드를 삭제할까요?")) return; S.cards=S.cards.filter(x=>x.id!==k.id); await Store.del("cards", k.id); closeDlg(); render(); });
+  });
+}
+function openBulkCards(){
+  const list=certsOfTab();
+  dialog("여러 장 한 번에", `<div class="stack">
+    <div><label class="f">${L().item}</label><select class="in" id="kC">${list.map(c=>`<option value="${c.id}" ${c.id===(S.wf.cert||curCert().id)?"selected":""}>${esc(c.name)}</option>`).join("")}</select></div>
+    <div><label class="f">한 줄에 한 장 · <b>앞면 | 뒷면</b></label><textarea class="in" id="kText" rows="9" placeholder="LPG 폭발범위 | 2.1~9.5%&#10;도시가스 주성분 | 메탄(CH4)"></textarea></div></div>`,
+    `<button class="btn" data-close>취소</button><button class="btn primary" id="kGo">추가</button>`,()=>{
+      $("#kGo").onclick=async()=>{ const certId=$("#kC").value; const lines=$("#kText").value.split("\n").map(s=>s.split("|")).filter(p=>p.length>=2&&p[0].trim()&&p.slice(1).join("|").trim());
+        if (!lines.length) return toast("‘앞면 | 뒷면’ 형식으로 입력하세요");
+        for(const p of lines){ const k={id:uid(),certId,front:p[0].trim(),back:p.slice(1).join("|").trim(),level:0,due:todayStr(),createdAt:Date.now()}; S.cards.push(k); await save("cards",k); }
+        closeDlg(); S.notesMode="card"; render(); toast(`${lines.length}장을 추가했어요`); };
+    });
+}
+
+/* ---------------- ＋ 추가 시트 ---------------- */
+function shootPhoto(){ closeDlg(); pickPhoto((thumb,big)=>openWrong(null, { thumb, big })); }
+function openAddSheet(){
+  const has = certsOfTab().length>0, l=L();
+  const act = (id, ic, t, d, dis=false) => `<button class="action" id="${id}" ${dis?"disabled":""}><span class="ic">${ic}</span><span class="grow"><div class="t">${t}</div><div class="d">${d}</div></span>${I.right}</button>`;
+  dialog("새로 추가", `
+    ${act("aShot", I.camera, "문제 촬영", "AI가 문제·보기·정답을 자동으로 입력해요", !has)}
+    ${act("aWrite", I.pen, "오답 직접 입력", "사진 없이 문제를 입력해요", !has)}
+    ${act("aCard", I.cards, "암기카드", "공식·수치처럼 외울 것을 앞뒤 카드로", !has)}
+    ${act("aCert", I.badge, `${l.item} 추가`, "새로 준비할 시험을 등록해요")}`, null, () => {
+    $("#aShot").onclick = shootPhoto;
+    $("#aWrite").onclick = () => openWrong(null);
+    $("#aCard").onclick = () => openCard(null);
+    $("#aCert").onclick = () => openCertForm();
+  });
+}
+
+/* ---------------- 복습 ---------------- */
+function viewReview(el){
+  if (S.session) return viewSession(el);
+  const list = certsOfTab(); if (!list.length) return noCert(el);
+  if (S.rf.cert && !certById(S.rf.cert)) S.rf.cert="";
+  const pool = reviewPool(S.rf.cert), due = pool.filter(o=>isDue(o.x)), ahead = pool.filter(o=>!isDue(o.x));
+  const dw = due.filter(o=>o.k==="w").length;
+  const dueOf = id => reviewPool(id).filter(o=>isDue(o.x)).length;
+  el.innerHTML = `
+  <div class="page-head"><div class="eyebrow">잊어버릴 때쯤 다시 보는 간격 복습</div><h1>복습</h1></div>
+  <div class="chips" style="margin-bottom:14px"><button class="chip ${!S.rf.cert?"on":""}" data-rc="">전체 <span class="n">${dueOf("")}</span></button>
+    ${list.map(c=>`<button class="chip ${S.rf.cert===c.id?"on":""}" data-rc="${c.id}">${esc(c.name)} <span class="n">${dueOf(c.id)}</span></button>`).join("")}</div>
+  <div class="card stack">
+    <div class="label">오늘 복습할 것</div>
+    ${due.length ? `<div class="big-num">${due.length}<span>개</span></div><div class="sm muted" style="margin-top:0">오답 ${dw} · 암기카드 ${due.length-dw}</div>
+      <button class="btn primary lg block" id="rvGo">복습 시작</button>`
+      : `<div class="done-state">${I.check} 오늘 복습할 것이 없어요</div>`}
+  </div>
+  ${ahead.length ? `<div class="card row between" style="margin-top:12px"><div><div style="font-weight:650">미리 복습하기</div><div class="sm muted">아직 날짜가 안 된 ${ahead.length}개도 지금 풀어봐요</div></div><button class="btn" id="rvAhead">풀기</button></div>` : ""}
+  <div class="sec"><div class="sec-title">복습 방식</div>
+    <div class="card sm" style="line-height:1.75">
+      맞히면 <b>1일 → 3일 → 7일 → 14일 → 30일</b> 뒤에 다시 나오고, 30일 뒤에도 맞히면 <b>졸업</b>이에요.<br>
+      틀리면 처음 단계로 돌아가 <b>내일</b> 다시 나옵니다. 객관식은 번호를 누르면 바로 채점돼요.
+    </div></div>`;
+  el.querySelectorAll("[data-rc]").forEach(b=>b.onclick=()=>{ S.rf.cert=b.dataset.rc; render(); });
+  $("#rvGo") && ($("#rvGo").onclick = () => startSession(due));
+  $("#rvAhead") && ($("#rvAhead").onclick = () => startSession(ahead));
+}
+function startSession(items){
+  // 오답 먼저 섞고, 그 다음 카드
+  const w = shuffle(items.filter(o=>o.k==="w")), c = shuffle(items.filter(o=>o.k==="c"));
+  S.session = { queue:[...w, ...c].map(o=>({k:o.k, id:o.x.id})), i:0, shown:false, picked:-1, mine:"", showImg:false, right:0, wrong:0, grad:0, again:new Set(), start:Date.now() };
+  S.view="review"; try{localStorage.setItem("study_view","review");}catch{} render(); window.scrollTo(0,0);
+}
+function endSession(){ S.session=null; render(); }
+function viewSession(el){
+  const R = S.session;
+  if (R.i >= R.queue.length){
+    const total = R.attempts||0, mins = Math.max(1, Math.round((Date.now()-R.start)/60000));
+    el.innerHTML = `<div style="padding-top:12vh" class="stack">
+      <div class="card" style="text-align:center;padding:32px 22px">
+        <div style="display:grid;place-items:center;margin-bottom:10px"><div style="width:56px;height:56px;border-radius:18px;background:var(--good-soft);color:var(--good);display:grid;place-items:center">${I.check}</div></div>
+        <h1 style="font-size:22px">복습 완료</h1>
+        <div class="sm muted" style="margin-top:4px">${total}번 풀이 · 약 ${mins}분</div>
+        <div class="stats" style="margin-top:20px;text-align:left">
+          <div class="stat"><b style="color:var(--good)">${R.right}</b><span>맞힘</span></div>
+          <div class="stat"><b style="color:var(--bad)">${R.wrong}</b><span>틀림 (내일 다시)</span></div>
+          <div class="stat"><b>${R.grad}</b><span>새로 졸업</span></div>
+        </div>
+      </div>
+      <button class="btn dark lg block" id="sDone">완료</button></div>`;
+    $("#sDone").onclick = () => { S.session=null; go("today"); };
+    return;
+  }
+  const q = R.queue[R.i];
+  const x = (q.k==="w" ? S.wrongs : S.cards).find(o=>o.id===q.id);
+  if (!x){ R.i++; return render(); }
+  const top = `<div class="sess-top"><button class="icon-btn" id="sQuit" aria-label="복습 그만하기">${I.close}</button>
+    <div class="progress"><div style="width:${R.i/R.queue.length*100}%"></div></div><span class="count">${R.i+1} / ${R.queue.length}</span></div>`;
+  const gradeBtns = `<div class="grade"><button class="btn" id="gNo"><span style="color:var(--bad)">다시 볼게요</span><small>내일</small></button><button class="btn primary" id="gYes">알았어요<small>${nextLabel(x)}</small></button></div>`;
+
+  if (q.k==="c"){
+    el.innerHTML = `${top}
+      <div class="xs muted" style="margin-bottom:8px">암기카드 · ${esc(certById(x.certId)?.name||"")}</div>
+      <div class="card flip ${R.shown?"back":""}" id="flip"><div>${tex(R.shown?x.back:x.front)}<div class="hint">${R.shown?"앞면: "+esc(x.front):"눌러서 답 보기"}</div></div></div>
+      <div style="margin-top:14px">${R.shown?gradeBtns:`<button class="btn dark lg block" id="sShow">답 보기</button>`}</div>`;
+    $("#flip").onclick = () => { R.shown=!R.shown; render(); };
+    $("#sShow") && ($("#sShow").onclick = () => { R.shown=true; render(); });
+  } else {
+    const w = normW(x), c = certById(w.certId);
+    const auto = w.type==="choice" && w.answerIdx>=0;
+    const showQ = w.hasFigure || !w.question || R.showImg;
+    const imgs = arr => arr.map(s=>`<img class="qimg" src="${s}" alt="" style="margin-top:12px">`).join("");
+    const meta = [c?.name, w.stage, w.round, w.number?w.number+"번":"", w.subject].filter(Boolean).map(esc).join(" · ");
+    let body = `<div class="xs muted">${meta}</div>
+      ${w.question?`<div class="big-q" style="margin-top:8px">${tex(w.question)}</div>`:""}
+      ${w.qImages.length ? (showQ ? imgs(w.qImages) : `<button class="btn sm ghost" id="sImg" style="margin-top:8px">${I.camera} 문제 사진 보기</button>`) : ""}`;
+    if (w.type==="choice"){
+      body += `<div style="margin-top:16px">${[0,1,2,3].map(i=>{
+        let cls=""; if (R.shown){ if(i===w.answerIdx) cls="good"; else if(i===R.picked) cls="bad"; }
+        return `<button class="opt ${cls}" data-pick="${i}" ${R.shown?"disabled":""}><span class="no">${CIRC[i]}</span><span class="grow">${tex(w.choices[i])}</span></button>`; }).join("")}</div>`;
+    } else if (!R.shown) {
+      body += `<textarea class="in" id="sMine" rows="2" placeholder="내 답을 먼저 적어보세요 (선택)" style="margin-top:16px">${esc(R.mine)}</textarea>`;
+    }
+    let after = "";
+    if (R.shown){
+      if (auto){
+        const ok = R.picked===w.answerIdx;
+        after = `<div class="answer-box ${ok?"good":"bad"}" style="margin-top:14px"><span class="h">${ok?"정답이에요":"틀렸어요 — 정답 "+CIRC[w.answerIdx]}</span><span class="sm">${ok?`다음 복습: ${R.nextTxt}`:"내일 다시 나와요"}</span>${w.explanation?"\n\n"+tex(w.explanation):""}</div>
+          ${imgs(w.aImages)}
+          <button class="btn dark lg block" id="sNext" style="margin-top:14px">다음</button>`;
+      } else {
+        after = `<div class="answer-box" style="margin-top:14px"><span class="h">정답</span>${tex(answerText(w))}${R.mine?`\n\n<span class="muted">내 답: ${esc(R.mine)}</span>`:""}${w.explanation?"\n\n"+tex(w.explanation):""}</div>
+          ${imgs(w.aImages)}<div style="margin-top:14px">${gradeBtns}</div>`;
+      }
+    } else if (!auto){
+      after = `<button class="btn dark lg block" id="sShow" style="margin-top:14px">정답 확인</button>`;
+    }
+    el.innerHTML = `${top}<div class="card sess-card">${body}${after}</div>`;
+    $("#sImg") && ($("#sImg").onclick = () => { R.showImg=true; render(); });
+    $("#sMine") && ($("#sMine").oninput = e => { R.mine=e.target.value; });
+    $("#sShow") && ($("#sShow").onclick = () => { R.shown=true; render(); });
+    el.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{
+      R.picked=+b.dataset.pick; R.shown=true;
+      if (auto){ const ok=R.picked===w.answerIdx; R.nextTxt = nextLabel(w); record(q, w, ok); }
+      render();
+    });
+    $("#sNext") && ($("#sNext").onclick = advance);
+  }
+  $("#sQuit").onclick = () => { if (R.i===0 || confirm("복습을 그만할까요? 지금까지 푼 기록은 저장돼요.")) endSession(); };
+  $("#gYes") && ($("#gYes").onclick = () => { record(q, x, true); advance(); });
+  $("#gNo")  && ($("#gNo").onclick  = () => { record(q, x, false); advance(); });
+}
+function record(q, x, ok){
+  const R=S.session;
+  R.attempts=(R.attempts||0)+1;
+  if (R.again.has(q.id)) return;                                            // 같은 세션에서 다시 나온 문제는 결과에 다시 세지 않음
+  const wasGrad = x.graduated; srsNext(x, ok);
+  if (ok){ R.right++; if (x.graduated && !wasGrad){ R.grad++; toast("졸업! 이제 복습에 나오지 않아요"); } }
+  else { R.wrong++; R.again.add(q.id); R.queue.push({ ...q }); }               // 틀린 건 이번 복습 끝에 한 번 더
+  save(q.k==="w"?"wrongs":"cards", x);
+}
+function advance(){ const R=S.session; R.i++; R.shown=false; R.picked=-1; R.mine=""; R.showImg=false; render(); window.scrollTo(0,0); }
 
 /* ---------------- 다이얼로그 ---------------- */
 function dialog(title, body, foot, onMount){
   const d=$("#dlg");
-  d.innerHTML = `<div class="dlg-h"><h2>${title}</h2><button class="icon-btn" data-close aria-label="닫기">✕</button></div><div class="dlg-b">${body}</div>${foot?`<div class="dlg-f">${foot}</div>`:""}`;
+  d.innerHTML = `<div class="dlg-h"><h2>${title}</h2><button class="icon-btn" data-close aria-label="닫기">${I.close}</button></div><div class="dlg-b">${body}</div>${foot?`<div class="dlg-f">${foot}</div>`:""}`;
   d.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>d.close());
-  if (!d.open) d.showModal(); onMount && onMount(d); return d;
+  if (!d.open) d.showModal(); d.querySelector(".dlg-b").scrollTop=0; onMount && onMount(d); return d;
 }
 const closeDlg = () => $("#dlg").open && $("#dlg").close();
-
+$("#dlg").addEventListener("click", e => { if (e.target.id==="dlg") closeDlg(); });   // 바깥 누르면 닫기
 function openCertForm(c){
   const l=L(), isNew=!c;
   c = c || { id:uid(), kind:S.tab, name:"", stages:l.stagesDefault.split(",").map(s=>s.trim()), pass:l.pass, max:l.max, events:[], rounds:[], createdAt:Date.now() };
@@ -502,8 +1031,7 @@ function certPicker(cur, extra=""){
   const list=certsOfTab();
   return `<div class="chips">${list.map(c=>`<button class="chip ${cur&&c.id===cur.id?"on":""}" data-cert="${c.id}">${esc(c.name)}</button>`).join("")}${extra}</div>`;
 }
-function bindPicker(el){ el.querySelectorAll("[data-cert]").forEach(b=>b.onclick=()=>{ S.sel[S.tab]=b.dataset.cert; S.review=null; S.study=null; render(); }); }
-function noCert(el){ el.innerHTML = `<div class="card empty"><b>먼저 ${L().item}을 등록하세요</b><button class="btn primary" id="gohome" style="margin-top:10px">일정 탭으로</button></div>`; $("#gohome").onclick=()=>{S.view="home";render();}; }
+function bindPicker(el){ el.querySelectorAll("[data-cert]").forEach(b=>b.onclick=()=>{ S.sel[S.tab]=b.dataset.cert; render(); }); }
 
 function viewScore(el){
   const c = curCert(); if (!c) return noCert(el);
@@ -622,6 +1150,7 @@ function normW(w){
   if (w.answerIdx===undefined) w.answerIdx = parseIdx(w.answer);
   if (w.myIdx===undefined) w.myIdx = parseIdx(w.myAnswer);
   if (!w.answers) w.answers = w.answer ? [w.answer] : [];
+  srsMigrate(w, w.streak);
   return w;
 }
 const answerText = w => w.type==="choice"
@@ -656,7 +1185,7 @@ function aiPrompt(mode, ctx){
 - 4지선다 객관식(필기 등)이면 type="choice", choices에 보기 4개를 번호 기호(①②③④) 없이 순서대로, answer에 정답 번호(1~4)만.
 - 주관식(실기·계산·서술·작업형)이면 type="written", choices는 빈 배열, answers에 정답. 소문항 (1)(2)…이나 답이 여러 개면 각각 따로 나눠 넣으세요.
 - 문제에 그림·도면·회로도·표·그래프가 있으면 hasFigure=true로 하고, question 안의 그림 위치에 [그림]이라고 표시하세요.
-- 글자는 사진 그대로 옮기고, 수식은 일반 텍스트로 (예: Q = m·c·Δt).
+- 글자는 사진 그대로 옮기세요. Ω, ℃, ㎥ 같은 단위 기호도 그대로 쓰세요 (ohm처럼 바꾸지 말 것).\n- 분수·루트·지수·첨자 같은 수식은 LaTeX로 쓰고 반드시 $ $로 감싸세요. 예: $25+j\\frac{100}{3}$, $\\sqrt{3}$, $X_L$, $10^{-3}$. 수식이 아닌 글자는 $ 밖에 쓰세요.
 - 사진에 정답·해설이 있으면 그것을 쓰고 answerSource="image". 없으면 직접 풀어서 answerSource="ai". 그림을 그려야 하는 답이면 "[그림 답 — 직접 확인]"이라고 쓰세요.
 - 잘려서 읽을 수 없는 문제는 제외하세요.`;
 }
@@ -734,55 +1263,6 @@ async function aiRead(images, mode, ctx={}){
   return (j.problems||[]).filter(p=>p.question || mode==="answer");
 }
 
-function viewWrong(el){
-  const list = certsOfTab(); if (!list.length) return noCert(el);
-  const f=S.wf, ids=new Set(list.map(c=>c.id));
-  if (f.cert && !ids.has(f.cert)) { f.cert=""; f.subject=""; f.stage=""; }
-  let items = S.wrongs.filter(w=>ids.has(w.certId)).map(normW);
-  if (f.cert) items=items.filter(w=>w.certId===f.cert);
-  const stages = [...new Set(f.cert ? certById(f.cert).stages : items.map(w=>w.stage).filter(Boolean))];
-  if (f.stage && !stages.includes(f.stage)) f.stage="";
-  if (f.stage) items=items.filter(w=>w.stage===f.stage);
-  const subjects = [...new Set(items.map(w=>w.subject).filter(Boolean))];
-  if (f.subject) items=items.filter(w=>w.subject===f.subject);
-  if (f.status==="active") items=items.filter(w=>!w.graduated); if (f.status==="done") items=items.filter(w=>w.graduated);
-  items.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-  const REASON = {concept:["개념 모름","bad"], mistake:["실수","warn"], confused:["헷갈림",""]};
-  el.innerHTML = `
-  <div class="stack">
-    <div class="chips">
-      <button class="chip ${!f.cert?"on":""}" data-fc="">전체 <span class="muted">${S.wrongs.filter(w=>ids.has(w.certId)&&!w.graduated).length}</span></button>
-      ${list.map(c=>`<button class="chip ${f.cert===c.id?"on":""}" data-fc="${c.id}">${esc(c.name)} <span class="muted">${S.wrongs.filter(w=>w.certId===c.id&&!w.graduated).length}</span></button>`).join("")}
-    </div>
-    <div class="row">
-      ${stages.length>1?`<div class="seg"><button data-fst="" class="${!f.stage?"on":""}">전체</button>${stages.map(s=>`<button data-fst="${esc(s)}" class="${f.stage===s?"on":""}">${esc(s)}</button>`).join("")}</div>`:""}
-      <select class="in" id="fS" style="width:auto"><option value="">전체 과목</option>${subjects.map(s=>`<option ${f.subject===s?"selected":""}>${esc(s)}</option>`).join("")}</select>
-      <div class="seg"><button data-st="active" class="${f.status==="active"?"on":""}">복습중</button><button data-st="done" class="${f.status==="done"?"on":""}">졸업</button><button data-st="all" class="${f.status==="all"?"on":""}">전체</button></div>
-    </div>
-    <div class="row"><button class="btn primary" id="wPhoto">📷 사진으로 추가</button><button class="btn" id="wNew">직접 입력</button><span class="xs muted grow" style="text-align:right">${items.length}문제</span></div>
-    ${items.length? items.map(w=>{ const c=certById(w.certId); const r=REASON[w.reason];
-      return `<div class="card wn" data-w="${w.id}">
-        ${w.qImages[0]?`<img src="${w.qImages[0]}" alt="">`:""}
-        <div class="grow" style="min-width:0">
-          <div class="row xs muted">${esc(c?.name||"")}${w.stage?" · "+esc(w.stage):""}${w.round?" · "+esc(w.round):""}${w.number?" · "+esc(w.number)+"번":""}${w.subject?" · "+esc(w.subject):""}</div>
-          <div class="q">${esc(w.question||"(사진 문제)")}</div>
-          <div class="row" style="margin-top:6px">
-            <span class="tag">${w.type==="choice"?"객관식":"주관식"+(w.answers.length>1?` · 답 ${w.answers.length}개`:"")}</span>
-            ${w.hasFigure||w.qImages.length?`<span class="tag" title="문제 그림">🖼 문제</span>`:""}${w.aImages.length?`<span class="tag" title="정답 그림">🖼 정답</span>`:""}
-            ${r?`<span class="tag ${r[1]}">${r[0]}</span>`:""}${w.answerSource==="ai"?`<span class="tag warn">AI 추정 답</span>`:""}
-            ${w.graduated?`<span class="tag good">졸업</span>`:`<span class="xs muted streak">${"●".repeat(w.streak||0)}${"○".repeat(2-(w.streak||0))}</span>`}
-            <span class="xs muted">틀린 횟수 ${w.wrongCount||1}</span></div>
-        </div></div>`; }).join("") : `<div class="card empty"><b>오답이 없어요</b>틀린 문제를 사진으로 찍어 올려보세요.</div>`}
-  </div>`;
-  el.querySelectorAll("[data-fc]").forEach(b=>b.onclick=()=>{ f.cert=b.dataset.fc; f.subject=""; f.stage=""; render(); });
-  el.querySelectorAll("[data-fst]").forEach(b=>b.onclick=()=>{ f.stage=b.dataset.fst; f.subject=""; render(); });
-  $("#fS").onchange=e=>{ f.subject=e.target.value; render(); };
-  el.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{ f.status=b.dataset.st; render(); });
-  $("#wNew").onclick=()=>openWrong(null);
-  $("#wPhoto").onclick=()=>pickPhoto((thumb,big)=>openWrong(null, { thumb, big }));
-  el.querySelectorAll("[data-w]").forEach(d=>d.onclick=()=>openWrong(S.wrongs.find(w=>w.id===d.dataset.w)));
-}
-
 function pickPhoto(cb){
   const inp=$("#photo"); inp.value="";
   inp.onchange = async () => {
@@ -798,7 +1278,7 @@ function newWrong(){
   const stage = S.wf.stage && c.stages.includes(S.wf.stage) ? S.wf.stage : c.stages[0];
   return { id:uid(), certId:c.id, stage, type:defaultType(stage), round:"", number:"", subject:"", question:"", hasFigure:false,
     choices:["","","",""], answerIdx:-1, myIdx:-1, answers:[""], myAnswer:"", qImages:[], aImages:[], explanation:"",
-    reason:"concept", streak:0, wrongCount:1, graduated:false, createdAt:Date.now() };
+    reason:"concept", streak:0, wrongCount:1, graduated:false, level:0, due:todayStr(), createdAt:Date.now() };
 }
 
 function openWrong(w0, firstPhoto=null){
@@ -842,6 +1322,7 @@ function openWrong(w0, firstPhoto=null){
       <div><label class="f">문제 유형</label><div class="seg"><button type="button" data-type="choice" class="${w.type==="choice"?"on":""}">객관식 (4지선다)</button><button type="button" data-type="written" class="${w.type==="written"?"on":""}">주관식</button></div></div>
       <div><label class="f">문제</label><textarea class="in" id="wQ" rows="4" placeholder="${w.qImages.length?"사진만 저장해도 됩니다":""}">${esc(w.question)}</textarea>
         <label class="row xs" style="margin-top:4px"><input type="checkbox" id="wFig" ${w.hasFigure?"checked":""}> 그림이 있는 문제 (다시 풀기에서 사진을 항상 보여줌)</label></div>
+      ${/[\\$^_]/.test(w.question+(w.type==="choice"?w.choices.join(""):w.answers.join(""))) ? `<div class="card sm" style="padding:10px 12px;background:var(--surface2)"><div class="xs muted" style="margin-bottom:4px">수식 미리보기</div><div style="white-space:pre-wrap">${tex(w.question)}</div>${w.type==="choice"?w.choices.map((c,i)=>c?`<div>${CIRC[i]} ${tex(c)}</div>`:"").join(""):w.answers.map((a,i)=>a?`<div>${w.answers.length>1?`(${i+1}) `:""}${tex(a)}</div>`:"").join("")}</div>` : ""}
       ${imgSection("qImages","문제 그림")}
       ${w.type==="choice" ? `
         <div><label class="f">보기 · 정답은 번호를 눌러 선택</label>
@@ -864,7 +1345,7 @@ function openWrong(w0, firstPhoto=null){
       ${imgSection("aImages","정답·해설 그림")}
       <div><label class="f">해설 / 메모</label><textarea class="in" id="wE" rows="3">${esc(w.explanation)}</textarea></div>
       <div><label class="f">틀린 이유</label><div class="chips">${[["concept","개념 모름"],["mistake","실수"],["confused","헷갈림"]].map(([k,t])=>`<button type="button" class="chip ${w.reason===k?"on":""}" data-reason="${k}">${t}</button>`).join("")}</div></div>
-      ${!isNew?`<label class="row sm"><input type="checkbox" id="wG" ${w.graduated?"checked":""}> 졸업 처리 (다시 풀기에서 제외)</label>`:""}`;
+      ${!isNew?`<label class="row sm"><input type="checkbox" id="wG" ${w.graduated?"checked":""}> 졸업 처리 (복습에서 제외)</label>`:""}`;
     bind();
   };
 
@@ -878,6 +1359,7 @@ function openWrong(w0, firstPhoto=null){
       const apply = (t, p, onlyAnswer) => {
         if (!onlyAnswer){
           t.type = p.type==="written" ? "written" : "choice"; typeTouched = true;
+          { const cc=certById(t.certId); if (cc && defaultType(t.stage)!==t.type){ const st=cc.stages.find(x=>defaultType(x)===t.type); if (st) t.stage=st; } }   // 주관식이면 실기 단계로 자동 전환
           t.question = p.question||t.question; t.hasFigure = !!p.hasFigure;
           if (p.number) t.number=p.number; if (p.subject && !t.subject) t.subject=p.subject;
         }
@@ -937,140 +1419,13 @@ function openWrong(w0, firstPhoto=null){
         collect();
         if (!w.question && !w.qImages.length) return toast("문제 내용이나 사진을 넣어주세요");
         if (w.type==="written") w.answers = w.answers.filter(Boolean);
-        if (w.graduated===false && (w.streak||0)>=2) w.streak=0;
+        if (w.graduated){ w.due=null; } else if (lvlOf(w)>=SRS.length || !w.due){ if (lvlOf(w)>=SRS.length) w.level=0; w.due=todayStr(); }
         delete w.image; delete w.answer;
         if (JSON.stringify(w).length > 950000) return toast("사진 용량이 너무 커요. 사진을 1장 줄여주세요");
         if (isNew) S.wrongs.push(w); else { const i=S.wrongs.findIndex(x=>x.id===w.id); S.wrongs[i]=w; }
-        await save("wrongs", w); closeDlg(); render(); toast("저장했어요");
+        await save("wrongs", w); closeDlg(); render(); toast(isNew?"저장했어요 — 오늘 복습에 추가됐어요":"저장했어요");
       };
       $("#wDel") && ($("#wDel").onclick = async () => { if(!confirm("이 오답을 삭제할까요?"))return; S.wrongs=S.wrongs.filter(x=>x.id!==w.id); await Store.del("wrongs", w.id); closeDlg(); render(); });
-    });
-}
-
-/* ---------------- 오답 다시 풀기 ---------------- */
-function viewReview(el){
-  const list=certsOfTab(); if (!list.length) return noCert(el);
-  const ids=new Set(list.map(c=>c.id));
-  const R = S.review;
-  if (!R){
-    const pool = S.wrongs.filter(w=>ids.has(w.certId)&&!w.graduated).map(normW);
-    const sel = ids.has(S.sel.reviewCert) ? S.sel.reviewCert : "";
-    const inCert = pool.filter(w=>!sel||w.certId===sel);
-    const stages=[...new Set(inCert.map(w=>w.stage).filter(Boolean))];
-    const st = stages.includes(S.sel.reviewStage) ? S.sel.reviewStage : "";
-    const inStage = inCert.filter(w=>!st||w.stage===st);
-    const subjects=[...new Set(inStage.map(w=>w.subject).filter(Boolean))];
-    const target = inStage.filter(w=>!S.sel.reviewSubj||w.subject===S.sel.reviewSubj);
-    const grads = S.wrongs.filter(w=>ids.has(w.certId)&&w.graduated).length;
-    el.innerHTML = `<div class="stack"><div class="card stack">
-      <h2>틀린 문제 다시 풀기</h2>
-      <p class="sm muted" style="margin:0">복습중인 오답을 랜덤으로 냅니다. <b>2번 연속 맞히면 졸업</b>해서 더 이상 나오지 않아요. 객관식은 번호를 누르면 바로 채점되고, 주관식은 정답을 보고 직접 채점합니다.</p>
-      <div class="chips"><button class="chip ${!sel?"on":""}" data-rvc="">전체</button>${list.map(c=>`<button class="chip ${sel===c.id?"on":""}" data-rvc="${c.id}">${esc(c.name)}</button>`).join("")}</div>
-      <div class="grid2">
-        <div><label class="f">단계</label><select class="in" id="rvSt"><option value="">전체</option>${stages.map(s=>`<option ${st===s?"selected":""}>${esc(s)}</option>`).join("")}</select></div>
-        <div><label class="f">과목</label><select class="in" id="rvS"><option value="">전체</option>${subjects.map(s=>`<option ${S.sel.reviewSubj===s?"selected":""}>${esc(s)}</option>`).join("")}</select></div></div>
-      <div class="row between"><span class="sm">출제 대상 <b>${target.length}</b>문제 · 졸업 ${grads}문제</span>
-      <button class="btn primary" id="rvGo" ${target.length?"":"disabled"}>시작</button></div></div></div>`;
-    el.querySelectorAll("[data-rvc]").forEach(b=>b.onclick=()=>{ S.sel.reviewCert=b.dataset.rvc; S.sel.reviewStage=""; S.sel.reviewSubj=""; render(); });
-    $("#rvSt").onchange=e=>{ S.sel.reviewStage=e.target.value; S.sel.reviewSubj=""; render(); };
-    $("#rvS").onchange=e=>{ S.sel.reviewSubj=e.target.value; render(); };
-    $("#rvGo").onclick=()=>{ S.review={ queue:shuffle(target).map(w=>w.id), i:0, shown:false, picked:-1, right:0, wrong:0, graduated:0 }; render(); };
-    return;
-  }
-  if (R.i >= R.queue.length){
-    el.innerHTML = `<div class="card stack" style="text-align:center"><div style="font-size:36px">🎯</div><h2>${R.queue.length}문제 완료</h2>
-      <div class="row" style="justify-content:center"><span class="tag good">맞힘 ${R.right}</span><span class="tag bad">틀림 ${R.wrong}</span><span class="tag">새로 졸업 ${R.graduated}</span></div>
-      <div class="row" style="justify-content:center"><button class="btn primary" id="rvAgain">다시 하기</button><button class="btn" id="rvToWrong">오답노트 보기</button></div></div>`;
-    $("#rvAgain").onclick=()=>{ S.review=null; render(); }; $("#rvToWrong").onclick=()=>{ S.review=null; S.view="wrong"; render(); };
-    return;
-  }
-  const w0 = S.wrongs.find(x=>x.id===R.queue[R.i]); if(!w0){ R.i++; return render(); }
-  const w = normW(w0), c = certById(w.certId);
-  const showQImg = w.hasFigure || !w.question || R.showImg;
-  const autoGrade = w.type==="choice" && w.answerIdx>=0;
-  const imgs = arr => arr.map(s=>`<img class="qimg" src="${s}" alt="">`).join("");
-  el.innerHTML = `<div class="stack">
-    <div class="row between sm"><span class="muted">${R.i+1} / ${R.queue.length}</span><button class="btn sm ghost" id="rvQuit">그만하기</button></div>
-    <div class="progress"><div style="width:${R.i/R.queue.length*100}%"></div></div>
-    <div class="card stack">
-      <div class="xs muted">${esc(c?.name||"")}${w.stage?" · "+esc(w.stage):""}${w.round?" · "+esc(w.round):""}${w.number?" · "+esc(w.number)+"번":""}${w.subject?" · "+esc(w.subject):""} · 연속 <span class="streak">${"●".repeat(w.streak||0)}${"○".repeat(2-(w.streak||0))}</span></div>
-      ${w.question?`<div class="big-q">${esc(w.question)}</div>`:""}
-      ${w.qImages.length ? (showQImg ? imgs(w.qImages) : `<button class="btn sm ghost" id="rvImg">문제 사진 보기</button>`) : ""}
-      ${w.type==="choice" ? `<div class="stack" style="margin-top:4px">${[0,1,2,3].map(i=>{
-          let st=""; if (R.shown){ if(i===w.answerIdx) st="border-color:var(--good);background:var(--good-soft);color:var(--good)"; else if(i===R.picked) st="border-color:var(--bad);background:var(--bad-soft);color:var(--bad)"; }
-          return `<button class="btn pick" data-pick="${i}" style="${st}" ${R.shown?"disabled":""}>${CIRC[i]} ${esc(w.choices[i])}</button>`; }).join("")}</div>`
-        : (!R.shown?`<textarea class="in" id="rvMine" rows="2" placeholder="내 답을 적어보세요 (선택)">${esc(R.mine||"")}</textarea>`:"")}
-      ${R.shown ? `
-        ${autoGrade ? `<div class="answer-box" style="${R.picked===w.answerIdx?"":"background:var(--bad-soft)"}"><b>${R.picked===w.answerIdx?"✓ 정답!":"✗ 오답 — 정답은 "+CIRC[w.answerIdx]}</b>${w.explanation?"\n\n"+esc(w.explanation):""}</div>`
-          : `<div class="answer-box"><b>정답</b>\n${esc(answerText(w))}${R.mine?`\n\n<span class="muted">내 답: ${esc(R.mine)}</span>`:""}${w.myAnswer?`\n<span class="muted">지난번 답: ${esc(w.myAnswer)}</span>`:""}${w.explanation?"\n\n"+esc(w.explanation):""}</div>`}
-        ${w.aImages.length? imgs(w.aImages) : ""}
-        ${autoGrade ? `<button class="btn primary" id="rvNext" style="width:100%">다음 문제</button>`
-          : `<div class="grid2"><button class="btn" id="rvX" style="color:var(--bad)">✗ 틀렸음</button><button class="btn primary" id="rvO">✓ 맞혔음</button></div>`}`
-        : (w.type==="choice" && autoGrade ? `<div class="xs muted">번호를 누르면 바로 채점돼요</div>` : `<button class="btn primary" id="rvShow" style="width:100%">정답 보기</button>`)}
-    </div></div>`;
-  $("#rvQuit").onclick=()=>{ R.queue=R.queue.slice(0,R.i); render(); };
-  $("#rvImg") && ($("#rvImg").onclick=()=>{ R.showImg=true; render(); });
-  $("#rvMine") && ($("#rvMine").oninput=e=>{ R.mine=e.target.value; });
-  const record = ok => {
-    if (ok){ w.streak=(w.streak||0)+1; R.right++; if (w.streak>=2){ w.graduated=true; w.graduatedAt=Date.now(); R.graduated++; toast("🎓 졸업! 2번 연속 맞혔어요"); } }
-    else { w.streak=0; w.wrongCount=(w.wrongCount||1)+1; R.wrong++; }
-    w.lastReviewed=Date.now(); save("wrongs", w);
-  };
-  const next = () => { R.i++; R.shown=false; R.showImg=false; R.picked=-1; R.mine=""; render(); };
-  el.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{ R.picked=+b.dataset.pick;
-    if (autoGrade){ R.shown=true; record(R.picked===w.answerIdx); } else { R.shown=true; } render(); });
-  $("#rvShow") && ($("#rvShow").onclick=()=>{ R.shown=true; render(); });
-  $("#rvNext") && ($("#rvNext").onclick=next);
-  $("#rvO") && ($("#rvO").onclick=()=>{ record(true); next(); });
-  $("#rvX") && ($("#rvX").onclick=()=>{ record(false); next(); });
-}
-
-/* ---------------- 암기카드 (라이트너 상자 방식) ---------------- */
-function viewCards(el){
-  const c=curCert(); if(!c) return noCert(el);
-  const cards=S.cards.filter(k=>k.certId===c.id);
-  const T=S.study;
-  if (T && T.certId===c.id){
-    if (T.i>=T.queue.length){
-      el.innerHTML=`<div class="card stack" style="text-align:center"><div style="font-size:36px">🃏</div><h2>${T.queue.length}장 완료</h2><div class="row" style="justify-content:center"><span class="tag good">알았음 ${T.know}</span><span class="tag bad">몰랐음 ${T.dont}</span></div><button class="btn primary" id="stEnd">끝내기</button></div>`;
-      $("#stEnd").onclick=()=>{ S.study=null; render(); }; return;
-    }
-    const k=S.cards.find(x=>x.id===T.queue[T.i]);
-    el.innerHTML=`<div class="stack"><div class="row between sm"><span class="muted">${T.i+1} / ${T.queue.length} · 상자 ${k.box||0}</span><button class="btn sm ghost" id="stQuit">그만하기</button></div>
-      <div class="progress"><div style="width:${T.i/T.queue.length*100}%"></div></div>
-      <div class="card flip ${T.flip?"back":""}" id="flip">${esc(T.flip?k.back:k.front)}</div>
-      <div class="xs muted" style="text-align:center">카드를 눌러 뒤집기</div>
-      ${T.flip?`<div class="grid2"><button class="btn" id="stNo" style="color:var(--bad)">몰랐음</button><button class="btn primary" id="stYes">알았음</button></div>`:""}</div>`;
-    $("#flip").onclick=()=>{ T.flip=!T.flip; render(); };
-    $("#stQuit").onclick=()=>{ T.queue=T.queue.slice(0,T.i); render(); };
-    const go=ok=>{ k.box = ok? Math.min(5,(k.box||0)+1) : 0; ok?T.know++:T.dont++; k.lastStudied=Date.now(); save("cards",k); T.i++; T.flip=false; render(); };
-    $("#stYes")&&($("#stYes").onclick=()=>go(true)); $("#stNo")&&($("#stNo").onclick=()=>go(false));
-    return;
-  }
-  const boxes=[0,1,2,3,4,5].map(b=>cards.filter(k=>(k.box||0)===b).length);
-  el.innerHTML=`<div class="stack">
-    ${certPicker(c)}
-    <div class="card stack">
-      <div class="row between"><h2>${esc(c.name)} 암기카드 <span class="muted sm">${cards.length}장</span></h2>
-        <div class="row"><button class="btn" id="kBulk">여러 장 추가</button><button class="btn primary" id="kStudy" ${cards.length?"":"disabled"}>학습 시작</button></div></div>
-      <div class="xs muted">모르는 카드는 상자 0으로, 아는 카드는 한 칸씩 올라가요. 학습은 낮은 상자부터 최대 30장씩 나옵니다.</div>
-      <div class="row">${boxes.map((n,b)=>`<span class="tag ${b===0&&n?"bad":b===5&&n?"good":""}">상자${b} · ${n}</span>`).join("")}</div>
-    </div>
-    <div class="card"><div class="grid2"><input class="in" id="kF" placeholder="앞면 (예: LPG 폭발범위)"><input class="in" id="kB" placeholder="뒷면 (예: 2.1~9.5%)"></div><button class="btn" id="kAdd" style="margin-top:8px">+ 카드 추가</button></div>
-    ${cards.length?`<div class="card">${cards.sort((a,b)=>(a.box||0)-(b.box||0)).map(k=>`<div class="ev"><span class="tag">${k.box||0}</span><span class="grow"><b>${esc(k.front)}</b><br><span class="sm muted">${esc(k.back)}</span></span><button class="btn sm ghost" data-kd="${k.id}" aria-label="삭제">✕</button></div>`).join("")}</div>`:""}
-  </div>`;
-  bindPicker(el);
-  const add=async()=>{ const f=$("#kF").value.trim(), b=$("#kB").value.trim(); if(!f||!b) return toast("앞면과 뒷면을 모두 입력하세요");
-    const k={id:uid(),certId:c.id,front:f,back:b,box:0,createdAt:Date.now()}; S.cards.push(k); await save("cards",k); render(); setTimeout(()=>$("#kF").focus(),0); };
-  $("#kAdd").onclick=add; $("#kB").onkeydown=e=>{ if(e.key==="Enter") add(); };
-  el.querySelectorAll("[data-kd]").forEach(b=>b.onclick=async()=>{ S.cards=S.cards.filter(k=>k.id!==b.dataset.kd); await Store.del("cards",b.dataset.kd); render(); });
-  $("#kStudy").onclick=()=>{ const q=[0,1,2,3,4,5].flatMap(b=>shuffle(cards.filter(k=>(k.box||0)===b))).slice(0,30).map(k=>k.id);
-    S.study={certId:c.id,queue:q,i:0,flip:false,know:0,dont:0}; render(); };
-  $("#kBulk").onclick=()=>dialog("카드 여러 장 추가",`<label class="f">한 줄에 한 장, <b>앞면 | 뒷면</b> 형식</label><textarea class="in" id="kText" rows="10" placeholder="LPG 폭발범위 | 2.1~9.5%\n도시가스 주성분 | 메탄(CH4)"></textarea>`,
-    `<button class="btn" data-close>취소</button><button class="btn primary" id="kGo">추가</button>`,()=>{
-      $("#kGo").onclick=async()=>{ const lines=$("#kText").value.split("\n").map(s=>s.split("|")).filter(p=>p.length>=2&&p[0].trim()&&p.slice(1).join("|").trim());
-        for(const p of lines){ const k={id:uid(),certId:c.id,front:p[0].trim(),back:p.slice(1).join("|").trim(),box:0,createdAt:Date.now()}; S.cards.push(k); await save("cards",k); }
-        closeDlg(); render(); toast(`${lines.length}장을 추가했어요`); };
     });
 }
 
@@ -1082,7 +1437,7 @@ function openSettings(){
     <div><label class="f">프록시 주소 (CORS 오류가 날 때만)</label><input class="in" id="sProxy" value="${esc(s.proxy)}" placeholder="https://xxxx.workers.dev"></div>
     <div><label class="f">Gemini API 키 (사진 인식 직접 연결)</label><input class="in" id="sGem" type="password" autocomplete="off" value="${esc(s.geminiKey||"")}" placeholder="AIza… (Google AI Studio에서 발급)"><div class="xs muted" style="margin-top:3px">넣으면 Firebase AI Logic 대신 이 키로 바로 인식합니다. 본인 계정에만 저장돼요.</div></div>
     <div><label class="f">사진 인식 모델</label><input class="in" id="sModel" value="${esc(s.aiModel||"")}" placeholder="${CONFIG.aiModel}"><div class="xs muted" style="margin-top:3px">비워두면 ${CONFIG.aiModel}. 모델이 종료되면 여기서 바꾸세요.</div></div>
-    <div class="row"><button class="btn sm" id="sExport">백업 파일 내려받기</button>${DEMO?"":`<button class="btn sm danger" id="sOut">로그아웃</button>`}</div>
+    <div class="row"><button class="btn sm" id="sExport">${I.down} 백업 내려받기</button>${DEMO?"":`<button class="btn sm danger" id="sOut">로그아웃</button>`}</div>
     <div class="xs muted">${DEMO?"데모 모드 (Firebase 미연결)":"로그인: "+esc(Store.user?.email||"")}</div>
   </div>`, `<button class="btn" data-close>취소</button><button class="btn primary" id="sSave">저장</button>`, ()=>{
     $("#sSave").onclick=async()=>{ Object.assign(s,{ serviceKey:$("#sKey").value.trim(), proxy:$("#sProxy").value.trim().replace(/\/$/,""), aiModel:$("#sModel").value.trim(), geminiKey:$("#sGem").value.trim() }); aiModelCache=null; await save("settings", s); closeDlg(); toast("저장했어요"); };
