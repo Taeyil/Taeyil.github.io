@@ -411,9 +411,7 @@ function openImport(c){
         $("#iRes").innerHTML = list.length ? list.map((r,i)=>`
           <div class="card" style="padding:12px;margin-bottom:8px">
             <div class="row between"><b>${esc(r.description||`${r.implYy}년 ${r.implSeq}회`)}</b></div>
-            <div class="xs muted" style="margin:4px 0 8px">필기 접수 ${fmtDate(ymd8(r.docRegStartDt))}~${fmtDate(ymd8(r.docRegEndDt))} · 필기 ${fmtDate(ymd8(r.docExamStartDt))}${r.docExamEndDt&&r.docExamEndDt!==r.docExamStartDt?"~"+fmtDate(ymd8(r.docExamEndDt)):""} · 실기 ${fmtDate(ymd8(r.pracExamStartDt))}${r.pracExamEndDt&&r.pracExamEndDt!==r.pracExamStartDt?"~"+fmtDate(ymd8(r.pracExamEndDt)):""}
-              ${(r._extra||[]).map(x=>{ const d=x.docRegStartDt&&x.docRegStartDt!==r.docRegStartDt, p=x.pracRegStartDt&&x.pracRegStartDt!==r.pracRegStartDt;
-                return (d?`<br>필기 추가접수 ${fmtDate(ymd8(x.docRegStartDt))}~${fmtDate(ymd8(x.docRegEndDt))}`:"")+(p?`<br>실기 추가접수 ${fmtDate(ymd8(x.pracRegStartDt))}~${fmtDate(ymd8(x.pracRegEndDt))}`:""); }).join("")}</div>
+            <div class="xs muted" style="margin:4px 0 8px;line-height:1.7">${apiDates(r).filter(x=>x.rng.length).map(({def,rng,late})=>`${def.label} ${rng.map(fmtRng).join(` <b style="color:var(--warn)">/</b> `)}${late?` <span style="color:var(--warn)">· 빈자리 접수 ~${fmtDate(ymd8(late))}</span>`:""}`).join("<br>")}</div>
             <div class="row"><button class="btn sm" data-add="doc" data-i="${rows.indexOf(r)}">필기만</button><button class="btn sm" data-add="prac" data-i="${rows.indexOf(r)}">실기만</button><button class="btn sm primary" data-add="all" data-i="${rows.indexOf(r)}">전체 추가</button></div>
           </div>`).join("") : (rows.length? `<div class="sm muted">검색어와 맞는 회차가 없어요. 검색어를 비워보세요.</div>`:"");
         $("#iRes").querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>addFromApi(c, rows[+b.dataset.i], b.dataset.add));
@@ -436,9 +434,10 @@ function openImport(c){
           const first = await getPage(1); let all = first.items;
           const pages = Math.min(10, Math.ceil(first.total/50));   // 50개씩 나눠서 전부 가져오기
           for (let pg=2; pg<=pages; pg++) all = all.concat((await getPage(pg)).items);
+          // 이름·회차·시험일이 같은 줄 = 같은 시험(상시시험과 정기시험은 시험일이 달라 분리됨)
           // 같은 시험(이름·회차)이 접수기간만 다르게 여러 줄 오면 하나로 합침 → 가장 이른 접수 = 정기접수, 나머지 = 추가접수
           const groups = new Map();
-          for (const r of all){ const key=`${r.description||""}|${r.implYy}|${r.implSeq}`; if(!groups.has(key)) groups.set(key, []); groups.get(key).push(r); }
+          for (const r of all){ const key=`${r.description||""}|${r.implYy}|${r.implSeq}|${r.docExamStartDt||""}|${r.pracExamStartDt||""}`; if(!groups.has(key)) groups.set(key, []); groups.get(key).push(r); }
           rows = [...groups.values()].map(g => { g.sort((a,b)=>String(a.docRegStartDt||a.pracRegStartDt).localeCompare(String(b.docRegStartDt||b.pracRegStartDt)));
               const main = { ...g[0], _extra: g.slice(1) }; return main; })
             .sort((a,b)=>String(a.implSeq).localeCompare(String(b.implSeq),undefined,{numeric:true}) || String(a.description).localeCompare(String(b.description)));
@@ -451,18 +450,50 @@ function openImport(c){
       };
     });
 }
+// API 필드 ↔ 일정 이름
+const API_EVENTS = [
+  { k:"doc",  label:"필기 원서접수",  s:"docRegStartDt",   e:"docRegEndDt",   alt:"필기 빈자리 추가접수" },
+  { k:"doc",  label:"필기시험",       s:"docExamStartDt",  e:"docExamEndDt" },
+  { k:"doc",  label:"필기 합격발표",  s:"docPassDt" },
+  { k:"prac", label:"실기 원서접수",  s:"pracRegStartDt",  e:"pracRegEndDt",  alt:"실기 빈자리 추가접수" },
+  { k:"prac", label:"실기시험",       s:"pracExamStartDt", e:"pracExamEndDt" },
+  { k:"prac", label:"최종 합격발표",  s:"pracPassDt" }
+];
+// 같은 회차의 여러 줄에서 날짜가 다른 항목을 모두 모음 → [{def, rng:[[s,e],...]}]
+function apiDates(r){
+  const rowsAll = [r, ...(r._extra||[])];
+  return API_EVENTS.map(def => {
+    const seen = new Set(), rng = [];
+    for (const x of rowsAll){ const sv=x[def.s]; if(!sv) continue; const ev=def.e?x[def.e]:""; const key=sv+"|"+ev; if(!seen.has(key)){ seen.add(key); rng.push([sv,ev]); } }
+    rng.sort((p,q)=>p[0].localeCompare(q[0]));
+    // 접수기간이 1주일보다 길면 API가 '빈자리 접수 마감일'까지 합쳐서 준 것 → 정기접수(보통 4일)와 분리
+    let late = null;
+    if (def.alt && rng.length===1 && rng[0][1]){
+      const d = (str)=>new Date(+str.slice(0,4), +str.slice(4,6)-1, +str.slice(6,8));
+      const [sv, ev] = rng[0];
+      if ((d(ev)-d(sv))/864e5 > 6){
+        const reg = d(sv); reg.setDate(reg.getDate()+3);
+        const regEnd = `${reg.getFullYear()}${String(reg.getMonth()+1).padStart(2,"0")}${String(reg.getDate()).padStart(2,"0")}`;
+        rng[0] = [sv, regEnd]; late = ev;
+      }
+    }
+    return { def, rng, late };
+  });
+}
+const fmtRng = ([s,e]) => fmtDate(ymd8(s)) + (e && e!==s ? "~"+fmtDate(ymd8(e)) : "");
 async function addFromApi(c, r, which){
   const seq = r.implSeq ? `${r.implSeq}회 ` : "";
-  const mk = (label, s, e) => ({ id:uid(), label: seq+label, date: ymd8(s), end: e && ymd8(e)!==ymd8(s) ? ymd8(e) : "" });
-  const doc = [mk("필기 원서접수", r.docRegStartDt, r.docRegEndDt), mk("필기시험", r.docExamStartDt, r.docExamEndDt), mk("필기 합격발표", r.docPassDt)];
-  const prac = [mk("실기 원서접수", r.pracRegStartDt, r.pracRegEndDt), mk("실기시험", r.pracExamStartDt, r.pracExamEndDt), mk("최종 합격발표", r.pracPassDt)];
-  for (const x of (r._extra||[])){
-    if (x.docRegStartDt && x.docRegStartDt!==r.docRegStartDt) doc.splice(1,0, mk("필기 추가접수", x.docRegStartDt, x.docRegEndDt));
-    if (x.pracRegStartDt && x.pracRegStartDt!==r.pracRegStartDt) prac.splice(1,0, mk("실기 추가접수", x.pracRegStartDt, x.pracRegEndDt));
+  const add = [];
+  for (const { def, rng, late } of apiDates(r)){
+    if (which!=="all" && def.k!==which) continue;
+    rng.forEach(([sv,ev], i) => {
+      const label = i===0 ? def.label : (def.alt || `${def.label} (${i+1}차)`);
+      add.push({ id:uid(), label: seq+label, date: ymd8(sv), end: ev && ymd8(ev)!==ymd8(sv) ? ymd8(ev) : "" });
+    });
+    if (late) add.push({ id:uid(), label: seq+def.label.replace("원서접수","빈자리 접수 마감"), date: ymd8(late), end:"" });
   }
-  const add = (which==="doc"?doc:which==="prac"?prac:[...doc,...prac]).filter(e=>e.date);
   c.events = c.events || [];
-  let n=0; for (const e of add){ if (!c.events.some(x=>x.label===e.label && x.date===e.date)){ c.events.push(e); n++; } }
+  let n=0; for (const e of add.filter(e=>e.date)){ if (!c.events.some(x=>x.label===e.label && x.date===e.date)){ c.events.push(e); n++; } }
   await save("certs", c); closeDlg(); render(); toast(n?`일정 ${n}개를 추가했어요`:"이미 등록된 일정이에요");
 }
 
