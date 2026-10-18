@@ -23,6 +23,9 @@ h1{font-size:27px;font-weight:700;letter-spacing:-.02em;line-height:1.25}
 .sline{display:flex;align-items:center;gap:7px;margin-top:7px;min-width:0}
 .st{font-size:12px;color:var(--hdm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);flex:none}.dot.ok{background:#5cc08a}.dot.err{background:#ff8a80}
+.acct{display:flex;flex-direction:column;align-items:flex-end;gap:6px;min-width:0;flex:none;max-width:48%}
+.acct[hidden]{display:none}
+.who{font-size:12px;color:var(--hdm);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar .btn.g{background:transparent;color:var(--hdt);border-color:rgba(255,255,255,.28)}
 .hsum{display:flex;align-items:center;gap:10px;width:100%;margin-top:18px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font:inherit;font-size:14px;color:var(--hdt);text-align:left}
 button.hsum{cursor:pointer;transition:background .15s}button.hsum:hover{background:rgba(255,255,255,.1)}
@@ -132,7 +135,7 @@ textarea{min-height:200px;resize:vertical;line-height:1.75}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,12px);background:var(--ink);color:var(--onink);padding:11px 20px;border-radius:999px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:60;white-space:nowrap;box-shadow:0 10px 30px -10px rgba(0,0,0,.4)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 </style></head><body>
-<header class="bar"><div class="bw"><div class="top"><div><h1>이직 준비</h1><div class="sline"><span class="dot" id="dot"></span><span class="st" id="st">불러오는 중…</span></div></div><button class="btn g sm" id="lg" style="display:none">구글 로그인</button></div><div id="hsum"></div></div></header>
+<header class="bar"><div class="bw"><div class="top"><div><h1>이직 준비</h1><div class="sline"><span class="dot" id="dot"></span><span class="st" id="st">불러오는 중…</span></div></div><button class="btn g sm" id="lg" style="display:none">구글 로그인</button><div class="acct" id="acct" hidden><span class="who" id="who"></span><button class="btn g sm" id="lo">로그아웃</button></div></div><div id="hsum"></div></div></header>
 <nav class="seg" id="sup"></nav>
 <main class="w"><div class="chips" id="tb"></div><div id="v"></div><div class="foot"><button class="btn g sm" id="cps">스펙 전체 복사</button><button class="btn g sm" id="exp">백업 저장</button><button class="btn g sm" id="imp">백업 불러오기</button><input type="file" id="impf" accept="application/json,.json" hidden></div></main>
 <div class="toast" id="toast" role="status"></div>
@@ -398,11 +401,27 @@ render();
     var A=await import(B+"firebase-app.js"),Au=await import(B+"firebase-auth.js"),F=await import(B+"firebase-firestore.js");
     var app=A.getApps().length?A.getApp():A.initializeApp(FIREBASE_CONFIG);
     var auth=Au.getAuth(app),fs=F.getFirestore(app),unsub=null;
+    var loArm=false;
+    $("#lo").onclick=async function(){
+      var b=this;
+      if(!loArm){loArm=true;b.textContent="한 번 더 누르면 로그아웃";setTimeout(function(){loArm=false;if(b.textContent!=="로그아웃")b.textContent="로그아웃"},3000);return}
+      loArm=false;b.disabled=true;
+      try{
+        clearTimeout(timer);
+        if(pending&&ref){setSt("저장 중…");await ref.set({json:JSON.stringify(S.L),t:Date.now()})}
+        pending=false;if(unsub){unsub();unsub=null}ref=null;
+        await Au.signOut(auth);
+        try{localStorage.removeItem("jobprep2")}catch(e){}
+        S.L=fill({});form=null;formL=null;OPENID=null;render();
+        toast("로그아웃했어요");
+      }catch(e){setSt("로그아웃 실패: "+e.message)}
+      b.disabled=false;b.textContent="로그아웃";
+    };
     $("#lg").onclick=function(){Au.signInWithPopup(auth,new Au.GoogleAuthProvider()).catch(function(e){setSt("로그인 실패: "+e.message)})};
     Au.onAuthStateChanged(auth,function(u){
       if(unsub){unsub();unsub=null}
-      if(!u){ref=null;$("#lg").style.display="";setSt("로그인하면 PC·휴대폰이 연동돼요");return}
-      $("#lg").style.display="none";
+      if(!u){ref=null;$("#acct").hidden=true;$("#lg").style.display="";setSt("로그인하면 PC·휴대폰이 연동돼요");return}
+      $("#lg").style.display="none";$("#acct").hidden=false;$("#who").textContent=u.email||u.displayName||"";$("#lo").textContent="로그아웃";
       var d=F.doc(fs,"jobprep",u.uid);
       ref={set:function(o){return F.setDoc(d,o)}};
       unsub=F.onSnapshot(d,function(snap){
