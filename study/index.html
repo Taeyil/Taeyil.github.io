@@ -606,21 +606,20 @@ async function aiRead(images, mode, ctx={}){
     const { Schema } = aiM;
     const schema = Schema.object({ properties: { problems: Schema.array({ items: Schema.object({
       properties: {
-        number: Schema.string({ description:"문제 번호. 없으면 빈 문자열" }),
-        subject: Schema.string({ description:"과목명·단원. 모르면 빈 문자열" }),
-        type: Schema.string({ description:"choice(4지선다 객관식) 또는 written(주관식)" }),
-        question: Schema.string({ description:"문제 본문" }),
-        hasFigure: Schema.boolean({ description:"문제에 그림·도면·회로도·표·그래프가 있으면 true" }),
-        choices: Schema.array({ items: Schema.string(), description:"객관식 보기 4개, 번호 기호 없이 순서대로. 주관식이면 빈 배열" }),
-        answer: Schema.string({ description:"객관식 정답 번호 1~4 숫자만. 주관식이면 빈 문자열" }),
-        answers: Schema.array({ items: Schema.string(), description:"주관식 정답. 답이 여러 개면 항목별로 나눔. 객관식이면 빈 배열" }),
-        answerHasFigure: Schema.boolean({ description:"정답·해설에 그림(결선도, 도면 등)이 있으면 true" }),
-        answerSource: Schema.string({ description:"image(사진에 정답이 있음) 또는 ai(직접 풂)" }),
-        explanation: Schema.string({ description:"해설. 사진에 없으면 짧게 직접 작성" }),
-        myAnswer: Schema.string({ description:"수험자가 표시·작성한 답이 보이면 그 답" })
-      }, optionalProperties:["number","subject","choices","answer","answers","answerHasFigure","explanation","myAnswer"] }) }) } });
+        number: Schema.string(), subject: Schema.string(), type: Schema.string(), question: Schema.string(),
+        hasFigure: Schema.boolean(), choices: Schema.array({ items: Schema.string() }), answer: Schema.string(),
+        answers: Schema.array({ items: Schema.string() }), answerHasFigure: Schema.boolean(),
+        answerSource: Schema.string(), explanation: Schema.string(), myAnswer: Schema.string()
+      }, optionalProperties:["number","subject","hasFigure","choices","answer","answers","answerHasFigure","answerSource","explanation","myAnswer"] }) }) } });
     const ai = aiM.getAI(Store.fb.app, { backend: new aiM.GoogleAIBackend() });
-    aiModelCache = { name:modelName, model: aiM.getGenerativeModel(ai, { model:modelName, generationConfig:{ responseMimeType:"application/json", responseSchema:schema } }) };
+    const mk = (name, cfg) => aiM.getGenerativeModel(ai, cfg ? { model:name, generationConfig:cfg } : { model:name });
+    // 1차: 응답 형식(스키마) 지정 → 2차: JSON만 지정 → 3차: 아무 설정 없이 → 4차: 가벼운 모델
+    aiModelCache = { name:modelName, ok:null, attempts:[
+      { label:"schema", model: mk(modelName, { responseMimeType:"application/json", responseSchema:schema }) },
+      { label:"json",   model: mk(modelName, { responseMimeType:"application/json" }) },
+      { label:"plain",  model: mk(modelName, null) },
+      ...(modelName!=="gemini-3.5-flash-lite" ? [{ label:"lite", model: mk("gemini-3.5-flash-lite", { responseMimeType:"application/json" }) }] : [])
+    ]};
   }
   const prompt = mode==="answer"
     ? `이 사진은 아래 시험 문제의 정답 또는 해설입니다. 사진에서 정답과 해설을 읽어 problems 배열에 항목 1개로 반환하세요.
@@ -636,9 +635,25 @@ async function aiRead(images, mode, ctx={}){
 - 글자는 사진 그대로 옮기고, 수식은 일반 텍스트로 (예: Q = m·c·Δt).
 - 사진에 정답·해설이 있으면 그것을 쓰고 answerSource="image". 없으면 직접 풀어서 answerSource="ai". 그림을 그려야 하는 답이면 "[그림 답 — 직접 확인]"이라고 쓰세요.
 - 잘려서 읽을 수 없는 문제는 제외하세요.`;
-  const parts = [prompt, ...images.map(d=>({ inlineData:{ data:d.split(",")[1], mimeType:"image/jpeg" } }))];
-  const result = await aiModelCache.model.generateContent(parts);
-  const j = JSON.parse(result.response.text());
+  const FORMAT = `
+
+반드시 아래 JSON 형식으로만 답하세요 (설명 문장·코드블록 없이):
+{"problems":[{"number":"","subject":"","type":"choice 또는 written","question":"","hasFigure":false,"choices":["","","",""],"answer":"1~4","answers":[""],"answerHasFigure":false,"answerSource":"image 또는 ai","explanation":"","myAnswer":""}]}`;
+  const imgParts = images.map(d=>({ inlineData:{ data:d.split(",")[1], mimeType:"image/jpeg" } }));
+  const parseJSON = t => { t=String(t||"").trim().replace(/^```(?:json)?\s*/i,"").replace(/```\s*$/,""); const i=t.indexOf("{"), k=t.lastIndexOf("}"); return JSON.parse(i>=0&&k>i ? t.slice(i,k+1) : t); };
+  const list = aiModelCache.ok ? [aiModelCache.ok, ...aiModelCache.attempts.filter(x=>x!==aiModelCache.ok)] : aiModelCache.attempts;
+  const errs = []; let j = null;
+  for (const at of list){
+    try {
+      const result = await at.model.generateContent([prompt + FORMAT, ...imgParts]);
+      j = parseJSON(result.response.text()); aiModelCache.ok = at; break;
+    } catch(e){
+      console.warn("AI 시도 실패:", at.label, e);
+      errs.push(`[${at.label}] ${e.message||e}`);
+      if (/\b(401|403|429)\b|quota|PERMISSION|disabled|has not been used/i.test(String(e.message))) break;  // 권한·사용량 문제는 재시도해도 같음
+    }
+  }
+  if (!j) throw new Error(errs.join("\n\n"));
   return (j.problems||[]).filter(p=>p.question || mode==="answer");
 }
 
@@ -813,7 +828,7 @@ function openWrong(w0, firstPhoto=null){
           S.wrongs.push(nw); await save("wrongs", nw); }
         closeDlg(); render(); toast(`${ps.length}문제를 저장했어요`);
       });
-    } catch(e){ console.error(e); box.innerHTML=`<div class="card sm" style="background:var(--bad-soft);color:var(--bad)">인식 실패: ${esc(e.message||e)}</div>`; }
+    } catch(e){ console.error(e); box.innerHTML=`<div class="card sm" style="background:var(--bad-soft);color:var(--bad);white-space:pre-wrap;word-break:break-all;max-height:220px;overflow:auto;user-select:text">인식 실패 — 이 내용을 그대로 복사해서 알려주세요\n\n${esc(e.message||e)}</div>`; }
   };
 
   const bind = () => {
