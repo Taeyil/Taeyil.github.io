@@ -419,15 +419,22 @@ function openImport(c){
       $("#iK").oninput = draw;
       $("#iGo").onclick = async () => {
         const btn=$("#iGo"); btn.disabled=true; btn.innerHTML=`<span class="spinner"></span> 조회 중`;
-        const p = new URLSearchParams({ serviceKey:S.settings.serviceKey, numOfRows:"100", pageNo:"1", dataFormat:"json", implYy:$("#iY").value, qualgbCd:$("#iG").value });
-        const jm=$("#iJ").value.trim(); if (jm) p.set("jmCd", jm);
-        const url = (S.settings.proxy || API_URL) + "?" + p.toString();
-        try {
-          const r = await fetch(url); const txt = await r.text();
+        const jm=$("#iJ").value.trim();
+        const getPage = async (page) => {
+          const p = new URLSearchParams({ serviceKey:S.settings.serviceKey, numOfRows:"50", pageNo:String(page), dataFormat:"json", implYy:$("#iY").value, qualgbCd:$("#iG").value });
+          if (jm) p.set("jmCd", jm);
+          const r = await fetch((S.settings.proxy || API_URL) + "?" + p.toString()); const txt = await r.text();
           let j; try { j = JSON.parse(txt); } catch { throw new Error(txt.includes("SERVICE_KEY")||txt.includes("서비스키")?"인증키 오류 — 설정의 인증키를 확인하세요 (발급 직후면 1~2시간 뒤 다시 시도)":"응답을 읽지 못했어요: "+txt.slice(0,120)); }
           const code = j?.header?.resultCode ?? j?.response?.header?.resultCode;
           if (code && code!=="00") throw new Error(`API 오류 ${code}: ${j?.header?.resultMsg ?? j?.response?.header?.resultMsg ?? ""}`);
-          rows = findItems(j).sort((a,b)=>String(a.implSeq).localeCompare(String(b.implSeq),undefined,{numeric:true}));
+          const total = +(j?.body?.totalCount ?? j?.response?.body?.totalCount ?? 0);
+          return { items: findItems(j), total };
+        };
+        try {
+          const first = await getPage(1); let all = first.items;
+          const pages = Math.min(10, Math.ceil(first.total/50));   // 50개씩 나눠서 전부 가져오기
+          for (let pg=2; pg<=pages; pg++) all = all.concat((await getPage(pg)).items);
+          rows = all.sort((a,b)=>String(a.implSeq).localeCompare(String(b.implSeq),undefined,{numeric:true}));
           if (jm) { c.jmCd = jm; save("certs", c); }
           if (!rows.length) $("#iRes").innerHTML = `<div class="sm muted">조회 결과가 없어요. 연도·구분을 바꿔보세요.</div>`; else draw();
         } catch(e){
