@@ -411,7 +411,9 @@ function openImport(c){
         $("#iRes").innerHTML = list.length ? list.map((r,i)=>`
           <div class="card" style="padding:12px;margin-bottom:8px">
             <div class="row between"><b>${esc(r.description||`${r.implYy}년 ${r.implSeq}회`)}</b></div>
-            <div class="xs muted" style="margin:4px 0 8px">필기 접수 ${fmtDate(ymd8(r.docRegStartDt))}~${fmtDate(ymd8(r.docRegEndDt))} · 필기 ${fmtDate(ymd8(r.docExamStartDt))}${r.docExamEndDt&&r.docExamEndDt!==r.docExamStartDt?"~"+fmtDate(ymd8(r.docExamEndDt)):""} · 실기 ${fmtDate(ymd8(r.pracExamStartDt))}${r.pracExamEndDt&&r.pracExamEndDt!==r.pracExamStartDt?"~"+fmtDate(ymd8(r.pracExamEndDt)):""}</div>
+            <div class="xs muted" style="margin:4px 0 8px">필기 접수 ${fmtDate(ymd8(r.docRegStartDt))}~${fmtDate(ymd8(r.docRegEndDt))} · 필기 ${fmtDate(ymd8(r.docExamStartDt))}${r.docExamEndDt&&r.docExamEndDt!==r.docExamStartDt?"~"+fmtDate(ymd8(r.docExamEndDt)):""} · 실기 ${fmtDate(ymd8(r.pracExamStartDt))}${r.pracExamEndDt&&r.pracExamEndDt!==r.pracExamStartDt?"~"+fmtDate(ymd8(r.pracExamEndDt)):""}
+              ${(r._extra||[]).map(x=>{ const d=x.docRegStartDt&&x.docRegStartDt!==r.docRegStartDt, p=x.pracRegStartDt&&x.pracRegStartDt!==r.pracRegStartDt;
+                return (d?`<br>필기 추가접수 ${fmtDate(ymd8(x.docRegStartDt))}~${fmtDate(ymd8(x.docRegEndDt))}`:"")+(p?`<br>실기 추가접수 ${fmtDate(ymd8(x.pracRegStartDt))}~${fmtDate(ymd8(x.pracRegEndDt))}`:""); }).join("")}</div>
             <div class="row"><button class="btn sm" data-add="doc" data-i="${rows.indexOf(r)}">필기만</button><button class="btn sm" data-add="prac" data-i="${rows.indexOf(r)}">실기만</button><button class="btn sm primary" data-add="all" data-i="${rows.indexOf(r)}">전체 추가</button></div>
           </div>`).join("") : (rows.length? `<div class="sm muted">검색어와 맞는 회차가 없어요. 검색어를 비워보세요.</div>`:"");
         $("#iRes").querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>addFromApi(c, rows[+b.dataset.i], b.dataset.add));
@@ -434,7 +436,12 @@ function openImport(c){
           const first = await getPage(1); let all = first.items;
           const pages = Math.min(10, Math.ceil(first.total/50));   // 50개씩 나눠서 전부 가져오기
           for (let pg=2; pg<=pages; pg++) all = all.concat((await getPage(pg)).items);
-          rows = all.sort((a,b)=>String(a.implSeq).localeCompare(String(b.implSeq),undefined,{numeric:true}));
+          // 같은 시험(이름·회차)이 접수기간만 다르게 여러 줄 오면 하나로 합침 → 가장 이른 접수 = 정기접수, 나머지 = 추가접수
+          const groups = new Map();
+          for (const r of all){ const key=`${r.description||""}|${r.implYy}|${r.implSeq}`; if(!groups.has(key)) groups.set(key, []); groups.get(key).push(r); }
+          rows = [...groups.values()].map(g => { g.sort((a,b)=>String(a.docRegStartDt||a.pracRegStartDt).localeCompare(String(b.docRegStartDt||b.pracRegStartDt)));
+              const main = { ...g[0], _extra: g.slice(1) }; return main; })
+            .sort((a,b)=>String(a.implSeq).localeCompare(String(b.implSeq),undefined,{numeric:true}) || String(a.description).localeCompare(String(b.description)));
           if (jm) { c.jmCd = jm; save("certs", c); }
           if (!rows.length) $("#iRes").innerHTML = `<div class="sm muted">조회 결과가 없어요. 연도·구분을 바꿔보세요.</div>`; else draw();
         } catch(e){
@@ -449,6 +456,10 @@ async function addFromApi(c, r, which){
   const mk = (label, s, e) => ({ id:uid(), label: seq+label, date: ymd8(s), end: e && ymd8(e)!==ymd8(s) ? ymd8(e) : "" });
   const doc = [mk("필기 원서접수", r.docRegStartDt, r.docRegEndDt), mk("필기시험", r.docExamStartDt, r.docExamEndDt), mk("필기 합격발표", r.docPassDt)];
   const prac = [mk("실기 원서접수", r.pracRegStartDt, r.pracRegEndDt), mk("실기시험", r.pracExamStartDt, r.pracExamEndDt), mk("최종 합격발표", r.pracPassDt)];
+  for (const x of (r._extra||[])){
+    if (x.docRegStartDt && x.docRegStartDt!==r.docRegStartDt) doc.splice(1,0, mk("필기 추가접수", x.docRegStartDt, x.docRegEndDt));
+    if (x.pracRegStartDt && x.pracRegStartDt!==r.pracRegStartDt) prac.splice(1,0, mk("실기 추가접수", x.pracRegStartDt, x.pracRegEndDt));
+  }
   const add = (which==="doc"?doc:which==="prac"?prac:[...doc,...prac]).filter(e=>e.date);
   c.events = c.events || [];
   let n=0; for (const e of add){ if (!c.events.some(x=>x.label===e.label && x.date===e.date)){ c.events.push(e); n++; } }
