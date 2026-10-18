@@ -1,0 +1,1000 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>자격증 노트</title>
+<meta name="theme-color" content="#1f6f68">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  --bg:#f4f5f2; --surface:#ffffff; --surface2:#eef0ec; --line:#dcdfd8;
+  --ink:#1b1f1d; --ink2:#4b524e; --muted:#838a85;
+  --accent:#1f6f68; --accent-ink:#ffffff; --accent-soft:#dcefec;
+  --bad:#c0392b; --bad-soft:#fbe7e4; --good:#2c7a3f; --good-soft:#e2f2e5;
+  --warn:#b36b00; --warn-soft:#fff1d9;
+  --radius:14px; --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 14px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#121514; --surface:#1b1f1e; --surface2:#242928; --line:#323837;
+    --ink:#eef1ef; --ink2:#b8bfbb; --muted:#7f8783;
+    --accent:#5cc2b6; --accent-ink:#0d1f1d; --accent-soft:#1d3532;
+    --bad:#f07a6b; --bad-soft:#3a201d; --good:#6fcf86; --good-soft:#1c3122;
+    --warn:#f0b34f; --warn-soft:#3a2c14;
+    --shadow:none;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 96px}
+header.top{position:sticky;top:0;z-index:20;background:var(--bg);padding-top:env(safe-area-inset-top)}
+.top-row{display:flex;align-items:center;gap:10px;padding:14px 0 10px}
+.brand{font-weight:800;font-size:19px;letter-spacing:-.02em;margin-right:auto}
+.brand small{font-weight:500;color:var(--muted);font-size:12px;margin-left:6px}
+.seg{display:inline-flex;background:var(--surface2);border-radius:999px;padding:3px}
+.seg button{border:0;background:transparent;padding:6px 16px;border-radius:999px;font-weight:600;color:var(--ink2)}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.icon-btn{border:0;background:var(--surface2);width:36px;height:36px;border-radius:50%;font-size:17px;display:grid;place-items:center}
+nav.views{display:flex;gap:6px;overflow-x:auto;padding:4px 0 12px;scrollbar-width:none}
+nav.views::-webkit-scrollbar{display:none}
+nav.views button{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:600;color:var(--ink2)}
+nav.views button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.demo-bar{background:var(--warn-soft);color:var(--warn);font-size:13px;padding:8px 12px;border-radius:10px;margin-bottom:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.stack>*+*{margin-top:12px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.grow{flex:1}
+h2{font-size:17px;margin:0;letter-spacing:-.01em}
+h3{font-size:15px;margin:0}
+.muted{color:var(--muted)} .sm{font-size:13px} .xs{font-size:12px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 14px;font-weight:600}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--ink2)}
+.btn.danger{color:var(--bad)}
+.btn.sm{padding:5px 10px;font-size:13px;border-radius:8px}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.pick{display:block;width:100%;text-align:left;font-weight:500;padding:11px 14px}
+.btn.pick:disabled{opacity:1}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:600;color:var(--ink2)}
+.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--surface2);color:var(--ink2)}
+.tag.bad{background:var(--bad-soft);color:var(--bad)} .tag.good{background:var(--good-soft);color:var(--good)} .tag.warn{background:var(--warn-soft);color:var(--warn)}
+.empty{text-align:center;color:var(--muted);padding:36px 12px}
+.empty b{display:block;color:var(--ink2);font-size:16px;margin-bottom:4px}
+/* hero */
+.hero{background:var(--accent);color:var(--accent-ink);border-radius:18px;padding:20px;display:flex;align-items:center;gap:18px}
+.hero .dd{font-size:44px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.hero .t1{font-weight:700;font-size:16px}
+.hero .t2{opacity:.85;font-size:13px}
+.dd-badge{font-weight:800;font-variant-numeric:tabular-nums;min-width:58px;text-align:center;padding:3px 8px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-size:13px}
+.dd-badge.today{background:var(--bad);color:#fff}
+.dd-badge.soon{background:var(--bad-soft);color:var(--bad)}
+.dd-badge.past{background:var(--surface2);color:var(--muted)}
+.ev{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px dashed var(--line)}
+.ev:first-child{border-top:0}
+.ev .lbl{font-weight:600}
+.ev.past{opacity:.55}
+/* table */
+.tbl-wrap{overflow-x:auto;margin:0 -16px;padding:0 16px}
+table.sc{border-collapse:separate;border-spacing:0;min-width:100%;font-variant-numeric:tabular-nums}
+table.sc th,table.sc td{padding:4px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+table.sc th{font-size:12px;color:var(--muted);font-weight:600}
+table.sc td.name{text-align:left;position:sticky;left:0;background:var(--surface);min-width:118px}
+table.sc input{width:56px;text-align:center;border:1px solid transparent;background:var(--surface2);border-radius:8px;padding:6px 2px}
+table.sc input:focus{outline:2px solid var(--accent);background:var(--surface)}
+table.sc input.fail{color:var(--bad);font-weight:700}
+table.sc input.pass{color:var(--good);font-weight:700}
+table.sc td.avg{font-weight:700;color:var(--ink2)}
+table.sc input.name-in{width:100%;min-width:104px;border:0;background:transparent;font-weight:600;padding:4px 0;text-align:left}
+/* chart */
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart .tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12px;padding:6px 9px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-110%);opacity:0;transition:opacity .1s}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin-top:6px}
+.legend i{display:inline-block;width:16px;height:0;border-top:2px solid;vertical-align:middle;margin-right:5px}
+/* wrong notes */
+.wn{display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+.wn img{width:64px;height:64px;object-fit:cover;border-radius:10px;flex:none;background:var(--surface2)}
+.wn .q{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.choices{margin:6px 0 0;padding-left:0;list-style:none}
+.choices li{padding:2px 0}
+.qimg{max-width:100%;border-radius:10px;border:1px solid var(--line)}
+/* forms */
+label.f{display:block;font-size:13px;font-weight:600;color:var(--ink2);margin-bottom:4px}
+.in,select.in,textarea.in{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 11px}
+textarea.in{min-height:72px;resize:vertical}
+.in:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:520px){.grid2{grid-template-columns:1fr}}
+/* dialog */
+dialog{border:0;padding:0;border-radius:18px;background:var(--surface);color:var(--ink);width:min(560px,calc(100vw - 24px));max-height:calc(100vh - 32px)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.dlg-h{display:flex;align-items:center;padding:16px 18px 6px}
+.dlg-h h2{margin-right:auto}
+.dlg-b{padding:8px 18px 16px;overflow-y:auto;max-height:calc(100vh - 160px)}
+.dlg-f{display:flex;gap:8px;justify-content:flex-end;padding:10px 18px 16px;border-top:1px solid var(--line)}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-3px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;z-index:99;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw}
+.toast.on{opacity:1}
+/* review & cards */
+.big-q{font-size:17px;font-weight:600;white-space:pre-wrap}
+.answer-box{background:var(--accent-soft);border-radius:12px;padding:12px;white-space:pre-wrap}
+.flip{min-height:200px;display:grid;place-items:center;text-align:center;font-size:20px;font-weight:700;white-space:pre-wrap;cursor:pointer;user-select:none}
+.flip.back{background:var(--accent-soft);color:var(--ink)}
+.progress{height:6px;background:var(--surface2);border-radius:999px;overflow:hidden}
+.progress>div{height:100%;background:var(--accent)}
+.streak{letter-spacing:2px}
+.login{min-height:70vh;display:grid;place-items:center;text-align:center}
+.fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:15;border:0;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:13px 18px;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+<dialog id="dlg"></dialog>
+<input type="file" id="photo" accept="image/*" hidden>
+
+<script type="module">
+/* =========================================================
+   설정 — 가계부에서 쓰는 Firebase 설정값을 그대로 붙여넣으세요.
+   apiKey가 "YOUR_"로 시작하면 데모 모드(브라우저에만 저장)로 동작합니다.
+   ========================================================= */
+const CONFIG = {
+  firebase: {
+    apiKey: "AIzaSyAOeHgseYEGdyGN6HcgUfBHD4LHhEm69tU",
+    authDomain: "yil-hyun.firebaseapp.com",
+    projectId: "yil-hyun",
+    storageBucket: "yil-hyun.firebasestorage.app",
+    messagingSenderId: "86114194305",
+    appId: "1:86114194305:web:b468c93429a19c40bb4e80"
+  },
+  sdk: "13.0.0",                 // Firebase JS SDK 버전
+  aiModel: "gemini-3.5-flash",   // 사진 인식 모델 (설정 화면에서 바꿀 수 있음)
+  root: "study"                  // Firestore 최상위 컬렉션 → study/{내UID}/certs … (가계부 데이터와 분리)
+};
+const DEMO = CONFIG.firebase.apiKey.startsWith("YOUR_");
+
+/* ---------------- 유틸 ---------------- */
+const $ = s => document.querySelector(s);
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2));
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const todayStr = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; };
+const dayDiff = (dateStr) => { const [y,m,d]=dateStr.split("-").map(Number); const t=new Date(); const a=Date.UTC(y,m-1,d), b=Date.UTC(t.getFullYear(),t.getMonth(),t.getDate()); return Math.round((a-b)/864e5); };
+const fmtDate = s => { if(!s) return ""; const [y,m,d]=s.split("-"); const w="일월화수목금토"[new Date(+y,+m-1,+d).getDay()]; return `${+m}.${+d}(${w})`; };
+const ymd8 = s => s && /^\d{8}$/.test(s) ? `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}` : "";
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+let toastT; function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("on"),2600); }
+
+/* ---------------- 저장소 (Firestore / 데모: localStorage) ---------------- */
+const Store = {
+  fb:null, user:null,
+  async init(){
+    if (DEMO) return true;
+    const v=CONFIG.sdk, base=`https://www.gstatic.com/firebasejs/${v}/`;
+    const [appM, authM, fsM] = await Promise.all([
+      import(base+"firebase-app.js"), import(base+"firebase-auth.js"), import(base+"firebase-firestore.js")
+    ]);
+    const app = appM.initializeApp(CONFIG.firebase);
+    this.fb = { app, appM, authM, fsM, auth: authM.getAuth(app), db: fsM.getFirestore(app) };
+    return new Promise(res => authM.onAuthStateChanged(this.fb.auth, u => { this.user=u; res(!!u); render(); }));
+  },
+  async login(){
+    const {authM, auth} = this.fb; const p = new authM.GoogleAuthProvider();
+    try { await authM.signInWithPopup(auth, p); }
+    catch(e){ if (String(e.code).includes("popup")) await authM.signInWithRedirect(auth, p); else throw e; }
+  },
+  async logout(){ if(!DEMO) await this.fb.authM.signOut(this.fb.auth); },
+  col(name){ const {fsM, db} = this.fb; return fsM.collection(db, CONFIG.root, this.user.uid, name); },
+  async list(name){
+    if (DEMO){ try { return JSON.parse(localStorage.getItem("studydemo_"+name)||"[]"); } catch { return []; } }
+    const snap = await this.fb.fsM.getDocs(this.col(name)); return snap.docs.map(d=>d.data());
+  },
+  async put(name, obj){
+    obj.updatedAt = Date.now();
+    if (DEMO){
+      const arr = await this.list(name); const i=arr.findIndex(x=>x.id===obj.id);
+      if (i>=0) arr[i]=obj; else arr.push(obj);
+      try { localStorage.setItem("studydemo_"+name, JSON.stringify(arr)); }
+      catch { toast("데모 모드 저장 공간이 가득 찼어요 (사진이 많으면 Firebase 연결 필요)"); }
+      return;
+    }
+    const {fsM} = this.fb; await fsM.setDoc(fsM.doc(this.col(name), obj.id), JSON.parse(JSON.stringify(obj)));
+  },
+  async del(name, id){
+    if (DEMO){ const arr=(await this.list(name)).filter(x=>x.id!==id); localStorage.setItem("studydemo_"+name, JSON.stringify(arr)); return; }
+    const {fsM} = this.fb; await fsM.deleteDoc(fsM.doc(this.col(name), id));
+  }
+};
+
+/* ---------------- 상태 ---------------- */
+const S = {
+  tab: localStorage.getItem("study_tab") || "cert",   // cert | lang
+  view: "home",                                        // home | score | wrong | review | cards
+  certs: [], wrongs: [], cards: [], settings: { id:"main", serviceKey:"", proxy:"", aiModel:"" },
+  sel: {}, ready:false, showPast:false,
+  wf: { cert:"", stage:"", subject:"", status:"active" },
+  review: null, study: null
+};
+const save = (name, obj) => Store.put(name, obj).catch(e => { console.error(e); toast("저장 실패: "+(e.message||e)); });
+const certsOfTab = () => S.certs.filter(c => c.kind === S.tab).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+const certById = id => S.certs.find(c=>c.id===id);
+function curCert(){
+  const list = certsOfTab(); if (!list.length) return null;
+  let c = certById(S.sel[S.tab]); if (!c || c.kind!==S.tab) { c=list[0]; S.sel[S.tab]=c.id; }
+  return c;
+}
+const L = () => S.tab==="cert"
+  ? { item:"자격증", round:"회차", read:"회독", stagesDefault:"필기, 실기", pass:60, max:100 }
+  : { item:"어학 시험", round:"모의고사", read:"회차", stagesDefault:"모의고사", pass:800, max:990 };
+
+async function loadAll(){
+  const [certs, wrongs, cards, settings] = await Promise.all([Store.list("certs"), Store.list("wrongs"), Store.list("cards"), Store.list("settings")]);
+  Object.assign(S, { certs, wrongs, cards }); if (settings[0]) S.settings = { ...S.settings, ...settings[0] };
+  S.ready = true;
+}
+
+/* ---------------- D-day 계산 ---------------- */
+// 이벤트: {id, label, date, end?}  — 기간 일정은 시작 전엔 시작일, 기간 중엔 마감일 기준으로 표시
+function evState(ev){
+  const s = dayDiff(ev.date), e = ev.end ? dayDiff(ev.end) : s;
+  if (s > 0) return { d:s, txt:`D-${s}`, cls: s<=7?"soon":"", note:"" };
+  if (e >= 0 && ev.end && ev.end!==ev.date) return { d:e, txt: e===0?"오늘 마감":`마감 D-${e}`, cls:"today", note:"진행중" };
+  if (s === 0) return { d:0, txt:"D-DAY", cls:"today", note:"" };
+  return { d:e, txt:`D+${-e}`, cls:"past", past:true, note:"" };
+}
+function upcoming(cert){ return (cert.events||[]).map(e=>({...e, st:evState(e)})).filter(e=>!e.st.past).sort((a,b)=>a.st.d-b.st.d); }
+const fmtRange = e => e.end && e.end!==e.date ? `${fmtDate(e.date)} ~ ${fmtDate(e.end)}` : fmtDate(e.date);
+
+/* =========================================================
+   렌더링
+   ========================================================= */
+function render(){
+  const app = $("#app");
+  if (!DEMO && !Store.fb){ app.innerHTML = `<div class="wrap login"><span class="spinner"></span></div>`; return; }
+  if (!DEMO && !Store.user){
+    app.innerHTML = `<div class="wrap login"><div class="stack"><div style="font-size:40px">📘</div><h2>자격증 노트</h2>
+      <p class="muted sm">가계부와 같은 Google 계정으로 로그인하세요.</p>
+      <button class="btn primary" id="loginBtn">Google로 로그인</button></div></div>`;
+    $("#loginBtn").onclick = () => Store.login().catch(e=>toast("로그인 실패: "+e.message));
+    return;
+  }
+  if (!S.ready){ app.innerHTML = `<div class="wrap login"><span class="spinner"></span></div>`; loadAll().then(render).catch(e=>{ app.innerHTML=`<div class="wrap login"><p>불러오기 실패: ${esc(e.message)}</p></div>`; }); return; }
+
+  const views = [["home","일정"],["score","점수"],["wrong","오답노트"],["review","다시 풀기"],["cards","암기카드"]];
+  app.innerHTML = `
+  <header class="top"><div class="wrap" style="padding-bottom:0">
+    <div class="top-row">
+      <div class="brand">자격증 노트</div>
+      <div class="seg"><button data-tab="cert" class="${S.tab==="cert"?"on":""}">자격증</button><button data-tab="lang" class="${S.tab==="lang"?"on":""}">어학</button></div>
+      <button class="icon-btn" id="setBtn" title="설정" aria-label="설정">⚙︎</button>
+    </div>
+    <nav class="views">${views.map(([k,t])=>`<button data-view="${k}" class="${S.view===k?"on":""}">${t}</button>`).join("")}</nav>
+  </div></header>
+  <main class="wrap">
+    ${DEMO?`<div class="demo-bar">데모 모드 — 이 브라우저에만 저장됩니다. Firebase 설정을 넣으면 폰·PC에서 같이 쓸 수 있어요.</div>`:""}
+    <div id="view"></div>
+  </main>`;
+  app.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{ S.tab=b.dataset.tab; localStorage.setItem("study_tab",S.tab); S.review=null; S.study=null; render(); });
+  app.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>{ S.view=b.dataset.view; render(); });
+  $("#setBtn").onclick = openSettings;
+  ({home:viewHome, score:viewScore, wrong:viewWrong, review:viewReview, cards:viewCards})[S.view]($("#view"));
+}
+
+/* ---------------- 일정 / D-day ---------------- */
+function viewHome(el){
+  const list = certsOfTab(), l=L();
+  const all = list.flatMap(c => upcoming(c).map(e=>({...e, cert:c})) ).sort((a,b)=>a.st.d-b.st.d);
+  const next = all[0];
+  el.innerHTML = `
+  <div class="stack">
+    ${next ? `<div class="hero"><div class="dd">${esc(next.st.txt)}</div><div><div class="t1">${esc(next.cert.name)} · ${esc(next.label)}</div><div class="t2">${fmtRange(next)}${next.st.note?" · "+next.st.note:""}</div></div></div>`
+           : list.length ? `<div class="card muted sm">다가오는 일정이 없어요. ${S.tab==="cert"?"‘일정 불러오기’로 큐넷 일정을 가져올 수 있어요.":"시험 일정을 등록해 보세요."}</div>` : ""}
+    ${list.length? list.map(c=>certCard(c)).join("") : `<div class="card empty"><b>등록된 ${l.item}이 없어요</b>${S.tab==="cert"?"예: 가스기능장, 전기기사":"예: 토익, 오픽"}</div>`}
+    <div class="row"><button class="btn primary" id="addCert">+ ${l.item} 추가</button>
+      ${list.some(c=>(c.events||[]).some(e=>evState(e).past))?`<button class="btn ghost sm" id="togglePast">${S.showPast?"지난 일정 숨기기":"지난 일정 보기"}</button>`:""}</div>
+  </div>`;
+  $("#addCert").onclick = () => openCertForm();
+  $("#togglePast") && ($("#togglePast").onclick = () => { S.showPast=!S.showPast; render(); });
+  el.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{
+    const c = certById(b.dataset.id), a=b.dataset.act;
+    if (a==="edit") openCertForm(c); if (a==="events") openEvents(c); if (a==="import") openImport(c);
+  });
+}
+function certCard(c){
+  const evs = (c.events||[]).map(e=>({...e, st:evState(e)})).filter(e=>S.showPast||!e.st.past)
+    .sort((a,b)=> (a.st.past?1:0)-(b.st.past?1:0) || a.date.localeCompare(b.date));
+  return `<div class="card">
+    <div class="row between"><div><h2>${esc(c.name)}</h2><div class="xs muted">${(c.stages||[]).map(esc).join(" · ")} · 합격 ${c.pass}/${c.max}</div></div>
+      <div class="row">
+        ${S.tab==="cert"?`<button class="btn sm" data-act="import" data-id="${c.id}">일정 불러오기</button>`:""}
+        <button class="btn sm" data-act="events" data-id="${c.id}">일정 편집</button>
+        <button class="btn sm ghost" data-act="edit" data-id="${c.id}" aria-label="수정">⋯</button></div></div>
+    <div style="margin-top:8px">${evs.length? evs.map(e=>`<div class="ev ${e.st.past?"past":""}"><span class="dd-badge ${e.st.cls}">${esc(e.st.txt)}</span><span class="lbl grow">${esc(e.label)}</span><span class="sm muted">${fmtRange(e)}</span></div>`).join("") : `<div class="sm muted" style="padding-top:6px">등록된 일정 없음</div>`}</div>
+  </div>`;
+}
+
+/* ---------------- 다이얼로그 ---------------- */
+function dialog(title, body, foot, onMount){
+  const d=$("#dlg");
+  d.innerHTML = `<div class="dlg-h"><h2>${title}</h2><button class="icon-btn" data-close aria-label="닫기">✕</button></div><div class="dlg-b">${body}</div>${foot?`<div class="dlg-f">${foot}</div>`:""}`;
+  d.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>d.close());
+  if (!d.open) d.showModal(); onMount && onMount(d); return d;
+}
+const closeDlg = () => $("#dlg").open && $("#dlg").close();
+
+function openCertForm(c){
+  const l=L(), isNew=!c;
+  c = c || { id:uid(), kind:S.tab, name:"", stages:l.stagesDefault.split(",").map(s=>s.trim()), pass:l.pass, max:l.max, events:[], rounds:[], createdAt:Date.now() };
+  dialog(isNew?`${l.item} 추가`:`${esc(c.name)} 수정`, `
+    <div class="stack">
+      <div><label class="f">이름</label><input class="in" id="cName" value="${esc(c.name)}" placeholder="${S.tab==="cert"?"가스기능장":"TOEIC"}"></div>
+      <div><label class="f">단계 (쉼표로 구분)</label><input class="in" id="cStages" value="${esc((c.stages||[]).join(", "))}"><div class="xs muted" style="margin-top:3px">${S.tab==="cert"?"점수를 필기/실기별로 따로 기록합니다":"예: 모의고사, 실전"}</div></div>
+      <div class="grid2"><div><label class="f">${S.tab==="cert"?"합격 기준 점수":"목표 점수"}</label><input class="in" id="cPass" type="number" value="${c.pass}"></div>
+      <div><label class="f">만점</label><input class="in" id="cMax" type="number" value="${c.max}"></div></div>
+    </div>`,
+    `${isNew?"":`<button class="btn danger" id="cDel" style="margin-right:auto">삭제</button>`}<button class="btn" data-close>취소</button><button class="btn primary" id="cSave">저장</button>`,
+    d => {
+      d.querySelector("[data-close]:not(.icon-btn)") && (d.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>d.close()));
+      $("#cSave").onclick = async () => {
+        const name=$("#cName").value.trim(); if(!name) return toast("이름을 입력하세요");
+        Object.assign(c, { name, stages:$("#cStages").value.split(",").map(s=>s.trim()).filter(Boolean), pass:+$("#cPass").value||0, max:+$("#cMax").value||100 });
+        if (!c.stages.length) c.stages=["기본"];
+        if (isNew) S.certs.push(c); S.sel[S.tab]=c.id; await save("certs", c); closeDlg(); render();
+      };
+      $("#cDel") && ($("#cDel").onclick = async () => {
+        if (!confirm(`${c.name}을(를) 삭제할까요? 점수 기록도 함께 삭제됩니다. (오답노트·암기카드는 남습니다)`)) return;
+        S.certs = S.certs.filter(x=>x.id!==c.id); await Store.del("certs", c.id); closeDlg(); render();
+      });
+    });
+}
+
+const EV_LABELS = ["필기 원서접수","필기시험","필기 합격발표","실기 원서접수","실기시험","최종 합격발표","시험 접수","시험일","성적 발표"];
+function openEvents(c){
+  let evs = JSON.parse(JSON.stringify(c.events||[]));
+  const draw = () => {
+    $("#evList").innerHTML = evs.length ? evs.map((e,i)=>`
+      <div class="card" style="padding:10px;margin-bottom:8px">
+        <div class="row"><input class="in grow" list="evLabels" data-i="${i}" data-k="label" value="${esc(e.label)}" placeholder="일정 이름" style="flex:1 1 160px">
+        <button class="btn sm ghost danger" data-rm="${i}" aria-label="삭제">삭제</button></div>
+        <div class="grid2" style="margin-top:6px"><div><label class="f xs">시작일(또는 당일)</label><input class="in" type="date" data-i="${i}" data-k="date" value="${e.date||""}"></div>
+        <div><label class="f xs">마감일 (기간일 때만)</label><input class="in" type="date" data-i="${i}" data-k="end" value="${e.end||""}"></div></div>
+      </div>`).join("") : `<div class="sm muted" style="padding:8px 0">일정을 추가하세요.</div>`;
+    $("#evList").querySelectorAll("input").forEach(inp=>inp.oninput=()=>{ evs[+inp.dataset.i][inp.dataset.k]=inp.value; });
+    $("#evList").querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{ evs.splice(+b.dataset.rm,1); draw(); });
+  };
+  dialog(`${esc(c.name)} 일정`, `<datalist id="evLabels">${EV_LABELS.map(x=>`<option value="${x}">`).join("")}</datalist><div id="evList"></div><button class="btn sm" id="evAdd">+ 일정 추가</button>`,
+    `<button class="btn" data-close>취소</button><button class="btn primary" id="evSave">저장</button>`,
+    d => { draw();
+      $("#evAdd").onclick = () => { evs.push({ id:uid(), label:"", date:todayStr(), end:"" }); draw(); };
+      $("#evSave").onclick = async () => {
+        c.events = evs.filter(e=>e.date && e.label.trim()).map(e=>({ ...e, label:e.label.trim(), end: e.end && e.end>e.date ? e.end : "" }));
+        await save("certs", c); closeDlg(); render();
+      };
+    });
+}
+
+/* ---------------- 큐넷 시험일정 불러오기 (공공데이터포털) ---------------- */
+const API_URL = "https://apis.data.go.kr/B490007/qualExamSchd/getQualExamSchdList";
+function findItems(o){ // 응답 구조가 바뀌어도 implYy 가진 배열을 찾아냄
+  if (Array.isArray(o)) return o.some(x=>x&&typeof x==="object"&&"implYy" in x) ? o : o.flatMap(findItems);
+  if (o && typeof o==="object"){ if ("implYy" in o && "implSeq" in o) return [o]; return Object.values(o).flatMap(findItems); }
+  return [];
+}
+function openImport(c){
+  if (!S.settings.serviceKey){
+    return dialog("시험일정 불러오기", `<p class="sm">공공데이터포털 <b>‘한국산업인력공단_국가자격 시험일정 조회 서비스’</b> 인증키가 필요해요. 설정(⚙︎)에서 일반 인증키를 먼저 넣어주세요.</p>`,
+      `<button class="btn" data-close>닫기</button><button class="btn primary" id="goSet">설정 열기</button>`, ()=>{ $("#goSet").onclick=openSettings; });
+  }
+  const y = new Date().getFullYear();
+  const guess = /기능장/.test(c.name)?"기능장":/산업기사/.test(c.name)?"산업기사":/기사/.test(c.name)?"기사":/기능사/.test(c.name)?"기능사":"";
+  dialog(`${esc(c.name)} 일정 불러오기`, `
+    <div class="grid2">
+      <div><label class="f">연도</label><select class="in" id="iY">${[y-1,y,y+1].map(v=>`<option ${v===y?"selected":""}>${v}</option>`).join("")}</select></div>
+      <div><label class="f">구분</label><select class="in" id="iG"><option value="T">국가기술자격</option><option value="S">국가전문자격</option></select></div>
+      <div><label class="f">종목코드 (선택)</label><input class="in" id="iJ" placeholder="모르면 비워두세요" value="${esc(c.jmCd||"")}"></div>
+      <div><label class="f">검색어 (등급)</label><input class="in" id="iK" value="${guess}" placeholder="기능장, 기사…"></div>
+    </div>
+    <button class="btn primary" id="iGo" style="margin-top:10px;width:100%">조회</button>
+    <div id="iRes" style="margin-top:12px"></div>`, null, () => {
+      let rows = [];
+      const draw = () => {
+        const k = $("#iK").value.trim();
+        const list = rows.filter(r => !k || String(r.description||"").includes(k));
+        $("#iRes").innerHTML = list.length ? list.map((r,i)=>`
+          <div class="card" style="padding:12px;margin-bottom:8px">
+            <div class="row between"><b>${esc(r.description||`${r.implYy}년 ${r.implSeq}회`)}</b></div>
+            <div class="xs muted" style="margin:4px 0 8px">필기 접수 ${fmtDate(ymd8(r.docRegStartDt))}~${fmtDate(ymd8(r.docRegEndDt))} · 필기 ${fmtDate(ymd8(r.docExamStartDt))}${r.docExamEndDt&&r.docExamEndDt!==r.docExamStartDt?"~"+fmtDate(ymd8(r.docExamEndDt)):""} · 실기 ${fmtDate(ymd8(r.pracExamStartDt))}${r.pracExamEndDt&&r.pracExamEndDt!==r.pracExamStartDt?"~"+fmtDate(ymd8(r.pracExamEndDt)):""}</div>
+            <div class="row"><button class="btn sm" data-add="doc" data-i="${rows.indexOf(r)}">필기만</button><button class="btn sm" data-add="prac" data-i="${rows.indexOf(r)}">실기만</button><button class="btn sm primary" data-add="all" data-i="${rows.indexOf(r)}">전체 추가</button></div>
+          </div>`).join("") : (rows.length? `<div class="sm muted">검색어와 맞는 회차가 없어요. 검색어를 비워보세요.</div>`:"");
+        $("#iRes").querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>addFromApi(c, rows[+b.dataset.i], b.dataset.add));
+      };
+      $("#iK").oninput = draw;
+      $("#iGo").onclick = async () => {
+        const btn=$("#iGo"); btn.disabled=true; btn.innerHTML=`<span class="spinner"></span> 조회 중`;
+        const p = new URLSearchParams({ serviceKey:S.settings.serviceKey, numOfRows:"100", pageNo:"1", dataFormat:"json", implYy:$("#iY").value, qualgbCd:$("#iG").value });
+        const jm=$("#iJ").value.trim(); if (jm) p.set("jmCd", jm);
+        const url = (S.settings.proxy || API_URL) + "?" + p.toString();
+        try {
+          const r = await fetch(url); const txt = await r.text();
+          let j; try { j = JSON.parse(txt); } catch { throw new Error(txt.includes("SERVICE_KEY")||txt.includes("서비스키")?"인증키 오류 — 설정의 인증키를 확인하세요 (발급 직후면 1~2시간 뒤 다시 시도)":"응답을 읽지 못했어요: "+txt.slice(0,120)); }
+          const code = j?.header?.resultCode ?? j?.response?.header?.resultCode;
+          if (code && code!=="00") throw new Error(`API 오류 ${code}: ${j?.header?.resultMsg ?? j?.response?.header?.resultMsg ?? ""}`);
+          rows = findItems(j).sort((a,b)=>String(a.implSeq).localeCompare(String(b.implSeq),undefined,{numeric:true}));
+          if (jm) { c.jmCd = jm; save("certs", c); }
+          if (!rows.length) $("#iRes").innerHTML = `<div class="sm muted">조회 결과가 없어요. 연도·구분을 바꿔보세요.</div>`; else draw();
+        } catch(e){
+          const cors = e instanceof TypeError;
+          $("#iRes").innerHTML = `<div class="card sm" style="background:var(--bad-soft);color:var(--bad)">${cors?"브라우저에서 공공데이터 서버에 바로 접속이 막혔어요(CORS). 설치 가이드의 ‘프록시 설정’을 따라 프록시 주소를 설정에 넣어주세요.":esc(e.message)}</div>`;
+        } finally { btn.disabled=false; btn.textContent="조회"; }
+      };
+    });
+}
+async function addFromApi(c, r, which){
+  const seq = r.implSeq ? `${r.implSeq}회 ` : "";
+  const mk = (label, s, e) => ({ id:uid(), label: seq+label, date: ymd8(s), end: e && ymd8(e)!==ymd8(s) ? ymd8(e) : "" });
+  const doc = [mk("필기 원서접수", r.docRegStartDt, r.docRegEndDt), mk("필기시험", r.docExamStartDt, r.docExamEndDt), mk("필기 합격발표", r.docPassDt)];
+  const prac = [mk("실기 원서접수", r.pracRegStartDt, r.pracRegEndDt), mk("실기시험", r.pracExamStartDt, r.pracExamEndDt), mk("최종 합격발표", r.pracPassDt)];
+  const add = (which==="doc"?doc:which==="prac"?prac:[...doc,...prac]).filter(e=>e.date);
+  c.events = c.events || [];
+  let n=0; for (const e of add){ if (!c.events.some(x=>x.label===e.label && x.date===e.date)){ c.events.push(e); n++; } }
+  await save("certs", c); closeDlg(); render(); toast(n?`일정 ${n}개를 추가했어요`:"이미 등록된 일정이에요");
+}
+
+/* ---------------- 점수 (회차 × 회독) + 그래프 ---------------- */
+function certPicker(cur, extra=""){
+  const list=certsOfTab();
+  return `<div class="chips">${list.map(c=>`<button class="chip ${cur&&c.id===cur.id?"on":""}" data-cert="${c.id}">${esc(c.name)}</button>`).join("")}${extra}</div>`;
+}
+function bindPicker(el){ el.querySelectorAll("[data-cert]").forEach(b=>b.onclick=()=>{ S.sel[S.tab]=b.dataset.cert; S.review=null; S.study=null; render(); }); }
+function noCert(el){ el.innerHTML = `<div class="card empty"><b>먼저 ${L().item}을 등록하세요</b><button class="btn primary" id="gohome" style="margin-top:10px">일정 탭으로</button></div>`; $("#gohome").onclick=()=>{S.view="home";render();}; }
+
+function viewScore(el){
+  const c = curCert(); if (!c) return noCert(el);
+  const l=L(); c.rounds = c.rounds||[];
+  const stage = c.stages.includes(S.sel.stage) ? S.sel.stage : c.stages[0];
+  const rounds = c.rounds.filter(r=>r.stage===stage);
+  const nCols = Math.max(1, ...rounds.map(r=>r.scores.length)) + 1;
+  const avgOf = arr => { const v=arr.filter(x=>x!==null&&x!==""&&!isNaN(x)); return v.length? Math.round(v.reduce((a,b)=>a+ +b,0)/v.length*10)/10 : null; };
+  const colAvg = i => avgOf(rounds.map(r=>r.scores[i]));
+  el.innerHTML = `
+  <div class="stack">
+    ${certPicker(c)}
+    ${c.stages.length>1?`<div class="seg">${c.stages.map(s=>`<button data-stage="${esc(s)}" class="${s===stage?"on":""}">${esc(s)}</button>`).join("")}</div>`:""}
+    <div class="card">
+      <div class="row between" style="margin-bottom:8px"><h2>${esc(c.name)} ${c.stages.length>1?esc(stage):""}</h2><span class="xs muted">${S.tab==="cert"?"합격선":"목표"} ${c.pass}점 · 빨간 숫자는 미달</span></div>
+      ${rounds.length? `<div class="tbl-wrap"><table class="sc">
+        <thead><tr><th style="text-align:left">${l.round}</th>${Array.from({length:nCols},(_,i)=>`<th>${i+1}${l.read}</th>`).join("")}<th>평균</th><th></th></tr></thead>
+        <tbody>${rounds.map(r=>`<tr>
+          <td class="name"><input class="name-in" data-rname="${r.id}" value="${esc(r.name)}"></td>
+          ${Array.from({length:nCols},(_,i)=>{ const v=r.scores[i]; const cls = v===null||v===undefined||v===""?"":(+v>=c.pass?"pass":"fail");
+            return `<td><input inputmode="decimal" class="${cls}" data-r="${r.id}" data-i="${i}" value="${v??""}" aria-label="${esc(r.name)} ${i+1}${l.read}"></td>`; }).join("")}
+          <td class="avg">${avgOf(r.scores)??"-"}</td>
+          <td><button class="btn sm ghost" data-rdel="${r.id}" aria-label="삭제">✕</button></td></tr>`).join("")}
+          <tr><td class="name xs muted">${l.read}별 평균</td>${Array.from({length:nCols},(_,i)=>`<td class="avg">${colAvg(i)??""}</td>`).join("")}<td></td><td></td></tr>
+        </tbody></table></div>` : `<div class="empty"><b>${l.round}을 추가하세요</b>${S.tab==="cert"?"예: 2023년 1회":"예: ETS 1회"}</div>`}
+      <div class="row" style="margin-top:10px">
+        <input class="in grow" id="rName" placeholder="${S.tab==="cert"?"2024년 2회":"모의고사 3회"}" style="flex:1 1 140px">
+        <button class="btn" id="rAdd">+ ${l.round} 추가</button>
+        ${S.tab==="cert"?`<button class="btn ghost sm" id="rBulk">기출 회차 한 번에 추가</button>`:""}
+      </div>
+    </div>
+    <div class="card"><div class="row between"><h2>${l.read}별 점수 추이</h2></div><div id="chart" class="chart" style="margin-top:8px"></div></div>
+  </div>`;
+  bindPicker(el);
+  el.querySelectorAll("[data-stage]").forEach(b=>b.onclick=()=>{ S.sel.stage=b.dataset.stage; render(); });
+  const persist = () => save("certs", c);
+  el.querySelectorAll("input[data-r]").forEach(inp=>{
+    inp.onchange = () => {
+      const r=c.rounds.find(x=>x.id===inp.dataset.r), i=+inp.dataset.i, v=inp.value.trim();
+      while (r.scores.length<=i) r.scores.push(null);
+      r.scores[i] = v===""? null : +v;
+      while (r.scores.length && (r.scores.at(-1)===null)) r.scores.pop();
+      persist(); render();
+      setTimeout(()=>{ const n=document.querySelector(`input[data-r="${r.id}"][data-i="${i+1}"]`); n && n.focus(); },0);
+    };
+    inp.onkeydown = e => { if (e.key==="Enter") inp.blur(); };
+  });
+  el.querySelectorAll("[data-rname]").forEach(inp=>inp.onchange=()=>{ c.rounds.find(x=>x.id===inp.dataset.rname).name=inp.value.trim(); persist(); });
+  el.querySelectorAll("[data-rdel]").forEach(b=>b.onclick=()=>{ const r=c.rounds.find(x=>x.id===b.dataset.rdel); if(!confirm(`${r.name} 기록을 삭제할까요?`))return; c.rounds=c.rounds.filter(x=>x.id!==r.id); persist(); render(); });
+  const add = () => { const n=$("#rName").value.trim(); if(!n) return $("#rName").focus(); c.rounds.push({id:uid(),stage,name:n,scores:[]}); persist(); render(); };
+  $("#rAdd").onclick = add; $("#rName").onkeydown = e => { if(e.key==="Enter") add(); };
+  $("#rBulk") && ($("#rBulk").onclick = () => {
+    const y=new Date().getFullYear();
+    dialog("기출 회차 한 번에 추가", `<div class="grid2"><div><label class="f">시작 연도</label><input class="in" id="bY1" type="number" value="${y-4}"></div><div><label class="f">끝 연도</label><input class="in" id="bY2" type="number" value="${y-1}"></div><div><label class="f">연간 회차 수</label><input class="in" id="bN" type="number" value="${/기능장/.test(c.name)?2:3}"></div></div><p class="xs muted">‘2023년 1회’ 형식으로 만들어집니다.</p>`,
+      `<button class="btn" data-close>취소</button><button class="btn primary" id="bGo">추가</button>`, ()=>{
+        $("#bGo").onclick=()=>{ const a=+$("#bY1").value,b=+$("#bY2").value,n=+$("#bN").value; let k=0;
+          for(let yy=Math.min(a,b); yy<=Math.max(a,b); yy++) for(let i=1;i<=n;i++){ const nm=`${yy}년 ${i}회`; if(!c.rounds.some(r=>r.stage===stage&&r.name===nm)){ c.rounds.push({id:uid(),stage,name:nm,scores:[]}); k++; } }
+          persist(); closeDlg(); render(); toast(`${k}개 회차를 추가했어요`); };
+      });
+  });
+  drawChart($("#chart"), rounds, c, nCols-1, l);
+}
+
+function drawChart(box, rounds, c, n, l){
+  if (n<1 || !rounds.some(r=>r.scores.some(v=>v!==null))){ box.innerHTML=`<div class="sm muted">점수를 입력하면 ${l.read}이 쌓일수록 어떻게 변하는지 보여드려요.</div>`; return; }
+  const W=Math.max(300, Math.round(box.clientWidth||640)), H=Math.round(Math.min(280, Math.max(200, W*.5))), P={l:36,r:16,t:14,b:30}, iw=W-P.l-P.r, ih=H-P.t-P.b;
+  const max=c.max||100, x=i=> P.l + (n===1? iw/2 : iw*i/(n-1)), y=v=> P.t + ih*(1-Math.min(v,max)/max);
+  const avg = Array.from({length:n},(_,i)=>{ const v=rounds.map(r=>r.scores[i]).filter(v=>v!==null&&v!==undefined); return v.length? v.reduce((a,b)=>a+b,0)/v.length : null; });
+  const path = arr => { let d="",pen=false; arr.forEach((v,i)=>{ if(v===null||v===undefined){pen=false;return;} d+=(pen?"L":"M")+x(i).toFixed(1)+" "+y(v).toFixed(1)+" "; pen=true; }); return d; };
+  const ticks = [0,.25,.5,.75,1].map(t=>Math.round(max*t));
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${l.read}별 평균 점수 추이">
+    ${ticks.map(t=>`<line x1="${P.l}" x2="${W-P.r}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)" stroke-width="1"/><text x="${P.l-6}" y="${y(t)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${t}</text>`).join("")}
+    ${Array.from({length:n},(_,i)=>`<text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--muted)">${i+1}${l.read}</text>`).join("")}
+    <line x1="${P.l}" x2="${W-P.r}" y1="${y(c.pass)}" y2="${y(c.pass)}" stroke="var(--bad)" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <text x="${W-P.r}" y="${y(c.pass)-5}" text-anchor="end" font-size="11" fill="var(--bad)">${S.tab==="cert"?"합격선":"목표"} ${c.pass}</text>
+    ${rounds.map(r=>`<path d="${path(r.scores.slice(0,n))}" fill="none" stroke="var(--muted)" stroke-opacity=".35" stroke-width="1.5"/>`).join("")}
+    <path d="${path(avg)}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    ${avg.map((v,i)=>v===null?"":`<circle cx="${x(i)}" cy="${y(v)}" r="4.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>`).join("")}
+    ${avg.map((v,i)=>`<rect data-i="${i}" x="${x(i)-Math.max(14,iw/n/2)}" y="${P.t}" width="${Math.max(28,iw/n)}" height="${ih}" fill="transparent"/>`).join("")}
+  </svg><div class="tip"></div>
+  <div class="legend"><span><i style="border-color:var(--accent)"></i>${l.read}별 평균</span><span><i style="border-color:var(--muted);opacity:.5"></i>각 ${l.round}</span><span><i style="border-color:var(--bad);border-top-style:dashed"></i>${S.tab==="cert"?"합격선":"목표"}</span></div>`;
+  const tip=box.querySelector(".tip"), svg=box.querySelector("svg");
+  box.querySelectorAll("rect[data-i]").forEach(rc=>{
+    const i=+rc.dataset.i;
+    const show=()=>{ const vals=rounds.map(r=>[r.name,r.scores[i]]).filter(([,v])=>v!==null&&v!==undefined);
+      if(!vals.length){tip.style.opacity=0;return;}
+      const pass=vals.filter(([,v])=>v>=c.pass).length;
+      tip.innerHTML=`<b>${i+1}${l.read}</b> 평균 ${Math.round(avg[i]*10)/10}점<br>${pass}/${vals.length}개 ${l.round} 통과 · 최저 ${Math.min(...vals.map(v=>v[1]))}`;
+      const s=svg.getBoundingClientRect().width/W; tip.style.left=(x(i)*s)+"px"; tip.style.top=(y(avg[i]??0)*s)+"px"; tip.style.opacity=1; };
+    rc.onmouseenter=show; rc.onclick=show; rc.onmouseleave=()=>tip.style.opacity=0;
+  });
+}
+
+/* ---------------- 오답노트 + 사진 인식 ---------------- */
+// 오답 데이터
+// { id, certId, stage, type:"choice"|"written", round, number, subject, question, hasFigure,
+//   choices:[4], answerIdx:0~3(-1 모름), myIdx,            ← 객관식(4지선다)
+//   answers:[...], myAnswer,                              ← 주관식(정답 1개 이상)
+//   qImages:[], aImages:[], explanation, answerSource, reason, streak, wrongCount, graduated }
+const CIRC = ["①","②","③","④"];
+const MAX_IMG = 2;           // 문제/정답 그림 각각 최대 장수 (Firestore 문서 1MB 제한)
+const defaultType = stage => /실기|주관|서술|작업|면접/.test(stage||"") ? "written" : "choice";
+const stripNo = s => String(s||"").replace(/^\s*([①②③④]|\(?[1-4][).]|[1-4]\s*번)\s*/,"").trim();
+function parseIdx(s){
+  s=String(s??"").trim(); if(!s) return -1;
+  const k=CIRC.findIndex(x=>s.includes(x)); if(k>=0) return k;
+  const m=s.match(/^\(?([1-4])/); return m? +m[1]-1 : -1;
+}
+function normW(w){
+  const c=certById(w.certId);
+  if (!w.stage) w.stage = c?.stages?.[0] || "";
+  if (!w.type) w.type = (w.choices||[]).length>=2 ? "choice" : defaultType(w.stage);
+  if (!w.qImages) w.qImages = w.image ? [w.image] : [];
+  if (!w.aImages) w.aImages = [];
+  w.choices = [0,1,2,3].map(i=>stripNo((w.choices||[])[i]));
+  if (w.answerIdx===undefined) w.answerIdx = parseIdx(w.answer);
+  if (w.myIdx===undefined) w.myIdx = parseIdx(w.myAnswer);
+  if (!w.answers) w.answers = w.answer ? [w.answer] : [];
+  return w;
+}
+const answerText = w => w.type==="choice"
+  ? (w.answerIdx>=0 ? `${CIRC[w.answerIdx]} ${w.choices[w.answerIdx]||""}` : "(정답 미입력)")
+  : (w.answers.length>1 ? w.answers.map((a,i)=>`(${i+1}) ${a}`).join("\n") : (w.answers[0]||"(정답 미입력)"));
+
+function compressImage(file, maxSide, quality){
+  return new Promise((res, rej) => {
+    const img=new Image(), url=URL.createObjectURL(file);
+    img.onload=()=>{ const k=Math.min(1, maxSide/Math.max(img.width,img.height));
+      const cv=document.createElement("canvas"); cv.width=Math.round(img.width*k); cv.height=Math.round(img.height*k);
+      const g=cv.getContext("2d"); g.fillStyle="#fff"; g.fillRect(0,0,cv.width,cv.height); g.drawImage(img,0,0,cv.width,cv.height);
+      URL.revokeObjectURL(url); res(cv.toDataURL("image/jpeg", quality)); };
+    img.onerror=()=>rej(new Error("이미지를 열 수 없어요")); img.src=url;
+  });
+}
+
+let aiModelCache=null;
+async function aiRead(images, mode, ctx={}){
+  if (DEMO) throw new Error("사진 인식은 Firebase 연결 후 사용할 수 있어요");
+  const modelName = S.settings.aiModel || CONFIG.aiModel;
+  if (!aiModelCache || aiModelCache.name!==modelName){
+    const aiM = await import(`https://www.gstatic.com/firebasejs/${CONFIG.sdk}/firebase-ai.js`);
+    const { Schema } = aiM;
+    const schema = Schema.object({ properties: { problems: Schema.array({ items: Schema.object({
+      properties: {
+        number: Schema.string({ description:"문제 번호. 없으면 빈 문자열" }),
+        subject: Schema.string({ description:"과목명·단원. 모르면 빈 문자열" }),
+        type: Schema.string({ description:"choice(4지선다 객관식) 또는 written(주관식)" }),
+        question: Schema.string({ description:"문제 본문" }),
+        hasFigure: Schema.boolean({ description:"문제에 그림·도면·회로도·표·그래프가 있으면 true" }),
+        choices: Schema.array({ items: Schema.string(), description:"객관식 보기 4개, 번호 기호 없이 순서대로. 주관식이면 빈 배열" }),
+        answer: Schema.string({ description:"객관식 정답 번호 1~4 숫자만. 주관식이면 빈 문자열" }),
+        answers: Schema.array({ items: Schema.string(), description:"주관식 정답. 답이 여러 개면 항목별로 나눔. 객관식이면 빈 배열" }),
+        answerHasFigure: Schema.boolean({ description:"정답·해설에 그림(결선도, 도면 등)이 있으면 true" }),
+        answerSource: Schema.string({ description:"image(사진에 정답이 있음) 또는 ai(직접 풂)" }),
+        explanation: Schema.string({ description:"해설. 사진에 없으면 짧게 직접 작성" }),
+        myAnswer: Schema.string({ description:"수험자가 표시·작성한 답이 보이면 그 답" })
+      }, optionalProperties:["number","subject","choices","answer","answers","answerHasFigure","explanation","myAnswer"] }) }) } });
+    const ai = aiM.getAI(Store.fb.app, { backend: new aiM.GoogleAIBackend() });
+    aiModelCache = { name:modelName, model: aiM.getGenerativeModel(ai, { model:modelName, generationConfig:{ responseMimeType:"application/json", responseSchema:schema } }) };
+  }
+  const prompt = mode==="answer"
+    ? `이 사진은 아래 시험 문제의 정답 또는 해설입니다. 사진에서 정답과 해설을 읽어 problems 배열에 항목 1개로 반환하세요.
+문제(${ctx.type==="choice"?"4지선다 객관식":"주관식"}): """${ctx.question||"(텍스트 없음 — 사진만 있음)"}"""
+- type, question은 위 문제 그대로 쓰세요.
+- 객관식이면 answer에 정답 번호(1~4)만. 주관식이면 answers에 정답을 항목별로 나눠서 (소문항 (1)(2)… 이 있으면 각각 하나씩).
+- 정답이 그림(결선도·도면 등)이면 answers에 "[그림 참고]"라고 쓰고 answerHasFigure=true.
+- answerSource="image".`
+    : `이 사진은 한국 자격증·어학 시험 문제입니다. 사진의 문제를 모두 읽어 구조화하세요.
+- 4지선다 객관식(필기 등)이면 type="choice", choices에 보기 4개를 번호 기호(①②③④) 없이 순서대로, answer에 정답 번호(1~4)만.
+- 주관식(실기·계산·서술·작업형)이면 type="written", choices는 빈 배열, answers에 정답. 소문항 (1)(2)…이나 답이 여러 개면 각각 따로 나눠 넣으세요.
+- 문제에 그림·도면·회로도·표·그래프가 있으면 hasFigure=true로 하고, question 안의 그림 위치에 [그림]이라고 표시하세요.
+- 글자는 사진 그대로 옮기고, 수식은 일반 텍스트로 (예: Q = m·c·Δt).
+- 사진에 정답·해설이 있으면 그것을 쓰고 answerSource="image". 없으면 직접 풀어서 answerSource="ai". 그림을 그려야 하는 답이면 "[그림 답 — 직접 확인]"이라고 쓰세요.
+- 잘려서 읽을 수 없는 문제는 제외하세요.`;
+  const parts = [prompt, ...images.map(d=>({ inlineData:{ data:d.split(",")[1], mimeType:"image/jpeg" } }))];
+  const result = await aiModelCache.model.generateContent(parts);
+  const j = JSON.parse(result.response.text());
+  return (j.problems||[]).filter(p=>p.question || mode==="answer");
+}
+
+function viewWrong(el){
+  const list = certsOfTab(); if (!list.length) return noCert(el);
+  const f=S.wf, ids=new Set(list.map(c=>c.id));
+  if (f.cert && !ids.has(f.cert)) { f.cert=""; f.subject=""; f.stage=""; }
+  let items = S.wrongs.filter(w=>ids.has(w.certId)).map(normW);
+  if (f.cert) items=items.filter(w=>w.certId===f.cert);
+  const stages = [...new Set(f.cert ? certById(f.cert).stages : items.map(w=>w.stage).filter(Boolean))];
+  if (f.stage && !stages.includes(f.stage)) f.stage="";
+  if (f.stage) items=items.filter(w=>w.stage===f.stage);
+  const subjects = [...new Set(items.map(w=>w.subject).filter(Boolean))];
+  if (f.subject) items=items.filter(w=>w.subject===f.subject);
+  if (f.status==="active") items=items.filter(w=>!w.graduated); if (f.status==="done") items=items.filter(w=>w.graduated);
+  items.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const REASON = {concept:["개념 모름","bad"], mistake:["실수","warn"], confused:["헷갈림",""]};
+  el.innerHTML = `
+  <div class="stack">
+    <div class="chips">
+      <button class="chip ${!f.cert?"on":""}" data-fc="">전체 <span class="muted">${S.wrongs.filter(w=>ids.has(w.certId)&&!w.graduated).length}</span></button>
+      ${list.map(c=>`<button class="chip ${f.cert===c.id?"on":""}" data-fc="${c.id}">${esc(c.name)} <span class="muted">${S.wrongs.filter(w=>w.certId===c.id&&!w.graduated).length}</span></button>`).join("")}
+    </div>
+    <div class="row">
+      ${stages.length>1?`<div class="seg"><button data-fst="" class="${!f.stage?"on":""}">전체</button>${stages.map(s=>`<button data-fst="${esc(s)}" class="${f.stage===s?"on":""}">${esc(s)}</button>`).join("")}</div>`:""}
+      <select class="in" id="fS" style="width:auto"><option value="">전체 과목</option>${subjects.map(s=>`<option ${f.subject===s?"selected":""}>${esc(s)}</option>`).join("")}</select>
+      <div class="seg"><button data-st="active" class="${f.status==="active"?"on":""}">복습중</button><button data-st="done" class="${f.status==="done"?"on":""}">졸업</button><button data-st="all" class="${f.status==="all"?"on":""}">전체</button></div>
+    </div>
+    <div class="row"><button class="btn primary" id="wPhoto">📷 사진으로 추가</button><button class="btn" id="wNew">직접 입력</button><span class="xs muted grow" style="text-align:right">${items.length}문제</span></div>
+    ${items.length? items.map(w=>{ const c=certById(w.certId); const r=REASON[w.reason];
+      return `<div class="card wn" data-w="${w.id}">
+        ${w.qImages[0]?`<img src="${w.qImages[0]}" alt="">`:""}
+        <div class="grow" style="min-width:0">
+          <div class="row xs muted">${esc(c?.name||"")}${w.stage?" · "+esc(w.stage):""}${w.round?" · "+esc(w.round):""}${w.number?" · "+esc(w.number)+"번":""}${w.subject?" · "+esc(w.subject):""}</div>
+          <div class="q">${esc(w.question||"(사진 문제)")}</div>
+          <div class="row" style="margin-top:6px">
+            <span class="tag">${w.type==="choice"?"객관식":"주관식"+(w.answers.length>1?` · 답 ${w.answers.length}개`:"")}</span>
+            ${w.hasFigure||w.qImages.length?`<span class="tag" title="문제 그림">🖼 문제</span>`:""}${w.aImages.length?`<span class="tag" title="정답 그림">🖼 정답</span>`:""}
+            ${r?`<span class="tag ${r[1]}">${r[0]}</span>`:""}${w.answerSource==="ai"?`<span class="tag warn">AI 추정 답</span>`:""}
+            ${w.graduated?`<span class="tag good">졸업</span>`:`<span class="xs muted streak">${"●".repeat(w.streak||0)}${"○".repeat(2-(w.streak||0))}</span>`}
+            <span class="xs muted">틀린 횟수 ${w.wrongCount||1}</span></div>
+        </div></div>`; }).join("") : `<div class="card empty"><b>오답이 없어요</b>틀린 문제를 사진으로 찍어 올려보세요.</div>`}
+  </div>`;
+  el.querySelectorAll("[data-fc]").forEach(b=>b.onclick=()=>{ f.cert=b.dataset.fc; f.subject=""; f.stage=""; render(); });
+  el.querySelectorAll("[data-fst]").forEach(b=>b.onclick=()=>{ f.stage=b.dataset.fst; f.subject=""; render(); });
+  $("#fS").onchange=e=>{ f.subject=e.target.value; render(); };
+  el.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{ f.status=b.dataset.st; render(); });
+  $("#wNew").onclick=()=>openWrong(null);
+  $("#wPhoto").onclick=()=>pickPhoto((thumb,big)=>openWrong(null, { thumb, big }));
+  el.querySelectorAll("[data-w]").forEach(d=>d.onclick=()=>openWrong(S.wrongs.find(w=>w.id===d.dataset.w)));
+}
+
+function pickPhoto(cb){
+  const inp=$("#photo"); inp.value="";
+  inp.onchange = async () => {
+    const file=inp.files[0]; if(!file) return;
+    try { const [thumb, big] = await Promise.all([compressImage(file, 1200, .7), compressImage(file, 2000, .85)]); cb(thumb, big); }
+    catch(e){ toast(e.message); }
+  };
+  inp.click();
+}
+
+function newWrong(){
+  const c = certById(S.wf.cert) || curCert();
+  const stage = S.wf.stage && c.stages.includes(S.wf.stage) ? S.wf.stage : c.stages[0];
+  return { id:uid(), certId:c.id, stage, type:defaultType(stage), round:"", number:"", subject:"", question:"", hasFigure:false,
+    choices:["","","",""], answerIdx:-1, myIdx:-1, answers:[""], myAnswer:"", qImages:[], aImages:[], explanation:"",
+    reason:"concept", streak:0, wrongCount:1, graduated:false, createdAt:Date.now() };
+}
+
+function openWrong(w0, firstPhoto=null){
+  const isNew = !w0;
+  const list = certsOfTab();
+  // 편집용 복사본 (취소하면 원본 그대로)
+  const w = JSON.parse(JSON.stringify(normW(w0 || newWrong())));
+  if (!w.answers.length) w.answers=[""];
+  const big = new Map();           // 미리보기 이미지 → 원본 해상도 (AI 인식용)
+  if (firstPhoto){ w.qImages=[firstPhoto.thumb]; big.set(firstPhoto.thumb, firstPhoto.big); }
+  let typeTouched = !isNew;
+
+  // 폼 → w 반영
+  const collect = () => {
+    const v = id => $(id) ? $(id).value.trim() : "";
+    Object.assign(w, { certId:v("#wC")||w.certId, stage:v("#wSt")||w.stage, round:v("#wR"), number:v("#wN"), subject:v("#wS"), question:$("#wQ").value.trim(), explanation:$("#wE").value.trim() });
+    if (w.type==="choice"){ w.choices=[0,1,2,3].map(i=>stripNo($(`#wCh${i}`).value)); }
+    else { w.answers=[...document.querySelectorAll("[data-ans]")].map(i=>i.value.trim()); w.myAnswer=$("#wM").value.trim(); }
+    w.hasFigure = $("#wFig").checked;
+    if ($("#wG")) w.graduated = $("#wG").checked;
+  };
+  const imgSection = (key, label) => `
+    <div><div class="row between"><label class="f" style="margin:0">${label}</label>
+      <div class="row">${w[key].length<MAX_IMG?`<button type="button" class="btn sm" data-addimg="${key}">📷 추가</button>`:""}${w[key].length?`<button type="button" class="btn sm" data-ai="${key}">✨ 사진에서 읽기</button>`:""}</div></div>
+      ${w[key].length?`<div class="row" style="margin-top:6px;align-items:flex-start">${w[key].map((src,i)=>`<div style="position:relative;flex:1 1 140px;max-width:260px"><img class="qimg" src="${src}" alt="${label} ${i+1}"><button type="button" class="icon-btn" data-rmimg="${key}" data-i="${i}" aria-label="사진 삭제" style="position:absolute;top:6px;right:6px;width:28px;height:28px;font-size:13px">✕</button></div>`).join("")}</div>`
+        : `<div class="xs muted" style="margin-top:2px">${key==="qImages"?"문제에 그림·도면·회로도가 있으면 사진을 같이 저장하세요":"결선도·도면처럼 그림으로 된 정답은 사진으로 남겨두세요"}</div>`}
+    </div>`;
+
+  const draw = () => {
+    const cert = certById(w.certId) || list[0];
+    const roundOpts = [...new Set((cert?.rounds||[]).filter(r=>r.stage===w.stage).map(r=>r.name))];
+    $("#wForm").innerHTML = `
+      <div id="aiBox"></div>
+      <div class="grid2">
+        <div><label class="f">${L().item}</label><select class="in" id="wC">${list.map(c=>`<option value="${c.id}" ${c.id===w.certId?"selected":""}>${esc(c.name)}</option>`).join("")}</select></div>
+        <div><label class="f">단계</label><select class="in" id="wSt">${(cert?.stages||[]).map(s=>`<option ${s===w.stage?"selected":""}>${esc(s)}</option>`).join("")}</select></div>
+        <div><label class="f">${L().round}</label><input class="in" id="wR" list="roundList" value="${esc(w.round)}" placeholder="2023년 1회"><datalist id="roundList">${roundOpts.map(r=>`<option value="${esc(r)}">`).join("")}</datalist></div>
+        <div class="grid2" style="gap:8px"><div><label class="f">번호</label><input class="in" id="wN" value="${esc(w.number)}"></div>
+          <div><label class="f">과목</label><input class="in" id="wS" list="subjList" value="${esc(w.subject)}"><datalist id="subjList">${[...new Set(S.wrongs.filter(x=>x.certId===w.certId).map(x=>x.subject).filter(Boolean))].map(s=>`<option value="${esc(s)}">`).join("")}</datalist></div></div>
+      </div>
+      <div><label class="f">문제 유형</label><div class="seg"><button type="button" data-type="choice" class="${w.type==="choice"?"on":""}">객관식 (4지선다)</button><button type="button" data-type="written" class="${w.type==="written"?"on":""}">주관식</button></div></div>
+      <div><label class="f">문제</label><textarea class="in" id="wQ" rows="4" placeholder="${w.qImages.length?"사진만 저장해도 됩니다":""}">${esc(w.question)}</textarea>
+        <label class="row xs" style="margin-top:4px"><input type="checkbox" id="wFig" ${w.hasFigure?"checked":""}> 그림이 있는 문제 (다시 풀기에서 사진을 항상 보여줌)</label></div>
+      ${imgSection("qImages","문제 그림")}
+      ${w.type==="choice" ? `
+        <div><label class="f">보기 · 정답은 번호를 눌러 선택</label>
+          ${[0,1,2,3].map(i=>`<div class="row" style="margin-bottom:6px;flex-wrap:nowrap">
+            <button type="button" class="chip ${w.answerIdx===i?"on":""}" data-ai-idx="${i}" style="flex:none;min-width:44px" aria-label="${i+1}번을 정답으로">${CIRC[i]}</button>
+            <input class="in" id="wCh${i}" value="${esc(w.choices[i])}" placeholder="${i+1}번 보기"></div>`).join("")}
+          ${w.answerIdx<0?`<div class="xs" style="color:var(--bad)">정답 번호를 선택하세요</div>`:""}
+        </div>
+        <div><label class="f">내가 고른 답</label><div class="chips">${[0,1,2,3].map(i=>`<button type="button" class="chip ${w.myIdx===i?"on":""}" data-my-idx="${i}">${CIRC[i]}</button>`).join("")}</div></div>`
+      : `
+        <div><label class="f">정답 <span class="muted xs">답이 여러 개면 ‘+ 정답 추가’</span></label>
+          ${w.answers.map((a,i)=>`<div class="row" style="margin-bottom:6px;flex-wrap:nowrap">
+            ${w.answers.length>1?`<span class="tag" style="flex:none">(${i+1})</span>`:""}
+            <textarea class="in" data-ans="${i}" rows="1" style="min-height:40px">${esc(a)}</textarea>
+            ${w.answers.length>1?`<button type="button" class="btn sm ghost" data-rmans="${i}" aria-label="정답 삭제">✕</button>`:""}</div>`).join("")}
+          <button type="button" class="btn sm" id="wAddAns">+ 정답 추가</button>
+        </div>
+        <div><label class="f">내가 쓴 답</label><textarea class="in" id="wM" rows="2">${esc(w.myAnswer)}</textarea></div>`}
+      ${w.answerSource==="ai"?`<div class="tag warn">정답은 AI가 직접 푼 것 — 확인 필요</div>`:""}
+      ${imgSection("aImages","정답·해설 그림")}
+      <div><label class="f">해설 / 메모</label><textarea class="in" id="wE" rows="3">${esc(w.explanation)}</textarea></div>
+      <div><label class="f">틀린 이유</label><div class="chips">${[["concept","개념 모름"],["mistake","실수"],["confused","헷갈림"]].map(([k,t])=>`<button type="button" class="chip ${w.reason===k?"on":""}" data-reason="${k}">${t}</button>`).join("")}</div></div>
+      ${!isNew?`<label class="row sm"><input type="checkbox" id="wG" ${w.graduated?"checked":""}> 졸업 처리 (다시 풀기에서 제외)</label>`:""}`;
+    bind();
+  };
+
+  const runAI = async (key) => {
+    collect();
+    const imgs = w[key].map(s=>big.get(s)||s); if (!imgs.length) return;
+    const box=$("#aiBox"); box.innerHTML=`<div class="card sm" style="background:var(--accent-soft)"><span class="spinner"></span> ${key==="qImages"?"사진에서 문제를 읽는 중…":"사진에서 정답을 읽는 중…"}</div>`;
+    try {
+      const ps = await aiRead(imgs, key==="qImages"?"question":"answer", { question:w.question, type:w.type });
+      if (!ps.length){ box.innerHTML=`<div class="card sm" style="background:var(--warn-soft);color:var(--warn)">내용을 찾지 못했어요. 글자가 화면에 꽉 차게 다시 찍어보세요.</div>`; return; }
+      const apply = (t, p, onlyAnswer) => {
+        if (!onlyAnswer){
+          t.type = p.type==="written" ? "written" : "choice"; typeTouched = true;
+          t.question = p.question||t.question; t.hasFigure = !!p.hasFigure;
+          if (p.number) t.number=p.number; if (p.subject && !t.subject) t.subject=p.subject;
+        }
+        if (t.type==="choice"){
+          if (!onlyAnswer && p.choices?.length) t.choices=[0,1,2,3].map(i=>stripNo(p.choices[i]));
+          const k=parseIdx(p.answer); if (k>=0) t.answerIdx=k;
+          if (p.myAnswer){ const m=parseIdx(p.myAnswer); if(m>=0) t.myIdx=m; }
+        } else {
+          const a=(p.answers||[]).map(s=>String(s).trim()).filter(Boolean); if (a.length) t.answers=a;
+          if (p.myAnswer) t.myAnswer=p.myAnswer;
+        }
+        if (p.explanation) t.explanation=p.explanation;
+        t.answerSource = onlyAnswer ? "image" : p.answerSource;
+        return t;
+      };
+      if (key==="aImages"){ apply(w, ps[0], true); draw();
+        $("#aiBox").innerHTML=`<div class="card sm" style="background:var(--accent-soft)">정답을 채웠어요${ps[0].answerHasFigure?" — 그림으로 된 답은 사진으로 확인하세요":""}.</div>`; return; }
+      apply(w, ps[0], false); draw();
+      $("#aiBox").innerHTML = ps.length>1
+        ? `<div class="card sm" style="background:var(--accent-soft)">사진에서 <b>${ps.length}문제</b>를 찾았어요. 첫 문제를 채웠습니다. <button type="button" class="btn sm primary" id="addAllAI">${ps.length}문제 모두 저장</button></div>`
+        : `<div class="card sm" style="background:var(--accent-soft)">자동 입력 완료 — 확인 후 저장하세요.${w.answerSource==="ai"?" <b>정답은 AI가 푼 것이니 꼭 확인하세요.</b>":""}${w.hasFigure?" 그림 문제라 사진도 함께 저장돼요.":""}</div>`;
+      $("#addAllAI") && ($("#addAllAI").onclick = async () => {
+        collect();
+        for (const p of ps){ const nw = apply({ ...JSON.parse(JSON.stringify(w)), id:uid(), number:"", answers:[""], choices:["","","",""], answerIdx:-1, myIdx:-1, myAnswer:"", explanation:"", createdAt:Date.now() }, p, false);
+          S.wrongs.push(nw); await save("wrongs", nw); }
+        closeDlg(); render(); toast(`${ps.length}문제를 저장했어요`);
+      });
+    } catch(e){ console.error(e); box.innerHTML=`<div class="card sm" style="background:var(--bad-soft);color:var(--bad)">인식 실패: ${esc(e.message||e)}</div>`; }
+  };
+
+  const bind = () => {
+    const F=$("#wForm");
+    $("#wC").onchange = () => { collect(); const c=certById(w.certId); if (!c.stages.includes(w.stage)) { w.stage=c.stages[0]; if(!typeTouched) w.type=defaultType(w.stage); } draw(); };
+    $("#wSt").onchange = () => { collect(); if (!typeTouched) w.type=defaultType(w.stage); draw(); };
+    F.querySelectorAll("[data-type]").forEach(b=>b.onclick=()=>{ collect(); typeTouched=true;
+      if (w.type!==b.dataset.type){ // 정답 옮겨주기
+        if (b.dataset.type==="written" && w.answerIdx>=0 && !w.answers.some(Boolean)) w.answers=[w.choices[w.answerIdx]||CIRC[w.answerIdx]];
+        w.type=b.dataset.type; }
+      draw(); });
+    F.querySelectorAll("[data-ai-idx]").forEach(b=>b.onclick=()=>{ collect(); w.answerIdx=+b.dataset.aiIdx; draw(); });
+    F.querySelectorAll("[data-my-idx]").forEach(b=>b.onclick=()=>{ collect(); w.myIdx = w.myIdx===+b.dataset.myIdx ? -1 : +b.dataset.myIdx; draw(); });
+    F.querySelectorAll("[data-reason]").forEach(b=>b.onclick=()=>{ collect(); w.reason=b.dataset.reason; draw(); });
+    $("#wAddAns") && ($("#wAddAns").onclick=()=>{ collect(); w.answers.push(""); draw(); const a=F.querySelectorAll("[data-ans]"); a[a.length-1].focus(); });
+    F.querySelectorAll("[data-rmans]").forEach(b=>b.onclick=()=>{ collect(); w.answers.splice(+b.dataset.rmans,1); draw(); });
+    F.querySelectorAll("[data-addimg]").forEach(b=>b.onclick=()=>{ collect(); const key=b.dataset.addimg;
+      pickPhoto((thumb, b2)=>{ w[key].push(thumb); big.set(thumb,b2); if(key==="qImages" && !w.question) { draw(); runAI(key); } else draw(); }); });
+    F.querySelectorAll("[data-rmimg]").forEach(b=>b.onclick=()=>{ collect(); w[b.dataset.rmimg].splice(+b.dataset.i,1); draw(); });
+    F.querySelectorAll("[data-ai]").forEach(b=>b.onclick=()=>runAI(b.dataset.ai));
+  };
+
+  dialog(isNew?"오답 추가":"오답 수정", `<div class="stack" id="wForm"></div>`,
+    `${isNew?"":`<button class="btn danger" id="wDel" style="margin-right:auto">삭제</button>`}<button class="btn" data-close>취소</button><button class="btn primary" id="wSave">저장</button>`,
+    () => {
+      draw();
+      if (firstPhoto) runAI("qImages");
+      $("#wSave").onclick = async () => {
+        collect();
+        if (!w.question && !w.qImages.length) return toast("문제 내용이나 사진을 넣어주세요");
+        if (w.type==="written") w.answers = w.answers.filter(Boolean);
+        if (w.graduated===false && (w.streak||0)>=2) w.streak=0;
+        delete w.image; delete w.answer;
+        if (JSON.stringify(w).length > 950000) return toast("사진 용량이 너무 커요. 사진을 1장 줄여주세요");
+        if (isNew) S.wrongs.push(w); else { const i=S.wrongs.findIndex(x=>x.id===w.id); S.wrongs[i]=w; }
+        await save("wrongs", w); closeDlg(); render(); toast("저장했어요");
+      };
+      $("#wDel") && ($("#wDel").onclick = async () => { if(!confirm("이 오답을 삭제할까요?"))return; S.wrongs=S.wrongs.filter(x=>x.id!==w.id); await Store.del("wrongs", w.id); closeDlg(); render(); });
+    });
+}
+
+/* ---------------- 오답 다시 풀기 ---------------- */
+function viewReview(el){
+  const list=certsOfTab(); if (!list.length) return noCert(el);
+  const ids=new Set(list.map(c=>c.id));
+  const R = S.review;
+  if (!R){
+    const pool = S.wrongs.filter(w=>ids.has(w.certId)&&!w.graduated).map(normW);
+    const sel = ids.has(S.sel.reviewCert) ? S.sel.reviewCert : "";
+    const inCert = pool.filter(w=>!sel||w.certId===sel);
+    const stages=[...new Set(inCert.map(w=>w.stage).filter(Boolean))];
+    const st = stages.includes(S.sel.reviewStage) ? S.sel.reviewStage : "";
+    const inStage = inCert.filter(w=>!st||w.stage===st);
+    const subjects=[...new Set(inStage.map(w=>w.subject).filter(Boolean))];
+    const target = inStage.filter(w=>!S.sel.reviewSubj||w.subject===S.sel.reviewSubj);
+    const grads = S.wrongs.filter(w=>ids.has(w.certId)&&w.graduated).length;
+    el.innerHTML = `<div class="stack"><div class="card stack">
+      <h2>틀린 문제 다시 풀기</h2>
+      <p class="sm muted" style="margin:0">복습중인 오답을 랜덤으로 냅니다. <b>2번 연속 맞히면 졸업</b>해서 더 이상 나오지 않아요. 객관식은 번호를 누르면 바로 채점되고, 주관식은 정답을 보고 직접 채점합니다.</p>
+      <div class="chips"><button class="chip ${!sel?"on":""}" data-rvc="">전체</button>${list.map(c=>`<button class="chip ${sel===c.id?"on":""}" data-rvc="${c.id}">${esc(c.name)}</button>`).join("")}</div>
+      <div class="grid2">
+        <div><label class="f">단계</label><select class="in" id="rvSt"><option value="">전체</option>${stages.map(s=>`<option ${st===s?"selected":""}>${esc(s)}</option>`).join("")}</select></div>
+        <div><label class="f">과목</label><select class="in" id="rvS"><option value="">전체</option>${subjects.map(s=>`<option ${S.sel.reviewSubj===s?"selected":""}>${esc(s)}</option>`).join("")}</select></div></div>
+      <div class="row between"><span class="sm">출제 대상 <b>${target.length}</b>문제 · 졸업 ${grads}문제</span>
+      <button class="btn primary" id="rvGo" ${target.length?"":"disabled"}>시작</button></div></div></div>`;
+    el.querySelectorAll("[data-rvc]").forEach(b=>b.onclick=()=>{ S.sel.reviewCert=b.dataset.rvc; S.sel.reviewStage=""; S.sel.reviewSubj=""; render(); });
+    $("#rvSt").onchange=e=>{ S.sel.reviewStage=e.target.value; S.sel.reviewSubj=""; render(); };
+    $("#rvS").onchange=e=>{ S.sel.reviewSubj=e.target.value; render(); };
+    $("#rvGo").onclick=()=>{ S.review={ queue:shuffle(target).map(w=>w.id), i:0, shown:false, picked:-1, right:0, wrong:0, graduated:0 }; render(); };
+    return;
+  }
+  if (R.i >= R.queue.length){
+    el.innerHTML = `<div class="card stack" style="text-align:center"><div style="font-size:36px">🎯</div><h2>${R.queue.length}문제 완료</h2>
+      <div class="row" style="justify-content:center"><span class="tag good">맞힘 ${R.right}</span><span class="tag bad">틀림 ${R.wrong}</span><span class="tag">새로 졸업 ${R.graduated}</span></div>
+      <div class="row" style="justify-content:center"><button class="btn primary" id="rvAgain">다시 하기</button><button class="btn" id="rvToWrong">오답노트 보기</button></div></div>`;
+    $("#rvAgain").onclick=()=>{ S.review=null; render(); }; $("#rvToWrong").onclick=()=>{ S.review=null; S.view="wrong"; render(); };
+    return;
+  }
+  const w0 = S.wrongs.find(x=>x.id===R.queue[R.i]); if(!w0){ R.i++; return render(); }
+  const w = normW(w0), c = certById(w.certId);
+  const showQImg = w.hasFigure || !w.question || R.showImg;
+  const autoGrade = w.type==="choice" && w.answerIdx>=0;
+  const imgs = arr => arr.map(s=>`<img class="qimg" src="${s}" alt="">`).join("");
+  el.innerHTML = `<div class="stack">
+    <div class="row between sm"><span class="muted">${R.i+1} / ${R.queue.length}</span><button class="btn sm ghost" id="rvQuit">그만하기</button></div>
+    <div class="progress"><div style="width:${R.i/R.queue.length*100}%"></div></div>
+    <div class="card stack">
+      <div class="xs muted">${esc(c?.name||"")}${w.stage?" · "+esc(w.stage):""}${w.round?" · "+esc(w.round):""}${w.number?" · "+esc(w.number)+"번":""}${w.subject?" · "+esc(w.subject):""} · 연속 <span class="streak">${"●".repeat(w.streak||0)}${"○".repeat(2-(w.streak||0))}</span></div>
+      ${w.question?`<div class="big-q">${esc(w.question)}</div>`:""}
+      ${w.qImages.length ? (showQImg ? imgs(w.qImages) : `<button class="btn sm ghost" id="rvImg">문제 사진 보기</button>`) : ""}
+      ${w.type==="choice" ? `<div class="stack" style="margin-top:4px">${[0,1,2,3].map(i=>{
+          let st=""; if (R.shown){ if(i===w.answerIdx) st="border-color:var(--good);background:var(--good-soft);color:var(--good)"; else if(i===R.picked) st="border-color:var(--bad);background:var(--bad-soft);color:var(--bad)"; }
+          return `<button class="btn pick" data-pick="${i}" style="${st}" ${R.shown?"disabled":""}>${CIRC[i]} ${esc(w.choices[i])}</button>`; }).join("")}</div>`
+        : (!R.shown?`<textarea class="in" id="rvMine" rows="2" placeholder="내 답을 적어보세요 (선택)">${esc(R.mine||"")}</textarea>`:"")}
+      ${R.shown ? `
+        ${autoGrade ? `<div class="answer-box" style="${R.picked===w.answerIdx?"":"background:var(--bad-soft)"}"><b>${R.picked===w.answerIdx?"✓ 정답!":"✗ 오답 — 정답은 "+CIRC[w.answerIdx]}</b>${w.explanation?"\n\n"+esc(w.explanation):""}</div>`
+          : `<div class="answer-box"><b>정답</b>\n${esc(answerText(w))}${R.mine?`\n\n<span class="muted">내 답: ${esc(R.mine)}</span>`:""}${w.myAnswer?`\n<span class="muted">지난번 답: ${esc(w.myAnswer)}</span>`:""}${w.explanation?"\n\n"+esc(w.explanation):""}</div>`}
+        ${w.aImages.length? imgs(w.aImages) : ""}
+        ${autoGrade ? `<button class="btn primary" id="rvNext" style="width:100%">다음 문제</button>`
+          : `<div class="grid2"><button class="btn" id="rvX" style="color:var(--bad)">✗ 틀렸음</button><button class="btn primary" id="rvO">✓ 맞혔음</button></div>`}`
+        : (w.type==="choice" && autoGrade ? `<div class="xs muted">번호를 누르면 바로 채점돼요</div>` : `<button class="btn primary" id="rvShow" style="width:100%">정답 보기</button>`)}
+    </div></div>`;
+  $("#rvQuit").onclick=()=>{ R.queue=R.queue.slice(0,R.i); render(); };
+  $("#rvImg") && ($("#rvImg").onclick=()=>{ R.showImg=true; render(); });
+  $("#rvMine") && ($("#rvMine").oninput=e=>{ R.mine=e.target.value; });
+  const record = ok => {
+    if (ok){ w.streak=(w.streak||0)+1; R.right++; if (w.streak>=2){ w.graduated=true; w.graduatedAt=Date.now(); R.graduated++; toast("🎓 졸업! 2번 연속 맞혔어요"); } }
+    else { w.streak=0; w.wrongCount=(w.wrongCount||1)+1; R.wrong++; }
+    w.lastReviewed=Date.now(); save("wrongs", w);
+  };
+  const next = () => { R.i++; R.shown=false; R.showImg=false; R.picked=-1; R.mine=""; render(); };
+  el.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{ R.picked=+b.dataset.pick;
+    if (autoGrade){ R.shown=true; record(R.picked===w.answerIdx); } else { R.shown=true; } render(); });
+  $("#rvShow") && ($("#rvShow").onclick=()=>{ R.shown=true; render(); });
+  $("#rvNext") && ($("#rvNext").onclick=next);
+  $("#rvO") && ($("#rvO").onclick=()=>{ record(true); next(); });
+  $("#rvX") && ($("#rvX").onclick=()=>{ record(false); next(); });
+}
+
+/* ---------------- 암기카드 (라이트너 상자 방식) ---------------- */
+function viewCards(el){
+  const c=curCert(); if(!c) return noCert(el);
+  const cards=S.cards.filter(k=>k.certId===c.id);
+  const T=S.study;
+  if (T && T.certId===c.id){
+    if (T.i>=T.queue.length){
+      el.innerHTML=`<div class="card stack" style="text-align:center"><div style="font-size:36px">🃏</div><h2>${T.queue.length}장 완료</h2><div class="row" style="justify-content:center"><span class="tag good">알았음 ${T.know}</span><span class="tag bad">몰랐음 ${T.dont}</span></div><button class="btn primary" id="stEnd">끝내기</button></div>`;
+      $("#stEnd").onclick=()=>{ S.study=null; render(); }; return;
+    }
+    const k=S.cards.find(x=>x.id===T.queue[T.i]);
+    el.innerHTML=`<div class="stack"><div class="row between sm"><span class="muted">${T.i+1} / ${T.queue.length} · 상자 ${k.box||0}</span><button class="btn sm ghost" id="stQuit">그만하기</button></div>
+      <div class="progress"><div style="width:${T.i/T.queue.length*100}%"></div></div>
+      <div class="card flip ${T.flip?"back":""}" id="flip">${esc(T.flip?k.back:k.front)}</div>
+      <div class="xs muted" style="text-align:center">카드를 눌러 뒤집기</div>
+      ${T.flip?`<div class="grid2"><button class="btn" id="stNo" style="color:var(--bad)">몰랐음</button><button class="btn primary" id="stYes">알았음</button></div>`:""}</div>`;
+    $("#flip").onclick=()=>{ T.flip=!T.flip; render(); };
+    $("#stQuit").onclick=()=>{ T.queue=T.queue.slice(0,T.i); render(); };
+    const go=ok=>{ k.box = ok? Math.min(5,(k.box||0)+1) : 0; ok?T.know++:T.dont++; k.lastStudied=Date.now(); save("cards",k); T.i++; T.flip=false; render(); };
+    $("#stYes")&&($("#stYes").onclick=()=>go(true)); $("#stNo")&&($("#stNo").onclick=()=>go(false));
+    return;
+  }
+  const boxes=[0,1,2,3,4,5].map(b=>cards.filter(k=>(k.box||0)===b).length);
+  el.innerHTML=`<div class="stack">
+    ${certPicker(c)}
+    <div class="card stack">
+      <div class="row between"><h2>${esc(c.name)} 암기카드 <span class="muted sm">${cards.length}장</span></h2>
+        <div class="row"><button class="btn" id="kBulk">여러 장 추가</button><button class="btn primary" id="kStudy" ${cards.length?"":"disabled"}>학습 시작</button></div></div>
+      <div class="xs muted">모르는 카드는 상자 0으로, 아는 카드는 한 칸씩 올라가요. 학습은 낮은 상자부터 최대 30장씩 나옵니다.</div>
+      <div class="row">${boxes.map((n,b)=>`<span class="tag ${b===0&&n?"bad":b===5&&n?"good":""}">상자${b} · ${n}</span>`).join("")}</div>
+    </div>
+    <div class="card"><div class="grid2"><input class="in" id="kF" placeholder="앞면 (예: LPG 폭발범위)"><input class="in" id="kB" placeholder="뒷면 (예: 2.1~9.5%)"></div><button class="btn" id="kAdd" style="margin-top:8px">+ 카드 추가</button></div>
+    ${cards.length?`<div class="card">${cards.sort((a,b)=>(a.box||0)-(b.box||0)).map(k=>`<div class="ev"><span class="tag">${k.box||0}</span><span class="grow"><b>${esc(k.front)}</b><br><span class="sm muted">${esc(k.back)}</span></span><button class="btn sm ghost" data-kd="${k.id}" aria-label="삭제">✕</button></div>`).join("")}</div>`:""}
+  </div>`;
+  bindPicker(el);
+  const add=async()=>{ const f=$("#kF").value.trim(), b=$("#kB").value.trim(); if(!f||!b) return toast("앞면과 뒷면을 모두 입력하세요");
+    const k={id:uid(),certId:c.id,front:f,back:b,box:0,createdAt:Date.now()}; S.cards.push(k); await save("cards",k); render(); setTimeout(()=>$("#kF").focus(),0); };
+  $("#kAdd").onclick=add; $("#kB").onkeydown=e=>{ if(e.key==="Enter") add(); };
+  el.querySelectorAll("[data-kd]").forEach(b=>b.onclick=async()=>{ S.cards=S.cards.filter(k=>k.id!==b.dataset.kd); await Store.del("cards",b.dataset.kd); render(); });
+  $("#kStudy").onclick=()=>{ const q=[0,1,2,3,4,5].flatMap(b=>shuffle(cards.filter(k=>(k.box||0)===b))).slice(0,30).map(k=>k.id);
+    S.study={certId:c.id,queue:q,i:0,flip:false,know:0,dont:0}; render(); };
+  $("#kBulk").onclick=()=>dialog("카드 여러 장 추가",`<label class="f">한 줄에 한 장, <b>앞면 | 뒷면</b> 형식</label><textarea class="in" id="kText" rows="10" placeholder="LPG 폭발범위 | 2.1~9.5%\n도시가스 주성분 | 메탄(CH4)"></textarea>`,
+    `<button class="btn" data-close>취소</button><button class="btn primary" id="kGo">추가</button>`,()=>{
+      $("#kGo").onclick=async()=>{ const lines=$("#kText").value.split("\n").map(s=>s.split("|")).filter(p=>p.length>=2&&p[0].trim()&&p.slice(1).join("|").trim());
+        for(const p of lines){ const k={id:uid(),certId:c.id,front:p[0].trim(),back:p.slice(1).join("|").trim(),box:0,createdAt:Date.now()}; S.cards.push(k); await save("cards",k); }
+        closeDlg(); render(); toast(`${lines.length}장을 추가했어요`); };
+    });
+}
+
+/* ---------------- 설정 ---------------- */
+function openSettings(){
+  const s=S.settings;
+  dialog("설정", `<div class="stack">
+    <div><label class="f">공공데이터포털 일반 인증키</label><input class="in" id="sKey" value="${esc(s.serviceKey)}" placeholder="큐넷 시험일정 자동 불러오기에 사용"></div>
+    <div><label class="f">프록시 주소 (CORS 오류가 날 때만)</label><input class="in" id="sProxy" value="${esc(s.proxy)}" placeholder="https://xxxx.workers.dev"></div>
+    <div><label class="f">사진 인식 모델</label><input class="in" id="sModel" value="${esc(s.aiModel||"")}" placeholder="${CONFIG.aiModel}"><div class="xs muted" style="margin-top:3px">비워두면 ${CONFIG.aiModel}. 모델이 종료되면 여기서 바꾸세요.</div></div>
+    <div class="row"><button class="btn sm" id="sExport">백업 파일 내려받기</button>${DEMO?"":`<button class="btn sm danger" id="sOut">로그아웃</button>`}</div>
+    <div class="xs muted">${DEMO?"데모 모드 (Firebase 미연결)":"로그인: "+esc(Store.user?.email||"")}</div>
+  </div>`, `<button class="btn" data-close>취소</button><button class="btn primary" id="sSave">저장</button>`, ()=>{
+    $("#sSave").onclick=async()=>{ Object.assign(s,{ serviceKey:$("#sKey").value.trim(), proxy:$("#sProxy").value.trim().replace(/\/$/,""), aiModel:$("#sModel").value.trim() }); aiModelCache=null; await save("settings", s); closeDlg(); toast("저장했어요"); };
+    $("#sExport").onclick=()=>{ const blob=new Blob([JSON.stringify({certs:S.certs,wrongs:S.wrongs,cards:S.cards,exportedAt:new Date().toISOString()},null,1)],{type:"application/json"});
+      const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=`study-backup-${todayStr()}.json`; a.click(); };
+    $("#sOut")&&($("#sOut").onclick=async()=>{ await Store.logout(); S.ready=false; closeDlg(); render(); });
+  });
+}
+
+/* ---------------- 시작 ---------------- */
+Store.init().then(render).catch(e=>{ $("#app").innerHTML=`<div class="wrap login"><div><h2>Firebase 연결 실패</h2><p class="muted sm">${esc(e.message)}</p></div></div>`; });
+render();
+</script>
+</body>
+</html>
