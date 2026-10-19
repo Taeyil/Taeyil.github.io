@@ -48,10 +48,6 @@ header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb, var(--
 .seg{display:inline-flex;background:var(--surface2);border-radius:999px;padding:3px;gap:2px}
 .seg button{border:0;background:transparent;padding:6px 14px;border-radius:999px;font-weight:600;font-size:13.5px;color:var(--muted);white-space:nowrap}
 .seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.home-btn{display:inline-flex;align-items:center;height:32px;padding:0 11px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink2);text-decoration:none;font-size:12.5px;font-weight:700;flex-shrink:0}
-.home-btn:active{transform:scale(.96)}
-.top-row .brand{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@media (max-width:380px){.top-row .brand{font-size:14px}.top-row .brand i{display:none}}
 .icon-btn{border:0;background:transparent;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:var(--ink2)}
 .icon-btn:hover{background:var(--surface2)}
 .icon-btn.sm{width:32px;height:32px;border-radius:10px}
@@ -252,6 +248,31 @@ dialog::backdrop{background:rgba(15,17,19,.42);backdrop-filter:blur(2px)}
 .toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + 24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;z-index:99;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw}
 .toast.on{opacity:1}
 .login{min-height:80vh;display:grid;place-items:center;text-align:center}
+.seg-full{display:flex;width:100%}.seg-full button{flex:1}
+.lbl-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;color:var(--muted);margin:0 2px 7px}
+.chip.sub.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.chip.add{border-style:dashed;color:var(--muted);background:transparent}
+.chip.add svg.i{width:14px;height:14px}
+.sm-chip{padding:4px 10px;font-size:12.5px}
+.chips.wrap{flex-wrap:wrap;overflow:visible}
+.ic-box{width:42px;height:42px;border-radius:12px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:none}
+.exam-hist{margin-top:14px;border-top:1px solid var(--line2);padding-top:4px}
+.eh{display:flex;justify-content:space-between;align-items:center;width:100%;border:0;background:none;padding:9px 2px;font-size:13.5px;color:var(--ink2)}
+.eh svg.i{width:14px;height:14px;vertical-align:-2px;color:var(--muted)}
+.search{margin-bottom:12px;padding:9px 12px}
+.note.sn .nt{font-weight:650;font-size:15px;margin:3px 0 2px}
+.note.sn .nb{font-size:13px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.note-body{white-space:pre-wrap;line-height:1.8;font-size:15px}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.opt.sel .no{color:inherit}
+.cbar{height:6px;background:var(--surface2);border-radius:9px;overflow:hidden}.cbar>div{height:100%;background:var(--accent);border-radius:9px}
+.qd{border:1px solid var(--line2);border-radius:14px;padding:13px 14px;background:var(--surface)}
+.qd+.qd{margin-top:8px}
+.qd summary{list-style:none;cursor:pointer;display:flex;gap:10px;align-items:flex-start;font-weight:550;line-height:1.55}
+.qd summary::-webkit-details-marker{display:none}
+.mk{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;flex:none;margin-top:1px}
+.mk svg.i{width:15px;height:15px;stroke-width:2.4}
+.mk.ok{background:var(--good-soft);color:var(--good)}.mk.no{background:var(--bad-soft);color:var(--bad)}
 .katex{font-size:1.05em}
 </style>
 </head>
@@ -392,7 +413,9 @@ const S = {
   certs: [], wrongs: [], cards: [], settings: { id:"main", serviceKey:"", proxy:"", aiModel:"", geminiKey:"" },
   sel: {}, ready:false, showPast:false,
   wf: { cert:"", stage:"", subject:"", status:"active" },      // 노트 필터
-  notesMode: "wrong",                                           // wrong | card
+  notesMode: localStorage.getItem("study_nm") || "study",       // study | wrong | card
+  nf: { cert:"", cat:"", q:"" },                                // 학습노트 필터 (대분류·중분류)
+  notes: [], exams: [], exam: null,
   rf: { cert:"" },                                              // 복습 범위
   session: null
 };
@@ -411,8 +434,8 @@ const L = () => S.tab==="cert"
 const go = v => { S.view=v; try{localStorage.setItem("study_view",v);}catch{} render(); window.scrollTo(0,0); };
 
 async function loadAll(){
-  const [certs, wrongs, cards, settings] = await Promise.all([Store.list("certs"), Store.list("wrongs"), Store.list("cards"), Store.list("settings")]);
-  Object.assign(S, { certs, wrongs, cards }); if (settings[0]) S.settings = { ...S.settings, ...settings[0] };
+  const [certs, wrongs, cards, settings, notes, exams] = await Promise.all([Store.list("certs"), Store.list("wrongs"), Store.list("cards"), Store.list("settings"), Store.list("notes"), Store.list("exams")]);
+  Object.assign(S, { certs, wrongs, cards, notes, exams }); if (settings[0]) S.settings = { ...S.settings, ...settings[0] };
   S.wrongs.forEach(w=>normW(w)); S.cards.forEach(normC);
   S.ready = true;
 }
@@ -475,11 +498,10 @@ function render(){
   }
   if (!S.ready){ app.innerHTML = `<div class="wrap login"><span class="spinner"></span></div>`; loadAll().then(render).catch(e=>{ app.innerHTML=`<div class="wrap login"><p>불러오기 실패: ${esc(e.message)}</p></div>`; }); return; }
 
-  const focus = S.view==="review" && S.session;
+  const focus = (S.view==="review" && S.session) || !!S.exam;
   const dueN = reviewPool().filter(o=>isDue(o.x)).length;
   app.innerHTML = `
   ${focus ? "" : `<header class="top"><div class="wrap top-row">
-      <a class="home-btn" href="/hub/">‹ HOME</a>
       <div class="brand"><i></i>자격증 노트</div>
       <div class="seg"><button data-tab="cert" class="${S.tab==="cert"?"on":""}">자격증</button><button data-tab="lang" class="${S.tab==="lang"?"on":""}">어학</button></div>
       <button class="icon-btn" id="setBtn" aria-label="설정">${I.gear}</button>
@@ -490,10 +512,11 @@ function render(){
   </main>
   ${focus ? "" : `<button class="fab" id="fab" aria-label="새로 추가">${I.plus}</button>
   <nav class="tabbar"><div class="in-nav">${TABS.map(([k,t,ic])=>`<button data-view="${k}" class="${S.view===k?"on":""}" aria-label="${t}">${ic}<span>${t}</span>${k==="review"&&dueN?`<b class="badge">${dueN>99?"99+":dueN}</b>`:""}</button>`).join("")}</div></nav>`}`;
-  app.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{ S.tab=b.dataset.tab; try{localStorage.setItem("study_tab",S.tab);}catch{} S.session=null; S.wf.cert=""; S.rf.cert=""; render(); });
+  app.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{ S.tab=b.dataset.tab; try{localStorage.setItem("study_tab",S.tab);}catch{} S.session=null; S.exam=null; S.wf.cert=""; S.rf.cert=""; S.nf.cert=""; S.nf.cat=""; render(); });
   app.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>go(b.dataset.view));
   $("#setBtn") && ($("#setBtn").onclick = openSettings);
   $("#fab") && ($("#fab").onclick = openAddSheet);
+  if (S.exam) return viewExam($("#view"));
   ({today:viewToday, plan:viewPlan, score:viewScorePage, notes:viewNotes, review:viewReview})[S.view]($("#view"));
 }
 
@@ -589,16 +612,18 @@ function viewNotes(el){
   const inTab = x => ids.has(x.certId);
   const nW = S.wrongs.filter(inTab).length, nC = S.cards.filter(inTab).length;
   const countOf = (arr, id) => arr.filter(x=>x.certId===id && !x.graduated).length;
+  const nN = S.notes.filter(inTab).length;
+  const head = `<div class="page-head"><div class="eyebrow">학습노트 ${nN} · 오답 ${nW} · 암기카드 ${nC}</div><h1>노트</h1></div>
+  <div class="seg seg-full" style="margin-bottom:16px">${[["study","학습노트"],["wrong","오답노트"],["card","암기카드"]].map(([k,t])=>`<button data-nm="${k}" class="${S.notesMode===k?"on":""}">${t}</button>`).join("")}</div>`;
+  const bindNm = () => el.querySelectorAll("[data-nm]").forEach(b=>b.onclick=()=>{ S.notesMode=b.dataset.nm; try{localStorage.setItem("study_nm",S.notesMode);}catch{} render(); });
+  if (!["study","wrong","card"].includes(S.notesMode)) S.notesMode="study";
+  if (S.notesMode==="study"){ el.innerHTML = head + `<div id="notesBody"></div>`; bindNm(); notesStudy($("#notesBody"), list); return; }
   const src = S.notesMode==="wrong" ? S.wrongs : S.cards;
-  el.innerHTML = `
-  <div class="page-head"><div class="eyebrow">오답 ${nW} · 암기카드 ${nC}</div><h1>노트</h1></div>
-  <div class="row between" style="margin-bottom:12px">
-    <div class="seg"><button data-nm="wrong" class="${S.notesMode==="wrong"?"on":""}">오답노트</button><button data-nm="card" class="${S.notesMode==="card"?"on":""}">암기카드</button></div>
-  </div>
+  el.innerHTML = head + `
   <div class="chips"><button class="chip ${!f.cert?"on":""}" data-fc="">전체 <span class="n">${src.filter(x=>inTab(x)&&!x.graduated).length}</span></button>
     ${list.map(c=>`<button class="chip ${f.cert===c.id?"on":""}" data-fc="${c.id}">${esc(c.name)} <span class="n">${countOf(src,c.id)}</span></button>`).join("")}</div>
   <div id="notesBody"></div>`;
-  el.querySelectorAll("[data-nm]").forEach(b=>b.onclick=()=>{ S.notesMode=b.dataset.nm; render(); });
+  bindNm();
   el.querySelectorAll("[data-fc]").forEach(b=>b.onclick=()=>{ f.cert=b.dataset.fc; f.stage=""; f.subject=""; render(); });
   (S.notesMode==="wrong" ? notesWrong : notesCards)($("#notesBody"), ids);
 }
@@ -722,10 +747,12 @@ function openAddSheet(){
   dialog("새로 추가", `
     ${act("aShot", I.camera, "문제 촬영", "AI가 문제·보기·정답을 자동으로 입력해요", !has)}
     ${act("aWrite", I.pen, "오답 직접 입력", "사진 없이 문제를 입력해요", !has)}
+    ${act("aNote", I.notes, "학습노트", "단어·단위·공식 정리 — AI 모의시험의 재료가 돼요", !has)}
     ${act("aCard", I.cards, "암기카드", "공식·수치처럼 외울 것을 앞뒤 카드로", !has)}
     ${act("aCert", I.badge, `${l.item} 추가`, "새로 준비할 시험을 등록해요")}`, null, () => {
     $("#aShot").onclick = shootPhoto;
     $("#aWrite").onclick = () => openWrong(null);
+    $("#aNote").onclick = () => openStudyNoteForm(null);
     $("#aCard").onclick = () => openCard(null);
     $("#aCert").onclick = () => openCertForm();
   });
@@ -854,6 +881,381 @@ function record(q, x, ok){
   save(q.k==="w"?"wrongs":"cards", x);
 }
 function advance(){ const R=S.session; R.i++; R.shown=false; R.picked=-1; R.mine=""; R.showImg=false; render(); window.scrollTo(0,0); }
+
+/* =========================================================
+   학습노트 (대분류 = 자격증, 중분류 = 단어정리·단위정리 …) + AI 모의시험
+   ========================================================= */
+// note: { id, certId, cat, title, body, createdAt, updatedAt }
+// exam: { id, certId, scope, cats, summary, problems:[{category,question,choices[4],answerIdx,explanation}], picks, score, total, date, createdAt, addedToWrong }
+const CAT_SUGGEST = ["단어정리","단위정리","공식정리","법규·수치"];
+const texLines = s => String(s||"").split("\n").map(tex).join("\n");
+const catsOf = c => { const base = c.noteCats || []; const extra = [...new Set(S.notes.filter(n=>n.certId===c.id && n.cat && !base.includes(n.cat)).map(n=>n.cat))]; return [...base, ...extra]; };
+const inScope = (n, cat) => !cat || (cat==="__none" ? !n.cat : n.cat===cat);
+
+function notesStudy(box, list){
+  const f = S.nf;
+  if (!f.cert || !list.some(c=>c.id===f.cert)) f.cert = curCert().id;
+  const c = certById(f.cert), cats = catsOf(c);
+  const notes = S.notes.filter(n=>n.certId===c.id);
+  const uncat = notes.filter(n=>!n.cat).length;
+  if (f.cat && f.cat!=="__none" && !cats.includes(f.cat)) f.cat = "";
+  if (f.cat==="__none" && !uncat) f.cat = "";
+  const scoped = notes.filter(n=>inScope(n, f.cat));
+  const q = (f.q||"").trim().toLowerCase();
+  const items = (q ? scoped.filter(n=>(n.title+" "+n.body).toLowerCase().includes(q)) : scoped)
+    .sort((a,b)=>(b.updatedAt||b.createdAt||0)-(a.updatedAt||a.createdAt||0));
+  const scopeName = f.cat==="__none" ? "미분류" : (f.cat || `${c.name} 전체`);
+  const exams = S.exams.filter(x=>x.certId===c.id).sort((a,b)=>b.createdAt-a.createdAt).slice(0,3);
+  const preview = s => String(s||"").split("\n").map(x=>x.trim()).filter(Boolean).slice(0,3).map(tex).join("  ·  ");
+
+  box.innerHTML = `
+  <div class="lbl-row">대분류</div>
+  <div class="chips">${list.map(x=>`<button class="chip ${x.id===c.id?"on":""}" data-nc="${x.id}">${esc(x.name)} <span class="n">${S.notes.filter(n=>n.certId===x.id).length}</span></button>`).join("")}</div>
+  <div class="lbl-row" style="margin-top:14px">중분류 ${cats.length?`<button class="link" id="catEdit">편집</button>`:""}</div>
+  <div class="chips">
+    <button class="chip sub ${!f.cat?"on":""}" data-cat="">전체 <span class="n">${notes.length}</span></button>
+    ${cats.map(k=>`<button class="chip sub ${f.cat===k?"on":""}" data-cat="${esc(k)}">${esc(k)} <span class="n">${notes.filter(n=>n.cat===k).length}</span></button>`).join("")}
+    ${uncat?`<button class="chip sub ${f.cat==="__none"?"on":""}" data-cat="__none">미분류 <span class="n">${uncat}</span></button>`:""}
+    <button class="chip add" id="catAdd">${I.plus} 분류 추가</button>
+  </div>
+  ${!cats.length ? `<div class="row" style="margin-top:8px;gap:6px"><span class="xs muted">추천</span>${CAT_SUGGEST.map(s=>`<button class="chip sm-chip" data-sugg="${esc(s)}">${esc(s)}</button>`).join("")}</div>` : ""}
+
+  <div class="card exam-card" style="margin-top:16px">
+    <div class="row" style="flex-wrap:nowrap;gap:14px">
+      <div class="ic-box">${I.spark}</div>
+      <div class="grow"><div style="font-weight:650">AI 모의시험</div><div class="sm muted">${esc(scopeName)} · 노트 ${scoped.length}개를 분석해 문제를 만들어요</div></div>
+      <button class="btn primary" id="examGo" ${scoped.length?"":"disabled"}>만들기</button>
+    </div>
+    ${exams.length?`<div class="exam-hist">${exams.map(x=>`<button class="eh" data-ex="${x.id}"><span>${fmtDate(x.date)} · ${esc(x.scope)}</span><span><b>${x.score}</b><span class="muted">/${x.total}</span> ${I.right}</span></button>`).join("")}</div>`:""}
+  </div>
+
+  <div class="sec-title" style="margin-top:22px">노트 ${items.length} <button class="link" id="noteNew">${I.plus} 새 노트</button></div>
+  ${notes.length>4?`<input class="in search" id="nq" placeholder="노트 검색" value="${esc(f.q||"")}">`:""}
+  ${items.length ? items.map(n=>`<button class="note sn" data-n="${n.id}"><div class="grow">
+      <div class="meta">${esc(n.cat||"미분류")} · ${fmtDate(new Date(n.updatedAt||n.createdAt).toISOString().slice(0,10))}</div>
+      <div class="nt">${esc(n.title||"제목 없음")}</div><div class="nb">${preview(n.body)}</div></div></button>`).join("")
+    : `<div class="card empty"><b>${q?"검색 결과가 없어요":"노트가 없어요"}</b>${q?"":"단어·단위·공식처럼 정리한 내용을 적어두면<br>AI가 그 내용으로 모의시험을 만들어 줘요."}
+        ${q?"":`<div><button class="btn dark" id="emptyNote">${I.pen} 노트 쓰기</button></div>`}</div>`}`;
+
+  box.querySelectorAll("[data-nc]").forEach(b=>b.onclick=()=>{ f.cert=b.dataset.nc; f.cat=""; f.q=""; render(); });
+  box.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{ f.cat=b.dataset.cat; render(); });
+  box.querySelectorAll("[data-sugg]").forEach(b=>b.onclick=async()=>{ c.noteCats=[...(c.noteCats||[]), b.dataset.sugg]; await save("certs", c); f.cat=b.dataset.sugg; render(); });
+  $("#catAdd").onclick = () => openCatForm(c, name => { f.cat=name; render(); });
+  $("#catEdit") && ($("#catEdit").onclick = () => openCatEdit(c));
+  $("#examGo").onclick = () => openExamSetup(c, f.cat);
+  $("#noteNew").onclick = () => openStudyNoteForm(null);
+  $("#emptyNote") && ($("#emptyNote").onclick = () => openStudyNoteForm(null));
+  $("#nq") && ($("#nq").oninput = e => { f.q=e.target.value; const pos=e.target.selectionStart; render(); const n=$("#nq"); if(n){ n.focus(); n.setSelectionRange(pos,pos); } });
+  box.querySelectorAll("[data-n]").forEach(b=>b.onclick=()=>openStudyNote(S.notes.find(n=>n.id===b.dataset.n)));
+  box.querySelectorAll("[data-ex]").forEach(b=>b.onclick=()=>{ const x=S.exams.find(e=>e.id===b.dataset.ex); S.exam={ ...JSON.parse(JSON.stringify(x)), done:true, record:x.id }; render(); window.scrollTo(0,0); });
+}
+
+/* 중분류 추가 · 편집 */
+function openCatForm(c, onDone){
+  dialog("중분류 추가", `<div class="stack">
+    <div class="xs muted">${esc(c.name)} 안에 만들 분류 이름</div>
+    <input class="in" id="catName" placeholder="예: 단어정리" maxlength="20">
+    <div class="row" style="gap:6px">${CAT_SUGGEST.filter(s=>!catsOf(c).includes(s)).map(s=>`<button class="chip sm-chip" data-s="${esc(s)}">${esc(s)}</button>`).join("")}</div></div>`,
+    `<button class="btn" data-close>취소</button><button class="btn primary" id="catOk">추가</button>`, () => {
+      const inp=$("#catName"); setTimeout(()=>inp.focus(),50);
+      document.querySelectorAll("#dlg [data-s]").forEach(b=>b.onclick=()=>{ inp.value=b.dataset.s; });
+      const ok = async () => { const name=inp.value.trim(); if(!name) return toast("이름을 입력하세요");
+        if (catsOf(c).includes(name)) return toast("이미 있는 분류예요");
+        c.noteCats=[...(c.noteCats||[]), name]; await save("certs", c); closeDlg(); onDone && onDone(name); };
+      $("#catOk").onclick = ok; inp.onkeydown = e => { if (e.key==="Enter") ok(); };
+    });
+}
+function openCatEdit(c){
+  let rows = catsOf(c).map(k=>({ from:k, to:k, del:false }));
+  const draw = () => { $("#catRows").innerHTML = rows.map((r,i)=>`<div class="row" style="flex-wrap:nowrap;margin-bottom:8px;${r.del?"opacity:.4":""}">
+      <input class="in" data-i="${i}" value="${esc(r.to)}" ${r.del?"disabled":""}>
+      <span class="xs muted" style="flex:none;width:44px;text-align:right">${S.notes.filter(n=>n.certId===c.id&&n.cat===r.from).length}개</span>
+      <button class="btn sm ghost ${r.del?"":"danger"}" data-d="${i}">${r.del?"되살리기":"삭제"}</button></div>`).join("");
+    document.querySelectorAll("#catRows input").forEach(inp=>inp.oninput=()=>{ rows[+inp.dataset.i].to=inp.value; });
+    document.querySelectorAll("#catRows [data-d]").forEach(b=>b.onclick=()=>{ rows[+b.dataset.d].del=!rows[+b.dataset.d].del; draw(); });
+  };
+  dialog("중분류 편집", `<div class="xs muted" style="margin-bottom:10px">이름을 바꾸면 안의 노트도 함께 옮겨져요. 삭제하면 노트는 ‘미분류’로 남아요.</div><div id="catRows"></div>`,
+    `<button class="btn" data-close>취소</button><button class="btn primary" id="catSave">저장</button>`, () => {
+      draw();
+      $("#catSave").onclick = async () => {
+        const keep = rows.filter(r=>!r.del).map(r=>({ ...r, to:r.to.trim()||r.from }));
+        if (new Set(keep.map(r=>r.to)).size !== keep.length) return toast("같은 이름의 분류가 있어요");
+        for (const n of S.notes.filter(n=>n.certId===c.id && n.cat)){
+          const r = rows.find(r=>r.from===n.cat); if (!r) continue;
+          const to = r.del ? "" : (r.to.trim()||r.from);
+          if (to!==n.cat){ n.cat=to; n.updatedAt=Date.now(); await save("notes", n); }
+        }
+        c.noteCats = keep.map(r=>r.to); await save("certs", c);
+        if (S.nf.cat && !c.noteCats.includes(S.nf.cat)) S.nf.cat="";
+        closeDlg(); render(); toast("저장했어요");
+      };
+    });
+}
+
+/* 노트 보기 */
+function cardLinesOf(body){
+  return String(body||"").split("\n").map(l=>l.trim().replace(/^[-•·*]\s*/,"")).filter(l=>l && !l.startsWith("#")).map(l=>{
+    const m = l.match(/^(.{1,80}?)\s*(\||：|:|=|→|⇒|—|\s-\s)\s*(.+)$/);
+    return m ? { front:m[1].trim(), back:m[3].trim() } : null;
+  }).filter(x=>x && x.front && x.back);
+}
+function openStudyNote(n){
+  const c = certById(n.certId), lines = cardLinesOf(n.body);
+  dialog(esc(n.title||"제목 없음"), `<div class="stack">
+      <div class="row" style="gap:6px"><span class="tag">${esc(c?.name||"")}</span><span class="tag accent">${esc(n.cat||"미분류")}</span></div>
+      <div class="note-body">${texLines(n.body)}</div>
+    </div>`,
+    `<button class="btn ghost danger" id="snDel" style="margin-right:auto">삭제</button>${lines.length>=2?`<button class="btn" id="snCards">${I.cards} 카드 ${lines.length}장</button>`:""}<button class="btn primary" id="snEdit">${I.pen} 수정</button>`,
+    () => {
+      $("#snEdit").onclick = () => openStudyNoteForm(n);
+      $("#snDel").onclick = async () => { if(!confirm("이 노트를 삭제할까요?")) return; S.notes=S.notes.filter(x=>x.id!==n.id); await Store.del("notes", n.id); closeDlg(); render(); };
+      $("#snCards") && ($("#snCards").onclick = async () => {
+        const have = new Set(S.cards.filter(k=>k.certId===n.certId).map(k=>k.front));
+        const add = lines.filter(l=>!have.has(l.front));
+        if (!add.length) return toast("이미 모두 카드로 만들었어요");
+        if (!confirm(`‘항목 : 내용’ 줄 ${add.length}개를 암기카드로 만들까요?`)) return;
+        for (const l of add){ const k={ id:uid(), certId:n.certId, front:l.front, back:l.back, level:0, due:todayStr(), createdAt:Date.now(), fromNote:n.id }; S.cards.push(k); await save("cards", k); }
+        closeDlg(); render(); toast(`암기카드 ${add.length}장을 만들었어요 — 오늘 복습에 추가됐어요`);
+      });
+    });
+}
+
+/* 노트 쓰기 · 수정 */
+function openStudyNoteForm(n0){
+  const isNew = !n0, list = certsOfTab();
+  const n = n0 ? { ...n0 } : { id:uid(), certId:S.nf.cert||curCert().id, cat:(S.nf.cat&&S.nf.cat!=="__none")?S.nf.cat:"", title:"", body:"", createdAt:Date.now() };
+  const catOptions = () => { const c=certById(n.certId); const cats=catsOf(c); return `<option value="">미분류</option>${cats.map(k=>`<option ${k===n.cat?"selected":""}>${esc(k)}</option>`).join("")}<option value="__new">＋ 새 분류…</option>`; };
+  dialog(isNew?"새 노트":"노트 수정", `<div class="stack">
+      <div class="grid2">
+        <div><label class="f">대분류</label><select class="in" id="snC">${list.map(c=>`<option value="${c.id}" ${c.id===n.certId?"selected":""}>${esc(c.name)}</option>`).join("")}</select></div>
+        <div><label class="f">중분류</label><select class="in" id="snK">${catOptions()}</select></div>
+      </div>
+      <div><label class="f">제목</label><input class="in" id="snT" value="${esc(n.title)}" placeholder="예: 가스 폭발범위 정리"></div>
+      <div><div class="row between" style="margin-bottom:5px"><label class="f" style="margin:0">내용</label><button class="btn sm ghost" id="snPhoto">${I.camera} 사진에서 글자 읽기</button></div>
+        <div id="snAi"></div>
+        <textarea class="in" id="snB" rows="12" placeholder="한 줄에 하나씩 정리하면 보기 좋고, ‘항목 : 내용’ 형식이면 암기카드로도 바로 만들 수 있어요.&#10;&#10;예)&#10;LPG 폭발범위 : 2.1~9.5%&#10;1 atm = 1.0332 kgf/cm²">${esc(n.body)}</textarea>
+        <div class="xs muted" style="margin-top:4px">수식은 $ $로 감싸면 보기 좋게 표시돼요. 예: $\\frac{PV}{T}$</div></div>
+    </div>`,
+    `<button class="btn" data-close>취소</button><button class="btn primary" id="snSave">저장</button>`, () => {
+      $("#snC").onchange = e => { n.certId=e.target.value; n.cat=""; $("#snK").innerHTML=catOptions(); };
+      $("#snK").onchange = e => { if (e.target.value!=="__new"){ n.cat=e.target.value; return; }
+        const name = (prompt("새 중분류 이름")||"").trim(); const c=certById(n.certId);
+        if (name && !catsOf(c).includes(name)){ c.noteCats=[...(c.noteCats||[]), name]; save("certs", c); }
+        if (name) n.cat=name; $("#snK").innerHTML=catOptions(); };
+      $("#snPhoto").onclick = () => pickPhoto(async (thumb, big) => {
+        const box=$("#snAi"); box.innerHTML=`<div class="card sm" style="background:var(--accent-soft);margin-bottom:8px"><span class="spinner"></span> 사진의 내용을 옮기는 중…</div>`;
+        try {
+          const j = await aiJSON(`이 사진은 한국 자격증 시험 공부용 교재나 필기 노트입니다. 사진의 학습 내용을 빠짐없이 텍스트로 옮기세요.
+- 표나 목록은 한 줄에 하나씩 '항목 : 내용' 형식으로.
+- 단위 기호(Ω, ℃, ㎥, kgf/cm² 등)는 그대로.
+- 분수·지수·루트 같은 수식은 LaTeX로 쓰고 $ $로 감싸세요.
+- 내용과 관계없는 쪽번호·머리글은 빼세요.
+JSON으로만 답하세요: {"title":"짧은 제목","text":"옮긴 내용"}`, [big]);
+          const t = $("#snB"); t.value = (t.value.trim() ? t.value.trim()+"\n\n" : "") + String(j.text||"").trim();
+          if (!$("#snT").value.trim() && j.title) $("#snT").value = j.title;
+          box.innerHTML = `<div class="card sm" style="background:var(--good-soft);color:var(--good);margin-bottom:8px">옮겼어요 — 틀린 글자가 없는지 확인하세요.</div>`;
+        } catch(e){ box.innerHTML = `<div class="card sm" style="background:var(--bad-soft);color:var(--bad);margin-bottom:8px;white-space:pre-wrap;word-break:break-all">${esc(e.message||e)}</div>`; }
+      });
+      $("#snSave").onclick = async () => {
+        const body=$("#snB").value.replace(/\s+$/,""), title=$("#snT").value.trim() || body.split("\n").map(s=>s.trim()).find(Boolean)?.slice(0,30) || "";
+        if (!title && !body) return toast("내용을 입력하세요");
+        Object.assign(n, { certId:$("#snC").value, cat:$("#snK").value==="__new"?n.cat:$("#snK").value, title, body, updatedAt:Date.now() });
+        if (JSON.stringify(n).length > 900000) return toast("노트가 너무 길어요. 두 개로 나눠주세요");
+        const i = S.notes.findIndex(x=>x.id===n.id); if (i>=0) S.notes[i]=n; else S.notes.push(n);
+        await save("notes", n); S.nf.cert=n.certId; closeDlg(); S.view="notes"; S.notesMode="study"; render(); toast("저장했어요");
+      };
+    });
+}
+
+/* ---------------- AI 공통: JSON 응답 받기 (Gemini 키 직접 → Firebase AI Logic) ---------------- */
+async function aiJSON(text, images=[]){
+  const modelName = S.settings.aiModel || CONFIG.aiModel;
+  const models = [...new Set([modelName, "gemini-3.5-flash-lite"])];
+  const errs = [];
+  if (S.settings.geminiKey){
+    for (const m of models){
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(m)}:generateContent`, {
+          method:"POST", headers:{ "Content-Type":"application/json", "x-goog-api-key": S.settings.geminiKey },
+          body: JSON.stringify({ contents:[{ role:"user", parts:[ { text }, ...images.map(d=>({ inlineData:{ mimeType:"image/jpeg", data:d.split(",")[1] } })) ] }],
+            generationConfig:{ responseMimeType:"application/json" } })
+        });
+        const j = await res.json().catch(()=>({}));
+        if (!res.ok) throw new Error(`[${res.status}] ${j?.error?.message || res.statusText}`);
+        const out = (j.candidates?.[0]?.content?.parts||[]).map(p=>p.text||"").join("");
+        if (!out) throw new Error("빈 응답 (" + (j.candidates?.[0]?.finishReason || j.promptFeedback?.blockReason || "이유 없음") + ")");
+        return parseAiJSON(out);
+      } catch(e){ errs.push(`[직접:${m}] ${e.message||e}`); if (/API key|API_KEY|PERMISSION|\[40[13]\]|\[429\]/i.test(String(e.message))) break; }
+    }
+    throw new Error(errs.join("\n\n"));
+  }
+  if (DEMO) throw new Error("AI 기능은 ⚙︎ 설정에 Gemini API 키를 넣으면 사용할 수 있어요");
+  const aiM = await import(`https://www.gstatic.com/firebasejs/${CONFIG.sdk}/firebase-ai.js`);
+  const ai = aiM.getAI(Store.fb.app, { backend: new aiM.GoogleAIBackend() });
+  for (const m of models){
+    try {
+      const model = aiM.getGenerativeModel(ai, { model:m, generationConfig:{ responseMimeType:"application/json" } });
+      const r = await model.generateContent([text, ...images.map(d=>({ inlineData:{ data:d.split(",")[1], mimeType:"image/jpeg" } }))]);
+      return parseAiJSON(r.response.text());
+    } catch(e){ errs.push(`[${m}] ${e.message||e}`); }
+  }
+  throw new Error(errs.join("\n\n"));
+}
+
+/* ---------------- AI 모의시험 ---------------- */
+function openExamSetup(c, preCat){
+  const cats = catsOf(c), hasUncat = S.notes.some(n=>n.certId===c.id && !n.cat);
+  const opts = [...cats, ...(hasUncat?["__none"]:[])];
+  const sel = new Set(preCat ? [preCat] : []);
+  let count = 10;
+  const wrongN = S.wrongs.filter(w=>w.certId===c.id).length;
+  const picked = () => S.notes.filter(n=>n.certId===c.id && (!sel.size || sel.has(n.cat||"__none")));
+  const draw = () => {
+    $("#exScope").innerHTML = `<button class="chip sub ${!sel.size?"on":""}" data-sc="">전체</button>${opts.map(k=>`<button class="chip sub ${sel.has(k)?"on":""}" data-sc="${esc(k)}">${k==="__none"?"미분류":esc(k)}</button>`).join("")}`;
+    document.querySelectorAll("#exScope [data-sc]").forEach(b=>b.onclick=()=>{ const k=b.dataset.sc; if(!k) sel.clear(); else sel.has(k)?sel.delete(k):sel.add(k); draw(); });
+    $("#exCnt").querySelectorAll("button").forEach(b=>b.classList.toggle("on", +b.dataset.n===count));
+    const ns = picked(), chars = ns.reduce((a,n)=>a+n.body.length,0);
+    $("#exInfo").innerHTML = `노트 <b>${ns.length}</b>개 · 약 ${chars.toLocaleString()}자${chars<200?` <span style="color:var(--warn)">— 내용이 적으면 문제가 단순해질 수 있어요</span>`:""}`;
+    $("#exGo").disabled = !ns.length;
+  };
+  dialog(`${esc(c.name)} 모의시험`, `<div class="stack">
+      <div><label class="f">출제 범위 <span class="muted" style="font-weight:500">· 여러 개 선택 가능</span></label><div class="chips wrap" id="exScope"></div></div>
+      <div><label class="f">문항 수</label><div class="seg" id="exCnt">${[5,10,20].map(n=>`<button data-n="${n}">${n}문제</button>`).join("")}</div></div>
+      ${wrongN?`<label class="row sm" style="gap:8px"><input type="checkbox" id="exWrong"> 오답노트 ${wrongN}문제도 참고해서 출제</label>`:""}
+      <div class="sm muted" id="exInfo"></div>
+      <div id="exMsg"></div>
+    </div>`,
+    `<button class="btn" data-close>취소</button><button class="btn primary" id="exGo">${I.spark} 문제 만들기</button>`, () => {
+      draw();
+      $("#exCnt").querySelectorAll("button").forEach(b=>b.onclick=()=>{ count=+b.dataset.n; draw(); });
+      $("#exGo").onclick = async () => {
+        const ns = picked(); if (!ns.length) return;
+        const btn=$("#exGo"); btn.disabled=true; btn.innerHTML=`<span class="spinner"></span> 분석 중`;
+        $("#exMsg").innerHTML = `<div class="card sm" style="background:var(--accent-soft)">AI가 노트를 분석하고 문제를 만들고 있어요. ${count>=20?"30초 정도":"10~20초"} 걸려요.</div>`;
+        const scope = !sel.size ? `${c.name} 전체` : [...sel].map(k=>k==="__none"?"미분류":k).join(", ");
+        let mat = ns.map(n=>`### [${n.cat||"미분류"}] ${n.title}\n${n.body}`).join("\n\n");
+        if ($("#exWrong")?.checked) mat += "\n\n### [오답노트 — 수험생이 틀렸던 문제]\n" + S.wrongs.filter(w=>w.certId===c.id).slice(0,40).map(w=>`- ${normW(w).question} → 정답: ${answerText(w)}`).join("\n");
+        mat = mat.slice(0, 60000);
+        const prompt = `당신은 한국산업인력공단 국가기술자격 '${c.name}' 시험의 출제위원입니다.
+아래는 수험생이 직접 정리한 학습 노트입니다. 노트를 분석해 핵심 개념·수치·단위를 파악하고, 실제 ${c.name} 필기시험과 같은 4지선다 객관식 문제 ${count}개를 만드세요.
+
+규칙
+- 반드시 노트에 있는 내용 안에서 출제하고, 노트와 다른 사실을 만들지 마세요.
+- 단순 뜻 묻기만 하지 말고 단위 환산, 수치 비교, 개념 구분, 옳은 것/틀린 것 고르기 등을 섞으세요.
+- 오답 보기는 그럴듯하게 만들고, 보기끼리 서로 참조하는 보기(예: ①, ② 모두)는 쓰지 마세요.
+- category에는 그 문제가 나온 노트의 중분류 이름([ ] 안의 이름)을 그대로 쓰세요.
+- explanation에는 정답 근거를 노트 내용으로 1~2문장.
+- 분수·지수 같은 수식은 LaTeX로 쓰고 $ $로 감싸세요. 단위 기호는 그대로.
+- summary에는 이번 범위의 핵심 주제와 출제 포인트를 2~3문장으로.
+
+JSON으로만 답하세요:
+{"summary":"","problems":[{"category":"","question":"","choices":["","","",""],"answer":"정답 번호 1~4","explanation":""}]}
+
+학습 노트
+${mat}`;
+        try {
+          const j = await aiJSON(prompt);
+          const problems = (j.problems||[]).map(p=>{
+            const ch=(p.choices||[]).map(x=>stripNo(String(x))).filter(Boolean).slice(0,4), a=parseIdx(String(p.answer??""));
+            if (ch.length!==4 || a<0 || !p.question) return null;
+            const order = shuffle([0,1,2,3]);                    // 정답 위치 섞기
+            return { category:String(p.category||""), question:String(p.question), choices:order.map(k=>ch[k]), answerIdx:order.indexOf(a), explanation:String(p.explanation||"") };
+          }).filter(Boolean);
+          if (!problems.length) throw new Error("문제를 만들지 못했어요. 노트 내용을 조금 더 채운 뒤 다시 시도해 주세요.");
+          S.exam = { id:uid(), certId:c.id, scope, cats:[...sel], summary:String(j.summary||""), problems, picks:problems.map(()=>-1), i:0, intro:true, done:false, createdAt:Date.now(), start:Date.now() };
+          closeDlg(); render(); window.scrollTo(0,0);
+        } catch(e){
+          btn.disabled=false; btn.innerHTML=`${I.spark} 다시 시도`;
+          $("#exMsg").innerHTML = `<div class="card sm" style="background:var(--bad-soft);color:var(--bad);white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto">${esc(e.message||e)}</div>`;
+        }
+      };
+    });
+}
+
+function viewExam(el){
+  const E = S.exam, n = E.problems.length, c = certById(E.certId);
+  if (E.done) return examResult(el, E);
+  const answered = E.picks.filter(p=>p>=0).length;
+  const top = `<div class="sess-top"><button class="icon-btn" id="exQuit" aria-label="시험 그만하기">${I.close}</button>
+    <div class="progress"><div style="width:${(E.intro?0:answered/n)*100}%"></div></div><span class="count">${E.intro?n+"문제":`${E.i+1} / ${n}`}</span></div>`;
+  if (E.intro){
+    el.innerHTML = `${top}<div style="padding-top:4vh" class="stack">
+      <div class="card sess-card stack">
+        <div class="row" style="gap:10px;flex-wrap:nowrap"><div class="ic-box">${I.spark}</div><div><div class="xs muted">${esc(c?.name||"")} · AI 모의시험</div><h2>${esc(E.scope)}</h2></div></div>
+        ${E.summary?`<div><div class="lbl-row" style="margin:6px 0 4px">AI 분석</div><div style="line-height:1.7">${texLines(E.summary)}</div></div>`:""}
+        <dl class="kv"><dt>문항</dt><dd>4지선다 ${n}문제</dd><dt>채점</dt><dd>모두 풀고 마지막에 한 번에</dd></dl>
+      </div>
+      <button class="btn dark lg block" id="exStart">시작하기</button></div>`;
+    $("#exStart").onclick = () => { E.intro=false; E.start=Date.now(); render(); };
+  } else {
+    const p = E.problems[E.i];
+    el.innerHTML = `${top}
+      <div class="card sess-card">
+        <div class="xs muted">${E.i+1}번${p.category?" · "+esc(p.category):""}</div>
+        <div class="big-q" style="margin-top:8px">${tex(p.question)}</div>
+        <div style="margin-top:16px">${p.choices.map((ch,k)=>`<button class="opt ${E.picks[E.i]===k?"sel":""}" data-k="${k}"><span class="no">${CIRC[k]}</span><span class="grow">${tex(ch)}</span></button>`).join("")}</div>
+      </div>
+      <div class="grade" style="margin-top:14px">
+        <button class="btn lg" id="exPrev" ${E.i===0?"disabled":""}>이전</button>
+        ${E.i<n-1 ? `<button class="btn dark lg" id="exNext">${E.picks[E.i]>=0?"다음":"건너뛰기"}</button>` : `<button class="btn primary lg" id="exSubmit">채점하기</button>`}
+      </div>
+      <div class="xs muted" style="text-align:center;margin-top:12px">${answered} / ${n} 답함</div>`;
+    el.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{ const i=E.i; E.picks[i]=+b.dataset.k; render();
+      if (i<n-1) setTimeout(()=>{ if (S.exam===E && E.i===i && !E.done){ E.i++; render(); window.scrollTo(0,0); } }, 260); });
+    $("#exPrev").onclick = () => { E.i--; render(); };
+    $("#exNext") && ($("#exNext").onclick = () => { E.i++; render(); window.scrollTo(0,0); });
+    $("#exSubmit") && ($("#exSubmit").onclick = () => submitExam(E));
+  }
+  $("#exQuit").onclick = () => { if (E.intro || confirm("시험을 그만할까요? 푼 내용은 저장되지 않아요.")) { S.exam=null; render(); } };
+}
+async function submitExam(E){
+  const left = E.picks.filter(p=>p<0).length;
+  if (left && !confirm(`안 푼 문제가 ${left}개 있어요. 채점할까요?`)) return;
+  E.done = true; E.score = E.problems.filter((p,i)=>E.picks[i]===p.answerIdx).length; E.total = E.problems.length;
+  E.secs = Math.round((Date.now()-(E.start||Date.now()))/1000);
+  const rec = { id:uid(), certId:E.certId, scope:E.scope, cats:E.cats, summary:E.summary, problems:E.problems, picks:E.picks, score:E.score, total:E.total, secs:E.secs, date:todayStr(), createdAt:Date.now(), addedToWrong:false };
+  S.exams.push(rec); E.record = rec.id; save("exams", rec);
+  render(); window.scrollTo(0,0);
+}
+function examResult(el, E){
+  const c = certById(E.certId), n=E.problems.length, score=E.problems.filter((p,i)=>E.picks[i]===p.answerIdx).length;
+  const pct = Math.round(score/n*100), pass = c ? pct >= Math.round((c.pass/(c.max||100))*100) : pct>=60;
+  const byCat = {}; E.problems.forEach((p,i)=>{ const k=p.category||"기타"; (byCat[k] ||= {ok:0,all:0}); byCat[k].all++; if (E.picks[i]===p.answerIdx) byCat[k].ok++; });
+  const wrongIdx = E.problems.map((p,i)=>i).filter(i=>E.picks[i]!==E.problems[i].answerIdx);
+  const rec = S.exams.find(x=>x.id===E.record);
+  const added = rec?.addedToWrong;
+  el.innerHTML = `<div class="sess-top"><button class="icon-btn" id="exClose" aria-label="닫기">${I.close}</button><div class="grow"></div><span class="count">${esc(E.scope.startsWith(c?.name||"\u0000")?E.scope:`${c?.name||""} · ${E.scope}`)}</span></div>
+    <div class="card" style="text-align:center;padding:26px 20px">
+      <div class="label">${E.date?fmtDate(E.date)+" · ":""}AI 모의시험 결과</div>
+      <div class="big-num" style="margin-top:6px;font-size:48px">${score}<span>/ ${n}</span></div>
+      <div class="row" style="justify-content:center;margin-top:6px;gap:6px"><span class="tag ${pass?"good":"bad"}">${pct}점 · ${pass?"합격선 이상":"합격선 미달"}</span>${E.secs?`<span class="tag">${Math.max(1,Math.round(E.secs/60))}분</span>`:""}</div>
+    </div>
+    ${Object.keys(byCat).length>1?`<div class="sec"><div class="sec-title">분류별 정답률</div><div class="card stack">${Object.entries(byCat).map(([k,v])=>`<div><div class="row between sm"><span>${esc(k)}</span><b>${v.ok}/${v.all}</b></div><div class="cbar" style="margin-top:6px"><div style="width:${v.ok/v.all*100}%"></div></div></div>`).join("")}</div></div>`:""}
+    <div class="sec"><div class="sec-title">문제 다시 보기 <span>${wrongIdx.length?`틀린 문제 ${wrongIdx.length}개`:"모두 맞혔어요"}</span></div>
+      ${E.problems.map((p,i)=>{ const ok=E.picks[i]===p.answerIdx, mine=E.picks[i];
+        return `<details class="qd" ${!ok&&wrongIdx.length<=5?"open":""}><summary><span class="mk ${ok?"ok":"no"}">${ok?I.check:I.close}</span><span class="grow"><span class="xs muted">${i+1}번${p.category?" · "+esc(p.category):""}</span><br>${tex(p.question)}</span></summary>
+          <div style="margin-top:10px">${p.choices.map((ch,k)=>`<div class="opt ${k===p.answerIdx?"good":(k===mine?"bad":"")}"><span class="no">${CIRC[k]}</span><span class="grow">${tex(ch)}</span>${k===p.answerIdx?`<span class="tag good">정답</span>`:(k===mine?`<span class="tag bad">내 답</span>`:"")}</div>`).join("")}
+          ${mine<0?`<div class="xs" style="color:var(--warn);margin-top:6px">풀지 않은 문제</div>`:""}
+          ${p.explanation?`<div class="answer-box" style="margin-top:10px">${texLines(p.explanation)}</div>`:""}</div></details>`; }).join("")}
+    </div>
+    <div class="stack" style="margin-top:18px">
+      ${wrongIdx.length?`<button class="btn primary lg block" id="exToWrong" ${added?"disabled":""}>${added?`${I.check} 오답노트에 추가됨`:`틀린 문제 ${wrongIdx.length}개 오답노트에 추가`}</button>`:""}
+      <div class="grade"><button class="btn lg" id="exRetry">이 시험 다시 풀기</button><button class="btn lg" id="exNew">새 문제 만들기</button></div>
+    </div>`;
+  $("#exClose").onclick = () => { S.exam=null; S.view="notes"; S.notesMode="study"; render(); };
+  $("#exRetry").onclick = () => { S.exam = { ...E, picks:E.problems.map(()=>-1), i:0, intro:false, done:false, start:Date.now(), date:null, record:null }; render(); window.scrollTo(0,0); };
+  $("#exNew").onclick = () => { const cc=certById(E.certId); S.exam=null; S.view="notes"; S.notesMode="study"; render(); if (cc) openExamSetup(cc, E.cats?.length===1?E.cats[0]:""); };
+  $("#exToWrong") && ($("#exToWrong").onclick = async () => {
+    const cc = certById(E.certId); const stage = cc?.stages.find(s=>defaultType(s)==="choice") || cc?.stages[0] || "";
+    for (const i of wrongIdx){ const p=E.problems[i];
+      const w = { id:uid(), certId:E.certId, stage, type:"choice", round:"AI 모의시험", number:String(i+1), subject:p.category, question:p.question, hasFigure:false,
+        choices:p.choices, answerIdx:p.answerIdx, myIdx:E.picks[i], answers:[], myAnswer:"", qImages:[], aImages:[], explanation:p.explanation, answerSource:"ai",
+        reason:"concept", streak:0, wrongCount:1, graduated:false, level:0, due:todayStr(), createdAt:Date.now() };
+      S.wrongs.push(w); await save("wrongs", w); }
+    if (rec){ rec.addedToWrong=true; save("exams", rec); }
+    render(); toast(`${wrongIdx.length}문제를 오답노트에 추가했어요 — 오늘 복습에 나와요`);
+  });
+}
 
 /* ---------------- 다이얼로그 ---------------- */
 function dialog(title, body, foot, onMount){
@@ -1440,13 +1842,13 @@ function openSettings(){
   dialog("설정", `<div class="stack">
     <div><label class="f">공공데이터포털 일반 인증키</label><input class="in" id="sKey" value="${esc(s.serviceKey)}" placeholder="큐넷 시험일정 자동 불러오기에 사용"></div>
     <div><label class="f">프록시 주소 (CORS 오류가 날 때만)</label><input class="in" id="sProxy" value="${esc(s.proxy)}" placeholder="https://xxxx.workers.dev"></div>
-    <div><label class="f">Gemini API 키 (사진 인식 직접 연결)</label><input class="in" id="sGem" type="password" autocomplete="off" value="${esc(s.geminiKey||"")}" placeholder="AIza… (Google AI Studio에서 발급)"><div class="xs muted" style="margin-top:3px">넣으면 Firebase AI Logic 대신 이 키로 바로 인식합니다. 본인 계정에만 저장돼요.</div></div>
+    <div><label class="f">Gemini API 키</label><input class="in" id="sGem" type="password" autocomplete="off" value="${esc(s.geminiKey||"")}" placeholder="AQ.… 또는 AIza… (Google AI Studio에서 발급)"><div class="xs muted" style="margin-top:3px">사진 인식·AI 모의시험에 쓰여요. 본인 계정에만 저장돼요.</div></div>
     <div><label class="f">사진 인식 모델</label><input class="in" id="sModel" value="${esc(s.aiModel||"")}" placeholder="${CONFIG.aiModel}"><div class="xs muted" style="margin-top:3px">비워두면 ${CONFIG.aiModel}. 모델이 종료되면 여기서 바꾸세요.</div></div>
     <div class="row"><button class="btn sm" id="sExport">${I.down} 백업 내려받기</button>${DEMO?"":`<button class="btn sm danger" id="sOut">로그아웃</button>`}</div>
     <div class="xs muted">${DEMO?"데모 모드 (Firebase 미연결)":"로그인: "+esc(Store.user?.email||"")}</div>
   </div>`, `<button class="btn" data-close>취소</button><button class="btn primary" id="sSave">저장</button>`, ()=>{
     $("#sSave").onclick=async()=>{ Object.assign(s,{ serviceKey:$("#sKey").value.trim(), proxy:$("#sProxy").value.trim().replace(/\/$/,""), aiModel:$("#sModel").value.trim(), geminiKey:$("#sGem").value.trim() }); aiModelCache=null; await save("settings", s); closeDlg(); toast("저장했어요"); };
-    $("#sExport").onclick=()=>{ const blob=new Blob([JSON.stringify({certs:S.certs,wrongs:S.wrongs,cards:S.cards,exportedAt:new Date().toISOString()},null,1)],{type:"application/json"});
+    $("#sExport").onclick=()=>{ const blob=new Blob([JSON.stringify({certs:S.certs,wrongs:S.wrongs,cards:S.cards,notes:S.notes,exams:S.exams,exportedAt:new Date().toISOString()},null,1)],{type:"application/json"});
       const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=`study-backup-${todayStr()}.json`; a.click(); };
     $("#sOut")&&($("#sOut").onclick=async()=>{ await Store.logout(); S.ready=false; closeDlg(); render(); });
   });
