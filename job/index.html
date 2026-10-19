@@ -132,10 +132,12 @@ textarea{min-height:200px;resize:vertical;line-height:1.75}
 .add summary::-webkit-details-marker{display:none}
 .add summary::before{content:"+";display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--onink);font-size:15px;line-height:1}
 .foot{margin-top:34px;display:flex;justify-content:center;flex-wrap:wrap;gap:8px}
+.home{display:inline-flex;align-items:center;gap:4px;margin-bottom:12px;padding:5px 11px;border-radius:8px;border:1px solid rgba(255,255,255,.28);color:var(--hdt);text-decoration:none;font-size:12.5px;font-weight:600;transition:background .15s}
+.home:hover{background:rgba(255,255,255,.1)}.home:active{transform:scale(.97)}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,12px);background:var(--ink);color:var(--onink);padding:11px 20px;border-radius:999px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:60;white-space:nowrap;box-shadow:0 10px 30px -10px rgba(0,0,0,.4)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 </style></head><body>
-<header class="bar"><div class="bw"><div class="top"><div><h1>이직 준비</h1><div class="sline"><span class="dot" id="dot"></span><span class="st" id="st">불러오는 중…</span></div></div><button class="btn g sm" id="lg" style="display:none">구글 로그인</button><div class="acct" id="acct" hidden><span class="who" id="who"></span><button class="btn g sm" id="lo">로그아웃</button></div></div><div id="hsum"></div></div></header>
+<header class="bar"><div class="bw"><div class="top"><div><a class="home" href="/hub/">‹ HOME</a><h1>이직 준비</h1><div class="sline"><span class="dot" id="dot"></span><span class="st" id="st">불러오는 중…</span></div></div><button class="btn g sm" id="lg" style="display:none">구글 로그인</button><div class="acct" id="acct" hidden><span class="who" id="who"></span><button class="btn g sm" id="lo">로그아웃</button></div></div><div id="hsum"></div></div></header>
 <nav class="seg" id="sup"></nav>
 <main class="w"><div class="chips" id="tb"></div><div id="v"></div><div class="foot"><button class="btn g sm" id="cps">스펙 전체 복사</button><button class="btn g sm" id="exp">백업 저장</button><button class="btn g sm" id="imp">백업 불러오기</button><input type="file" id="impf" accept="application/json,.json" hidden></div></main>
 <div class="toast" id="toast" role="status"></div>
