@@ -50,6 +50,7 @@ header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb, var(--
 .seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .icon-btn{border:0;background:transparent;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:var(--ink2)}
 .icon-btn:hover{background:var(--surface2)}
+a.icon-btn{text-decoration:none}.home-btn{margin-left:-8px;color:var(--ink)}a.btn{text-decoration:none}
 .icon-btn.sm{width:32px;height:32px;border-radius:10px}
 
 /* page */
@@ -301,6 +302,7 @@ const CONFIG = {
   root: "study"                  // Firestore 최상위 컬렉션 → study/{내UID}/certs … (가계부 데이터와 분리)
 };
 const DEMO = CONFIG.firebase.apiKey.startsWith("YOUR_");
+const HUB_URL = "/hub/";          // 노트 허브(HOME) 주소
 
 /* ---------------- 유틸 ---------------- */
 const $ = s => document.querySelector(s);
@@ -403,6 +405,7 @@ const I = {
   right:  svg('<path d="m9 6 6 6-6 6"/>'),
   down:   svg('<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>'),
   check:  svg('<path d="m5 12.5 4.5 4.5L19 7.5"/>'),
+  hub:    svg('<rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/>'),
   spark:  svg('<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/>')
 };
 
@@ -492,7 +495,8 @@ function render(){
     app.innerHTML = `<div class="wrap login"><div class="stack" style="max-width:300px">
       <div style="display:grid;place-items:center"><div class="hero" style="width:64px;height:64px;padding:0;display:grid;place-items:center;border-radius:18px">${I.notes}</div></div>
       <h1>자격증 노트</h1><p class="muted sm" style="margin:0">일정 · 성적 · 오답 · 복습을 한 곳에서</p>
-      <button class="btn dark lg block" id="loginBtn">Google 계정으로 시작하기</button></div></div>`;
+      <button class="btn dark lg block" id="loginBtn">Google 계정으로 시작하기</button>
+      <a class="btn ghost block" href="${HUB_URL}">${I.hub} HOME으로</a></div></div>`;
     $("#loginBtn").onclick = () => Store.login().catch(e=>toast("로그인 실패: "+e.message));
     return;
   }
@@ -502,6 +506,7 @@ function render(){
   const dueN = reviewPool().filter(o=>isDue(o.x)).length;
   app.innerHTML = `
   ${focus ? "" : `<header class="top"><div class="wrap top-row">
+      <a class="icon-btn home-btn" href="${HUB_URL}" aria-label="HOME으로">${I.hub}</a>
       <div class="brand"><i></i>자격증 노트</div>
       <div class="seg"><button data-tab="cert" class="${S.tab==="cert"?"on":""}">자격증</button><button data-tab="lang" class="${S.tab==="lang"?"on":""}">어학</button></div>
       <button class="icon-btn" id="setBtn" aria-label="설정">${I.gear}</button>
