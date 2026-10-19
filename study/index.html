@@ -145,6 +145,39 @@ table.sc input{width:56px;text-align:center;border:1px solid transparent;backgro
 table.sc input:focus{outline:2px solid var(--accent);background:var(--surface)}
 table.sc input.fail{color:var(--bad);font-weight:700}
 table.sc input.pass{color:var(--good);font-weight:700}
+.rl-card{padding:16px 0 16px}
+.rl-card>.rl-h,.rl-card>.rl-sub,.rl-card>.row,.rl-card>.empty{margin-left:18px;margin-right:18px}
+.rl-h{display:flex;justify-content:space-between;align-items:center}
+.rl-sub{margin-top:4px;margin-bottom:8px}
+.rl{border-top:1px solid var(--line2)}
+.rr{display:flex;align-items:center;gap:12px;padding:12px 10px 12px 18px;cursor:pointer;border-bottom:1px solid var(--line2)}
+.rr:active{background:var(--surface2)}
+.rr-main{flex:1;min-width:0}
+.rr-name{font-weight:650;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rr-meta{font-size:12px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rr-bars{display:flex;align-items:flex-end;gap:2px;height:26px;width:52px;flex:none;justify-content:flex-end}
+.rr-bars i{display:block;width:4px;border-radius:2px;background:var(--line)}
+.rr-bars i.ok{background:color-mix(in srgb,var(--good) 75%,transparent)}.rr-bars i.no{background:color-mix(in srgb,var(--bad) 65%,transparent)}
+.rr-score{width:58px;text-align:right;font-size:18px;font-weight:750;letter-spacing:-.02em;font-variant-numeric:tabular-nums;flex:none;color:var(--muted)}
+.rr-score small{font-size:11px;font-weight:600;margin-left:1px}
+.rr-add{width:36px;height:36px;flex:none;border-radius:11px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;color:var(--ink)}
+.rr-add svg.i{width:18px;height:18px}
+.t-ok{color:var(--good)!important}.t-no{color:var(--bad)!important}
+.stat b small{font-size:13px;color:var(--muted);font-weight:600}
+.rec{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;padding:12px 14px;text-align:left;font-size:14.5px}
+.rec+.rec{border-top:1px solid var(--line2)}
+.rec-n{font-weight:700;width:52px;flex:none}
+.rec-d{color:var(--muted);font-size:13px;flex:1}
+.rec-v{font-variant-numeric:tabular-nums}
+.rec svg.i{width:15px;height:15px;color:var(--muted)}
+.rec-in{display:flex;align-items:baseline;justify-content:center;gap:8px;padding:8px 0 0}
+.rec-in input{width:140px;border:0;border-bottom:2px solid var(--line);background:none;text-align:center;font-size:44px;font-weight:750;letter-spacing:-.03em;padding:4px 0;border-radius:0}
+.rec-in input:focus{outline:none;border-bottom-color:var(--accent)}
+.rec-in input::-webkit-outer-spin-button,.rec-in input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}.rec-in input{-moz-appearance:textfield}
+.rec-unit{font-size:18px;font-weight:600;color:var(--muted)}
+.rec-prev{text-align:center;font-size:14px;color:var(--muted);min-height:20px}
+.more summary{cursor:pointer;font-size:13px;color:var(--muted);font-weight:600;list-style:none;padding:4px 0}
+.more summary::-webkit-details-marker{display:none}
 table.sc .cv{font-size:11px;font-weight:600;color:var(--muted);margin-top:2px}
 table.sc .cv.fail{color:var(--bad)} table.sc .cv.pass{color:var(--good)}
 table.sc td{vertical-align:top}
@@ -157,13 +190,13 @@ table.sc .cd:hover{background:var(--surface2);color:var(--ink2)}
 .cal-w,.cal-g{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
 .cal-w span{text-align:center;font-size:11.5px;font-weight:600;color:var(--muted);padding:4px 0}
 .cal-w .sun,.cal-c.sun .cal-d{color:var(--bad)} .cal-w .sat,.cal-c.sat .cal-d{color:#3E6FB0}
-.cal-c{position:relative;min-width:0;height:58px;border:0;background:none;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;padding:6px 0 0;color:var(--ink)}
+.cal-c{position:relative;width:100%;min-width:0;height:58px;border:0;background:none;border-radius:12px;display:grid;grid-template-columns:100%;grid-auto-rows:min-content;justify-items:center;align-content:start;row-gap:3px;padding:6px 0 0;margin:0;color:var(--ink);text-align:center;-webkit-appearance:none;appearance:none;font:inherit}
 .cal-c.empty{pointer-events:none}
 .cal-c.future{opacity:.3}
-.cal-d{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;width:24px;height:24px;display:grid;place-items:center;border-radius:50%}
+.cal-d{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;width:26px;height:26px;margin:0 auto;display:flex;align-items:center;justify-content:center;border-radius:50%;line-height:1}
 .cal-c.today .cal-d{background:var(--ink);color:var(--bg)!important}
 .cal-c.sel{background:var(--accent-soft)}
-.cal-n{min-width:24px;height:20px;padding:0 6px;border-radius:7px;display:grid;place-items:center;font-size:12px;font-weight:750;font-variant-numeric:tabular-nums}
+.cal-n{min-width:24px;height:20px;padding:0 6px;margin:0 auto;border-radius:7px;display:flex;align-items:center;justify-content:center;line-height:1;font-size:12px;font-weight:750;font-variant-numeric:tabular-nums}
 .cal-n.l1{background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--accent)}
 .cal-n.l2{background:color-mix(in srgb,var(--accent) 55%,transparent);color:var(--accent-ink)}
 .cal-n.l3{background:var(--accent);color:var(--accent-ink)}
@@ -1574,20 +1607,38 @@ function certPicker(cur, extra=""){
 }
 function bindPicker(el){ el.querySelectorAll("[data-cert]").forEach(b=>b.onclick=()=>{ S.sel[S.tab]=b.dataset.cert; render(); }); }
 
+function scoreCtx(c, stage){
+  const cntMode = S.tab==="cert" && defaultType(stage)==="choice";
+  c.qTotal = c.qTotal || {};
+  const total = cntMode ? (+c.qTotal[stage] || defaultQTotal(c.name)) : 0;
+  const toScore = n => Math.round(n*1000/total)/10;
+  return { cntMode, total, toScore };
+}
+const isVal = v => v!==null && v!==undefined && v!=="";
+const filledOf = r => (r.scores||[]).map((v,i)=>({ v, i, n:r.correct?.[i], d:r.dates?.[i] })).filter(o=>isVal(o.v));
+
 function viewScore(el){
   const c = curCert(); if (!c) return noCert(el);
   const l=L(); c.rounds = c.rounds||[];
   const stage = c.stages.includes(S.sel.stage) ? S.sel.stage : c.stages[0];
   const rounds = c.rounds.filter(r=>r.stage===stage);
   // 필기(객관식)는 맞힌 개수로 입력 → 100점 환산, 실기는 점수 그대로
-  const cntMode = S.tab==="cert" && defaultType(stage)==="choice";
-  c.qTotal = c.qTotal || {};
-  const total = cntMode ? (+c.qTotal[stage] || defaultQTotal(c.name)) : 0;
-  const toScore = n => Math.round(n*1000/total)/10;
-  if (cntMode) rounds.forEach(r=>{ if (!r.correct) r.correct = r.scores.map(v=>v===null||v===undefined||v===""?null:Math.round(v*total/100)); r.scores = r.correct.map(n=>n===null||n===undefined?null:toScore(n)); });
-  const nCols = Math.max(1, ...rounds.map(r=>r.scores.length)) + 1;
-  const avgOf = arr => { const v=arr.filter(x=>x!==null&&x!==""&&!isNaN(x)); return v.length? Math.round(v.reduce((a,b)=>a+ +b,0)/v.length*10)/10 : null; };
-  const colAvg = i => avgOf(rounds.map(r=>r.scores[i]));
+  const { cntMode, total, toScore } = scoreCtx(c, stage);
+  if (cntMode) rounds.forEach(r=>{ r.scores=r.scores||[]; if (!r.correct) r.correct = r.scores.map(v=>isVal(v)?Math.round(v*total/100):null); r.scores = r.correct.map(n=>isVal(n)?toScore(n):null); });
+  const nMax = Math.max(0, ...rounds.map(r=>(r.scores||[]).length));
+  const lastOf = r => filledOf(r).at(-1);
+  const done = rounds.filter(r=>lastOf(r));
+  const attempts = rounds.reduce((a,r)=>a+filledOf(r).length,0);
+  const recentAvg = done.length ? Math.round(done.reduce((a,r)=>a+lastOf(r).v,0)/done.length*10)/10 : null;
+  const passN = done.filter(r=>lastOf(r).v>=c.pass).length;
+  const sortMode = S.sel.rsort || "name";
+  const list = [...rounds];
+  if (sortMode==="low") list.sort((a,b)=>(lastOf(a)?.v ?? 999)-(lastOf(b)?.v ?? 999));
+  if (sortMode==="recent") list.sort((a,b)=>String(lastOf(b)?.d||"").localeCompare(String(lastOf(a)?.d||"")));
+
+  const bars = r => { const f=filledOf(r).slice(-8); const mx=c.max||100;
+    return f.map(o=>`<i class="${o.v>=c.pass?"ok":"no"}" style="height:${Math.max(8, Math.min(100, o.v/mx*100))}%" title="${o.i+1}${l.read} ${o.v}점"></i>`).join(""); };
+
   el.innerHTML = `
   <div class="stack">
     ${certPicker(c)}
@@ -1595,22 +1646,27 @@ function viewScore(el){
       ${c.stages.length>1?`<div class="seg">${c.stages.map(s=>`<button data-stage="${esc(s)}" class="${s===stage?"on":""}">${esc(s)}</button>`).join("")}</div>`:""}
       ${cntMode?`<label class="qtot">총 <input id="qTotal" type="number" inputmode="numeric" min="1" max="500" value="${total}"> 문제</label>`:""}
     </div>
-    <div class="card">
-      <div class="row between" style="margin-bottom:8px"><h2>${esc(c.name)} ${c.stages.length>1?esc(stage):""}</h2><span class="xs muted">${cntMode?`맞힌 개수 입력 · ${total}문제 = 100점 · `:""}${S.tab==="cert"?"합격선":"목표"} ${c.pass}점 · 빨간 숫자는 미달</span></div>
-      ${rounds.length? `<div class="tbl-wrap"><table class="sc">
-        <thead><tr><th style="text-align:left">${l.round}</th>${Array.from({length:nCols},(_,i)=>`<th>${i+1}${l.read}</th>`).join("")}<th>평균</th><th></th></tr></thead>
-        <tbody>${rounds.map(r=>`<tr>
-          <td class="name"><input class="name-in" data-rname="${r.id}" value="${esc(r.name)}"></td>
-          ${Array.from({length:nCols},(_,i)=>{ const v=r.scores[i]; const cls = v===null||v===undefined||v===""?"":(+v>=c.pass?"pass":"fail");
-            const shown = cntMode ? (r.correct?.[i] ?? "") : (v ?? "");
-            return `<td><input inputmode="${cntMode?"numeric":"decimal"}" class="${cls}" data-r="${r.id}" data-i="${i}" value="${shown}" placeholder="${cntMode?"개":""}" aria-label="${esc(r.name)} ${i+1}${l.read} ${cntMode?"맞힌 개수":"점수"}">${cntMode&&v!==null&&v!==undefined?`<div class="cv ${cls}">${v}점</div>`:""}${v!==null&&v!==undefined?`<button class="cd" data-dr="${r.id}" data-di="${i}" aria-label="푼 날짜 바꾸기">${r.dates?.[i]?mdShort(r.dates[i]):"날짜 없음"}</button>`:""}</td>`; }).join("")}
-          <td class="avg">${avgOf(r.scores)!==null?avgOf(r.scores)+(cntMode?"점":""):"-"}</td>
-          <td><button class="btn sm ghost" data-rdel="${r.id}" aria-label="삭제">✕</button></td></tr>`).join("")}
-          <tr><td class="name xs muted">${l.read}별 평균</td>${Array.from({length:nCols},(_,i)=>`<td class="avg">${colAvg(i)!==null?colAvg(i)+(cntMode?"점":""):""}</td>`).join("")}<td></td><td></td></tr>
-        </tbody></table></div>` : `<div class="empty"><b>${l.round}을 추가하세요</b>${S.tab==="cert"?"예: 2023년 1회":"예: ETS 1회"}</div>`}
-      <div class="row" style="margin-top:10px">
+    <div class="stats">
+      <div class="stat"><b>${attempts}</b><span>총 풀이 횟수</span></div>
+      <div class="stat"><b class="${recentAvg===null?"":recentAvg>=c.pass?"t-ok":"t-no"}">${recentAvg??"–"}</b><span>최근 평균</span></div>
+      <div class="stat"><b>${passN}<small>/${done.length}</small></b><span>${S.tab==="cert"?"합격선":"목표"} 통과</span></div>
+    </div>
+    <div class="card rl-card">
+      <div class="rl-h"><h2>${esc(stage)} ${l.round}</h2>
+        <select class="sel" id="rSort" aria-label="정렬"><option value="name" ${sortMode==="name"?"selected":""}>등록순</option><option value="low" ${sortMode==="low"?"selected":""}>낮은 점수순</option><option value="recent" ${sortMode==="recent"?"selected":""}>최근 푼 순</option></select></div>
+      <div class="xs muted rl-sub">${cntMode?`맞힌 개수 → ${total}문제 = 100점 환산 · `:""}${S.tab==="cert"?"합격선":"목표"} ${c.pass}점 · 줄을 누르면 회독 기록, ＋는 다음 회독</div>
+      ${list.length ? `<div class="rl">${list.map(r=>{ const f=filledOf(r), last=f.at(-1), best=f.length?Math.max(...f.map(o=>o.v)):null;
+          return `<div class="rr" data-open="${r.id}" role="button" tabindex="0">
+            <div class="rr-main"><div class="rr-name">${esc(r.name)}</div>
+              <div class="rr-meta">${f.length?`${f.length}${l.read}${last.d?` · ${mdShort(last.d)}`:""}${f.length>1?` · 최고 ${best}`:""}`:`<span class="muted">아직 안 풀었어요</span>`}</div></div>
+            <div class="rr-bars" aria-hidden="true">${bars(r)}</div>
+            <div class="rr-score ${last?(last.v>=c.pass?"t-ok":"t-no"):""}">${last?`${last.v}<small>점</small>`:"–"}</div>
+            <button class="rr-add" data-rec="${r.id}" aria-label="${esc(r.name)} ${f.length+1}${l.read} 기록">${I.plus}</button>
+          </div>`; }).join("")}</div>`
+        : `<div class="empty"><b>${l.round}을 추가하세요</b>${S.tab==="cert"?"예: 2023년 1회":"예: ETS 1회"}</div>`}
+      <div class="row" style="margin-top:12px">
         <input class="in grow" id="rName" placeholder="${S.tab==="cert"?"2024년 2회":"모의고사 3회"}" style="flex:1 1 140px">
-        <button class="btn" id="rAdd">+ ${l.round} 추가</button>
+        <button class="btn" id="rAdd">${I.plus} ${l.round} 추가</button>
         ${S.tab==="cert"?`<button class="btn ghost sm" id="rBulk">기출 회차 한 번에 추가</button>`:""}
       </div>
     </div>
@@ -1619,58 +1675,91 @@ function viewScore(el){
   bindPicker(el);
   el.querySelectorAll("[data-stage]").forEach(b=>b.onclick=()=>{ S.sel.stage=b.dataset.stage; render(); });
   const persist = () => save("certs", c);
-  el.querySelectorAll("input[data-r]").forEach(inp=>{
-    inp.onchange = () => {
-      const r=c.rounds.find(x=>x.id===inp.dataset.r), i=+inp.dataset.i, v=inp.value.trim();
-      const had = cntMode ? (r.correct?.[i] ?? null) : (r.scores?.[i] ?? null);
-      if (cntMode){
-        const n = v==="" ? null : Math.round(+v);
-        if (n!==null && (isNaN(n) || n<0 || n>total)) { toast(`0~${total} 사이 개수를 입력하세요`); inp.value = r.correct?.[i] ?? ""; return; }
-        r.correct = r.correct || [];
-        while (r.correct.length<=i) r.correct.push(null);
-        r.correct[i] = n;
-        while (r.correct.length && r.correct.at(-1)===null) r.correct.pop();
-        r.scores = r.correct.map(x=>x===null||x===undefined?null:toScore(x));
-      } else {
-        while (r.scores.length<=i) r.scores.push(null);
-        r.scores[i] = v===""? null : +v;
-        while (r.scores.length && (r.scores.at(-1)===null)) r.scores.pop();
-      }
-      // 푼 날짜: 처음 기록할 때 오늘 날짜, 지우면 날짜도 지움 (고칠 땐 날짜 유지)
-      r.dates = r.dates || [];
-      while (r.dates.length<=i) r.dates.push(null);
-      if (v==="") r.dates[i]=null; else if (had===null || !r.dates[i]) r.dates[i]=todayStr();
-      r.dates.length = Math.max(r.scores.length, (r.correct||[]).length);
-      for (let k=0;k<r.dates.length;k++) if (r.dates[k]===undefined) r.dates[k]=null;
-      persist(); render();
-      setTimeout(()=>{ const n=document.querySelector(`input[data-r="${r.id}"][data-i="${i+1}"]`); n && n.focus(); },0);
-    };
-    inp.onkeydown = e => { if (e.key==="Enter") inp.blur(); };
+  $("#rSort").onchange = e => { S.sel.rsort=e.target.value; render(); };
+  el.querySelectorAll("[data-open]").forEach(row=>{
+    const open = () => openRoundSheet(c, c.rounds.find(x=>x.id===row.dataset.open));
+    row.onclick = e => { if (e.target.closest("[data-rec]")) return; open(); };
+    row.onkeydown = e => { if (e.key==="Enter") open(); };
   });
+  el.querySelectorAll("[data-rec]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const r=c.rounds.find(x=>x.id===b.dataset.rec); openRecord(c, r, (r.scores||[]).length); });
   $("#qTotal") && ($("#qTotal").onchange = e => { const t=Math.round(+e.target.value); if(!t||t<1){ e.target.value=total; return; }
-    const over = rounds.some(r=>(r.correct||[]).some(n=>n!==null&&n>t)); if (over && !confirm(`${t}문제보다 많이 맞힌 기록이 있어요. 그래도 바꿀까요?`)) { e.target.value=total; return; }
-    c.qTotal[stage]=t; rounds.forEach(r=>{ r.scores=(r.correct||[]).map(n=>n===null||n===undefined?null:Math.round(Math.min(n,t)*1000/t)/10); }); persist(); render(); toast(`총 ${t}문제 기준으로 다시 계산했어요`); });
-  el.querySelectorAll("[data-dr]").forEach(b=>b.onclick=()=>{
-    const r=c.rounds.find(x=>x.id===b.dataset.dr), i=+b.dataset.di;
-    dialog("푼 날짜", `<div class="stack"><div class="sm muted">${esc(r.name)} · ${i+1}${l.read}</div><input class="in" type="date" id="dIn" value="${r.dates?.[i]||todayStr()}" max="${todayStr()}"></div>`,
-      `<button class="btn" data-close>취소</button><button class="btn primary" id="dOk">저장</button>`, ()=>{
-        $("#dOk").onclick=()=>{ const d=$("#dIn").value; if(!d) return; r.dates=r.dates||[]; while(r.dates.length<=i) r.dates.push(null); r.dates[i]=d; persist(); closeDlg(); render(); };
-      });
-  });
-  el.querySelectorAll("[data-rname]").forEach(inp=>inp.onchange=()=>{ c.rounds.find(x=>x.id===inp.dataset.rname).name=inp.value.trim(); persist(); });
-  el.querySelectorAll("[data-rdel]").forEach(b=>b.onclick=()=>{ const r=c.rounds.find(x=>x.id===b.dataset.rdel); if(!confirm(`${r.name} 기록을 삭제할까요?`))return; c.rounds=c.rounds.filter(x=>x.id!==r.id); persist(); render(); });
-  const add = () => { const n=$("#rName").value.trim(); if(!n) return $("#rName").focus(); c.rounds.push({id:uid(),stage,name:n,scores:[],...(cntMode?{correct:[]}:{})}); persist(); render(); };
+    const over = rounds.some(r=>(r.correct||[]).some(n=>isVal(n)&&n>t)); if (over && !confirm(`${t}문제보다 많이 맞힌 기록이 있어요. 그래도 바꿀까요?`)) { e.target.value=total; return; }
+    c.qTotal[stage]=t; rounds.forEach(r=>{ r.scores=(r.correct||[]).map(n=>isVal(n)?Math.round(Math.min(n,t)*1000/t)/10:null); }); persist(); render(); toast(`총 ${t}문제 기준으로 다시 계산했어요`); });
+  const add = () => { const n=$("#rName").value.trim(); if(!n) return $("#rName").focus(); c.rounds.push({id:uid(),stage,name:n,scores:[],...(cntMode?{correct:[]}:{}),dates:[]}); persist(); render(); };
   $("#rAdd").onclick = add; $("#rName").onkeydown = e => { if(e.key==="Enter") add(); };
   $("#rBulk") && ($("#rBulk").onclick = () => {
     const y=new Date().getFullYear();
     dialog("기출 회차 한 번에 추가", `<div class="grid2"><div><label class="f">시작 연도</label><input class="in" id="bY1" type="number" value="${y-4}"></div><div><label class="f">끝 연도</label><input class="in" id="bY2" type="number" value="${y-1}"></div><div><label class="f">연간 회차 수</label><input class="in" id="bN" type="number" value="${/기능장/.test(c.name)?2:3}"></div></div><p class="xs muted">‘2023년 1회’ 형식으로 만들어집니다.</p>`,
       `<button class="btn" data-close>취소</button><button class="btn primary" id="bGo">추가</button>`, ()=>{
         $("#bGo").onclick=()=>{ const a=+$("#bY1").value,b=+$("#bY2").value,n=+$("#bN").value; let k=0;
-          for(let yy=Math.min(a,b); yy<=Math.max(a,b); yy++) for(let i=1;i<=n;i++){ const nm=`${yy}년 ${i}회`; if(!c.rounds.some(r=>r.stage===stage&&r.name===nm)){ c.rounds.push({id:uid(),stage,name:nm,scores:[],...(cntMode?{correct:[]}:{})}); k++; } }
+          for(let yy=Math.min(a,b); yy<=Math.max(a,b); yy++) for(let i=1;i<=n;i++){ const nm=`${yy}년 ${i}회`; if(!c.rounds.some(r=>r.stage===stage&&r.name===nm)){ c.rounds.push({id:uid(),stage,name:nm,scores:[],...(cntMode?{correct:[]}:{}),dates:[]}); k++; } }
           persist(); closeDlg(); render(); toast(`${k}개 회차를 추가했어요`); };
       });
   });
-  drawChart($("#chart"), rounds, c, nCols-1, l);
+  drawChart($("#chart"), rounds, c, nMax, l);
+}
+
+/* 회차 상세: 회독 기록 목록 */
+function openRoundSheet(c, r){
+  const l=L(), { cntMode, total } = scoreCtx(c, r.stage), f=filledOf(r);
+  const best = f.length ? Math.max(...f.map(o=>o.v)) : null;
+  dialog(esc(r.name), `<div class="stack">
+      <div class="row" style="gap:6px"><span class="tag">${esc(c.name)} · ${esc(r.stage)}</span>${f.length?`<span class="tag accent">${f.length}${l.read}</span>`:""}${best!==null?`<span class="tag ${best>=c.pass?"good":"bad"}">최고 ${best}점</span>`:""}</div>
+      ${f.length ? `<div class="card" style="padding:4px 0">${f.map(o=>`<button class="rec" data-ri="${o.i}">
+          <span class="rec-n">${o.i+1}${l.read}</span>
+          <span class="rec-d">${o.d?fmtDate(o.d):"날짜 없음"}</span>
+          <span class="rec-v">${cntMode&&isVal(o.n)?`<span class="muted">${o.n}/${total}개 · </span>`:""}<b class="${o.v>=c.pass?"t-ok":"t-no"}">${o.v}점</b></span>${I.right}</button>`).join("")}</div>`
+        : `<div class="sm muted">아직 기록이 없어요.</div>`}
+      <button class="btn primary lg block" id="recNew">${I.plus} ${f.length? (r.scores.length+1)+l.read : "1"+l.read} 기록하기</button>
+      <details class="more"><summary>회차 이름 바꾸기 · 삭제</summary>
+        <div class="row" style="margin-top:10px;flex-wrap:nowrap"><input class="in" id="rnName" value="${esc(r.name)}"><button class="btn" id="rnSave">저장</button></div>
+        <button class="btn ghost danger sm" id="rnDel" style="margin-top:8px">이 ${l.round} 삭제</button>
+      </details>
+    </div>`, null, () => {
+      document.querySelectorAll("#dlg [data-ri]").forEach(b=>b.onclick=()=>openRecord(c, r, +b.dataset.ri, ()=>openRoundSheet(c, r)));
+      $("#recNew").onclick = () => openRecord(c, r, (r.scores||[]).length, ()=>openRoundSheet(c, r));
+      $("#rnSave").onclick = () => { const n=$("#rnName").value.trim(); if(!n) return; r.name=n; save("certs", c); closeDlg(); render(); toast("이름을 바꿨어요"); };
+      $("#rnDel").onclick = () => { if(!confirm(`${r.name} 기록을 모두 삭제할까요?`)) return; c.rounds=c.rounds.filter(x=>x.id!==r.id); save("certs", c); closeDlg(); render(); };
+    });
+}
+
+/* 회독 하나 기록·수정 */
+function openRecord(c, r, idx, after){
+  const l=L(), { cntMode, total, toScore } = scoreCtx(c, r.stage);
+  r.scores=r.scores||[]; r.dates=r.dates||[]; if (cntMode) r.correct=r.correct||[];
+  const isNew = !isVal(r.scores[idx]);
+  const cur = cntMode ? r.correct[idx] : r.scores[idx];
+  const prev = filledOf(r).filter(o=>o.i<idx).at(-1);
+  dialog(`${esc(r.name)} · ${idx+1}${l.read}`, `<div class="stack">
+      <div class="rec-in">
+        <input id="recV" type="number" inputmode="${cntMode?"numeric":"decimal"}" min="0" ${cntMode?`max="${total}"`:""} value="${isVal(cur)?cur:""}" placeholder="${cntMode?"0":"점수"}" aria-label="${cntMode?"맞힌 개수":"점수"}">
+        <span class="rec-unit">${cntMode?`/ ${total}개`:"점"}</span>
+      </div>
+      <div class="rec-prev" id="recP">${cntMode?"맞힌 개수를 입력하세요":"점수를 입력하세요"}</div>
+      <div><label class="f">푼 날짜</label><input class="in" type="date" id="recD" value="${r.dates[idx]||todayStr()}" max="${todayStr()}"></div>
+      ${prev?`<div class="xs muted">지난 ${prev.i+1}${l.read}: ${prev.v}점${prev.d?` (${mdShort(prev.d)})`:""}</div>`:""}
+    </div>`,
+    `${isNew?"":`<button class="btn ghost danger" id="recDel" style="margin-right:auto">삭제</button>`}<button class="btn" data-close>취소</button><button class="btn primary" id="recOk">저장</button>`, () => {
+      const inp=$("#recV"), pv=$("#recP");
+      const upd = () => { const v=inp.value.trim(); if (v===""){ pv.innerHTML = cntMode?"맞힌 개수를 입력하세요":"점수를 입력하세요"; pv.className="rec-prev"; return; }
+        const sc = cntMode ? toScore(+v) : +v; const bad = cntMode && (+v>total || +v<0);
+        pv.innerHTML = bad ? `0~${total} 사이로 입력하세요` : `<b>${sc}점</b> · ${sc>=c.pass?"합격선 이상":"합격선 미달"}${prev?` · 지난번보다 ${sc>=prev.v?"+":""}${Math.round((sc-prev.v)*10)/10}`:""}`;
+        pv.className = "rec-prev " + (bad?"t-no":sc>=c.pass?"t-ok":"t-no"); };
+      inp.oninput = upd; upd(); setTimeout(()=>inp.focus(), 60);
+      const ok = () => {
+        const v=inp.value.trim(); if (v==="") return toast(cntMode?"맞힌 개수를 입력하세요":"점수를 입력하세요");
+        const n = cntMode ? Math.round(+v) : +v;
+        if (isNaN(n) || n<0 || (cntMode && n>total)) return toast(cntMode?`0~${total} 사이로 입력하세요`:"올바른 점수를 입력하세요");
+        const pad = a => { while (a.length<=idx) a.push(null); };
+        pad(r.scores); pad(r.dates); if (cntMode){ pad(r.correct); r.correct[idx]=n; r.scores[idx]=toScore(n); } else r.scores[idx]=n;
+        r.dates[idx] = $("#recD").value || todayStr();
+        save("certs", c); closeDlg(); render(); toast(`${idx+1}${l.read} ${r.scores[idx]}점 저장했어요`); after && after();
+      };
+      $("#recOk").onclick = ok; inp.onkeydown = e => { if (e.key==="Enter") ok(); };
+      $("#recDel") && ($("#recDel").onclick = () => { if(!confirm(`${idx+1}${l.read} 기록을 삭제할까요? 뒤의 회독 번호가 하나씩 당겨져요.`)) return;
+        [r.scores, r.dates, r.correct].forEach(a=>{ if (Array.isArray(a) && a.length>idx) a.splice(idx,1); });
+        save("certs", c); closeDlg(); render(); after && after(); });
+    });
 }
 
 const mdShort = d => { const [y,m,dd]=d.split("-"); return `${+m}.${+dd}`; };
