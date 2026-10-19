@@ -150,19 +150,26 @@ table.sc .cv.fail{color:var(--bad)} table.sc .cv.pass{color:var(--good)}
 table.sc td{vertical-align:top}
 table.sc .cd{display:block;margin:2px auto 0;border:0;background:none;padding:1px 4px;font-size:10.5px;color:var(--muted);border-radius:5px;font-variant-numeric:tabular-nums}
 table.sc .cd:hover{background:var(--surface2);color:var(--ink2)}
-.heat{display:flex;flex-direction:column;gap:6px;overflow-x:auto}
-.hmon{display:grid;grid-template-columns:repeat(15,1fr);gap:4px;font-size:10.5px;color:var(--muted);min-width:300px}
-.hmon span{white-space:nowrap}
-.hgrid{display:grid;grid-template-columns:repeat(15,1fr);gap:4px;min-width:300px}
-.hcol{display:grid;grid-template-rows:repeat(7,1fr);gap:4px}
-.hgrid i,.hleg i{display:block;aspect-ratio:1;border-radius:3px;background:var(--surface2)}
-.hgrid i.fut{background:transparent}
-i.h1{background:color-mix(in srgb,var(--accent) 30%,var(--surface2))!important}
-i.h2{background:color-mix(in srgb,var(--accent) 55%,var(--surface2))!important}
-i.h3{background:color-mix(in srgb,var(--accent) 78%,var(--surface2))!important}
-i.h4{background:var(--accent)!important}
-.hleg{display:flex;align-items:center;justify-content:flex-end;gap:4px;margin-top:10px;font-size:11px;color:var(--muted)}
-.hleg i{width:11px}
+.cal{padding:14px 12px 12px}
+.cal-h{display:flex;align-items:center;justify-content:space-between;padding:0 2px 10px}
+.cal-t{text-align:center}.cal-t b{display:block;font-size:16px;letter-spacing:-.02em}.cal-t span{font-size:12px;color:var(--muted)}
+.cal-h .icon-btn:disabled{opacity:.25}
+.cal-w,.cal-g{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.cal-w span{text-align:center;font-size:11.5px;font-weight:600;color:var(--muted);padding:4px 0}
+.cal-w .sun,.cal-c.sun .cal-d{color:var(--bad)} .cal-w .sat,.cal-c.sat .cal-d{color:#3E6FB0}
+.cal-c{position:relative;min-width:0;height:58px;border:0;background:none;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;padding:6px 0 0;color:var(--ink)}
+.cal-c.empty{pointer-events:none}
+.cal-c.future{opacity:.3}
+.cal-d{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;width:24px;height:24px;display:grid;place-items:center;border-radius:50%}
+.cal-c.today .cal-d{background:var(--ink);color:var(--bg)!important}
+.cal-c.sel{background:var(--accent-soft)}
+.cal-n{min-width:24px;height:20px;padding:0 6px;border-radius:7px;display:grid;place-items:center;font-size:12px;font-weight:750;font-variant-numeric:tabular-nums}
+.cal-n.l1{background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--accent)}
+.cal-n.l2{background:color-mix(in srgb,var(--accent) 55%,transparent);color:var(--accent-ink)}
+.cal-n.l3{background:var(--accent);color:var(--accent-ink)}
+.cal-f{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding:0 4px;font-size:11.5px;color:var(--muted)}
+.day-r .dot{width:6px;height:6px;border-radius:50%;flex:none;margin-top:8px}.day-r .dot.ok{background:var(--good)}.day-r .dot.no{background:var(--bad)}
+.day-r b{font-weight:700}
 .day+.day{margin-top:10px}
 .day-h{display:flex;justify-content:space-between;align-items:center}
 .day-n{font-size:22px;font-weight:750;letter-spacing:-.03em}.day-n small{font-size:12px;font-weight:600;color:var(--muted);margin-left:2px}
@@ -268,6 +275,10 @@ dialog::backdrop{background:rgba(15,17,19,.42);backdrop-filter:blur(2px)}
 .tabbar button.on svg.i{stroke-width:2.2}
 .badge{position:absolute;top:8px;left:calc(50% + 6px);min-width:17px;height:17px;padding:0 5px;border-radius:999px;background:var(--bad);color:#fff;font-size:10.5px;font-weight:700;display:grid;place-items:center;line-height:1}
 .fab{position:fixed;right:max(18px, calc(50% - 342px));bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom));z-index:31;width:56px;height:56px;border-radius:18px;border:0;background:var(--ink);color:var(--bg);display:grid;place-items:center;box-shadow:0 10px 28px -8px rgba(0,0,0,.45)}
+.to-top{position:fixed;left:max(18px, calc(50% - 342px));bottom:calc(var(--nav-h) + 20px + env(safe-area-inset-bottom));z-index:31;width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:var(--ink);display:grid;place-items:center;box-shadow:0 6px 18px -8px rgba(0,0,0,.25);opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .18s,transform .18s}
+.to-top.on{opacity:1;transform:none;pointer-events:auto}
+.to-top:active{transform:scale(.94)}
+body.focus .to-top{bottom:calc(20px + env(safe-area-inset-bottom))}
 .fab svg.i{width:24px;height:24px;stroke-width:2.2}
 
 .demo-bar{background:var(--warn-soft);color:var(--warn);font-size:12.5px;padding:8px 12px;border-radius:10px;margin-top:6px}
@@ -302,11 +313,13 @@ dialog::backdrop{background:rgba(15,17,19,.42);backdrop-filter:blur(2px)}
 .mk svg.i{width:15px;height:15px;stroke-width:2.4}
 .mk.ok{background:var(--good-soft);color:var(--good)}.mk.no{background:var(--bad-soft);color:var(--bad)}
 .katex{font-size:1.05em}
+sup,sub{font-size:.72em;line-height:0}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <div class="toast" id="toast"></div>
+<button class="to-top" id="toTop" aria-label="맨 위로"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V6M6 11l6-6 6 6"/></svg></button>
 <dialog id="dlg"></dialog>
 <input type="file" id="photo" accept="image/*" hidden>
 
@@ -393,20 +406,34 @@ let katexReady=false;
 })();
 const HANGUL=/[가-힣]/;
 const RAW_TEX=/\\(?:d?frac|sqrt)\s*(?:\[[^\]]*\])?\{[^{}]*\}(?:\{[^{}]*\})?|[A-Za-z0-9)]*(?:\^|_)\{[^{}]*\}/g;
+const UNITLIKE=/^[\sA-Za-z0-9\/^{}()\-+.,·*=Ω°%]*$/;
 function katexOne(src, display=false){
-  try { return window.katex.renderToString(src, { throwOnError:false, displayMode:display, strict:"ignore" }); }
+  let s=String(src);
+  const bare=s.replace(/\\cdot|\\,|\\;|\\!|\\ |\\times|\\Omega|\\circ|\\mu/g,"");
+  if (/[A-Za-z]/.test(bare) && UNITLIKE.test(bare)) s = `\\mathrm{${s.replace(/([A-Za-z])\.([A-Za-z])/g,"$1\\cdot $2").replace(/·/g,"\\cdot ")}}`;   // 단위는 똑바로(정자체)
+  try { return window.katex.renderToString(s, { throwOnError:false, displayMode:display, strict:"ignore" }); }
   catch { return esc(src); }
+}
+// 일반 글자 속 m^2, X_L, kg.m 같은 표기를 위첨자·아래첨자·가운뎃점으로
+function prettify(h){
+  return h.replace(/\^\{([^{}]*)\}/g,"<sup>$1</sup>")
+    .replace(/\^\(?(-?[0-9]+(?:\.[0-9]+)?)\)?/g,"<sup>$1</sup>")
+    .replace(/\^([A-Za-z]{1,2})(?![A-Za-z])/g,"<sup>$1</sup>")
+    .replace(/_\{([^{}]*)\}/g,"<sub>$1</sub>")
+    .replace(/([A-Za-z])_([A-Za-z0-9]{1,3})(?![A-Za-z0-9])/g,"$1<sub>$2</sub>")
+    .replace(/\b([A-Za-z]{1,3})\.([A-Za-z]{1,3})\b(?!\.)/g,"$1·$2")
+    .replace(/(\d)\s?\*\s?(\d|10)/g,"$1×$2");
 }
 // "$…$" 구간은 수식으로, 그 밖에서도 \frac{}{} 같은 LaTeX가 보이면 수식으로 그림
 function tex(str){
-  str=String(str??""); if (!katexReady || !/[\\$^_]/.test(str)) return esc(str);
+  str=String(str??""); if (!katexReady || !/[\\$^_]/.test(str)) return prettify(esc(str));
   const out=[]; const re=/\$\$([\s\S]+?)\$\$|\$([^$\n]+?)\$|\\\(([\s\S]+?)\\\)/g; let last=0, m;
   const plain = t => {
     if (!t) return "";
     if (!HANGUL.test(t) && /\\[a-zA-Z]+|[\^_]\{/.test(t)) return katexOne(t.trim());   // 한글 없는 순수 수식
     let o="", k=0, mm; RAW_TEX.lastIndex=0;
-    while ((mm=RAW_TEX.exec(t))){ o+=esc(t.slice(k,mm.index))+katexOne(mm[0]); k=mm.index+mm[0].length; }
-    return o+esc(t.slice(k));
+    while ((mm=RAW_TEX.exec(t))){ o+=prettify(esc(t.slice(k,mm.index)))+katexOne(mm[0]); k=mm.index+mm[0].length; }
+    return o+prettify(esc(t.slice(k)));
   };
   while ((m=re.exec(str))){ out.push(plain(str.slice(last,m.index))); out.push(katexOne(m[1]??m[2]??m[3], !!m[1])); last=m.index+m[0].length; }
   out.push(plain(str.slice(last)));
@@ -531,6 +558,7 @@ function render(){
 
   const focus = (S.view==="review" && S.session) || !!S.exam;
   const dueN = reviewPool().filter(o=>isDue(o.x)).length;
+  document.body.classList.toggle("focus", !!focus);
   app.innerHTML = `
   ${focus ? "" : `<header class="top"><div class="wrap top-row">
       <a class="icon-btn home-btn" href="${HUB_URL}" aria-label="HOME으로">${I.hub}</a>
@@ -653,43 +681,61 @@ function solvedEntries(){
 function viewStudyLog(box){
   const l=L(), all=solvedEntries(), dated=all.filter(e=>e.date), undated=all.length-dated.length;
   const byDate = {}; dated.forEach(e=>(byDate[e.date] ||= []).push(e));
-  const days = Object.keys(byDate).sort().reverse();
-  // 요약
-  const t=todayStr(), wk=addDays(-6);
-  const week = dated.filter(e=>e.date>=wk && e.date<=t).length;
+  const t = todayStr();
+  S.logMonth = S.logMonth || t.slice(0,7);
+  S.logDay = S.logDay || t;
+  const [Y,M] = S.logMonth.split("-").map(Number);
+  const first = new Date(Y, M-1, 1), daysIn = new Date(Y, M, 0).getDate(), lead = first.getDay();
+  const key = d => `${Y}-${String(M).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+  const monthEntries = dated.filter(e=>e.date.startsWith(S.logMonth));
+  const monthDays = new Set(monthEntries.map(e=>e.date)).size;
   let streak=0; for (let k=0;;k++){ const d=addDays(-k); if (byDate[d]) streak++; else if (k===0) continue; else break; }
-  // 잔디 (최근 15주)
-  const W=15, start=new Date(); start.setDate(start.getDate()-start.getDay()-(W-1)*7);
-  const ymdOf = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-  let cells="", months="", lastM=-1;
-  for (let w=0; w<W; w++){
-    const col=new Date(start); col.setDate(start.getDate()+w*7);
-    months += `<span>${col.getMonth()!==lastM?(col.getMonth()+1)+"월":""}</span>`; lastM=col.getMonth();
-    cells += `<div class="hcol">`;
-    for (let d=0; d<7; d++){ const day=new Date(start); day.setDate(start.getDate()+w*7+d); const k=ymdOf(day), n=(byDate[k]||[]).length;
-      cells += k>t ? `<i class="fut"></i>` : `<i class="h${Math.min(n,4)}" title="${fmtDate(k)} ${n}개"></i>`; }
-    cells += `</div>`;
+  const maxN = Math.max(1, ...Object.keys(byDate).filter(d=>d.startsWith(S.logMonth)).map(d=>byDate[d].length));
+
+  let cells = "";
+  for (let i=0;i<lead;i++) cells += `<div class="cal-c empty"></div>`;
+  for (let d=1; d<=daysIn; d++){
+    const k=key(d), n=(byDate[k]||[]).length, dow=(lead+d-1)%7;
+    const lvl = n ? Math.ceil(n/maxN*3) : 0;
+    cells += `<button class="cal-c ${k===t?"today":""} ${k===S.logDay?"sel":""} ${k>t?"future":""} ${dow===0?"sun":dow===6?"sat":""}" data-day="${k}" ${k>t?"disabled":""} aria-label="${M}월 ${d}일 ${n}개 회차">
+      <span class="cal-d">${d}</span>${n?`<span class="cal-n l${lvl}">${n}</span>`:""}</button>`;
   }
-  const valTxt = e => e.correct!==null&&e.correct!==undefined ? `${e.correct}/${e.total}개 · ${e.score}점` : `${e.score}점`;
+  const es = byDate[S.logDay] || [];
+  const cnt = es.filter(e=>e.total), qAll = cnt.reduce((a,e)=>a+e.total,0), qOk = cnt.reduce((a,e)=>a+(e.correct||0),0);
+  const groups={}; es.forEach(e=>{ const g=`${e.cert.name} · ${e.stage}`; (groups[g] ||= []).push(e); });
+  const valTxt = e => e.total ? `<b>${e.correct}</b><span class="muted">/${e.total}</span> · ${e.score}점` : `<b>${e.score}</b>점`;
+  const [, sm, sd] = S.logDay.split("-");
+  const dowName = "일월화수목금토"[new Date(S.logDay+"T00:00:00").getDay()];
+
   box.innerHTML = `
-  <div class="stats">
-    <div class="stat"><b>${week}</b><span>최근 7일 푼 회차</span></div>
-    <div class="stat"><b>${days.length}</b><span>공부한 날</span></div>
-    <div class="stat"><b>${streak}</b><span>연속 학습일</span></div>
+  <div class="card cal">
+    <div class="cal-h">
+      <button class="icon-btn sm" data-mon="-1" aria-label="이전 달">${svg('<path d="m15 6-6 6 6 6"/>')}</button>
+      <div class="cal-t"><b>${Y}년 ${M}월</b><span>${monthDays}일 공부 · ${monthEntries.length}회차</span></div>
+      <button class="icon-btn sm" data-mon="1" aria-label="다음 달" ${S.logMonth>=t.slice(0,7)?"disabled":""}>${I.right}</button>
+    </div>
+    <div class="cal-w"><span class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="sat">토</span></div>
+    <div class="cal-g">${cells}</div>
+    <div class="cal-f"><span>숫자 = 그날 푼 회차 수</span>${streak?`<span class="tag accent">${streak}일 연속</span>`:""}</div>
   </div>
+
   <div class="card" style="margin-top:12px">
-    <div class="heat"><div class="hmon">${months}</div><div class="hgrid">${cells}</div></div>
-    <div class="hleg"><span>적음</span><i class="h0"></i><i class="h1"></i><i class="h2"></i><i class="h3"></i><i class="h4"></i><span>많음</span></div>
+    <div class="row between" style="align-items:flex-end">
+      <div><div class="label">${+sm}월 ${+sd}일 ${dowName}요일${S.logDay===t?" · 오늘":""}</div>
+        <div class="big-num" style="font-size:32px;margin-top:2px">${es.length}<span>개 회차</span></div></div>
+      ${qAll?`<div style="text-align:right;margin-left:auto"><div class="label">푼 문제</div><div style="font-size:18px;font-weight:700;margin-top:2px">${qAll}문제 <span class="muted" style="font-size:13px;font-weight:600">중 ${qOk}개 정답</span></div><div class="xs muted">정답률 ${Math.round(qOk/qAll*100)}%</div></div>`:""}
+    </div>
+    ${es.length ? Object.entries(groups).map(([g,list])=>`<div class="day-g"><div class="xs muted" style="margin-bottom:4px">${esc(g)}</div>
+        ${list.map(e=>`<div class="day-r"><span class="dot ${e.pass?"ok":"no"}"></span><span class="grow">${esc(e.round)} <span class="muted">${e.read}${l.read}</span></span><span class="${e.pass?"ok":"no"}">${valTxt(e)}</span></div>`).join("")}</div>`).join("")
+      : `<div class="sm muted" style="margin-top:12px">이 날은 기록이 없어요.${S.logDay===t?" 점수표에 맞힌 개수를 적으면 여기에 모여요.":""}</div>`}
   </div>
-  <div class="sec"><div class="sec-title">날짜별 <span>${dated.length}개 회차</span></div>
-  ${days.length ? days.map(d=>{ const es=byDate[d];
-      const groups={}; es.forEach(e=>{ const k=`${e.cert.name} ${e.stage}`; (groups[k] ||= []).push(e); });
-      return `<div class="card day"><div class="day-h"><div><b>${fmtDate(d)}</b>${d===t?` <span class="tag accent">오늘</span>`:""}</div><span class="day-n">${es.length}<small>개 회차</small></span></div>
-        ${Object.entries(groups).map(([k,g])=>`<div class="day-g"><div class="xs muted">${esc(k)} · ${g.length}개</div>${g.map(e=>`<div class="day-r"><span class="grow">${esc(e.round)} <span class="muted">· ${e.read}${l.read}</span></span><span class="${e.pass?"ok":"no"}">${valTxt(e)}</span></div>`).join("")}</div>`).join("")}
-      </div>`; }).join("")
-    : `<div class="card empty"><b>아직 기록이 없어요</b>점수표에 맞힌 개수를 적으면 그날 날짜로 여기에 모여요.</div>`}
-  ${undated?`<div class="xs muted" style="text-align:center;margin-top:10px">날짜가 없는 예전 기록 ${undated}개는 빠져 있어요. 점수표에서 ‘날짜 없음’을 눌러 날짜를 넣을 수 있어요.</div>`:""}
-  </div>`;
+  ${undated?`<div class="xs muted" style="text-align:center;margin-top:12px">날짜가 없는 예전 기록 ${undated}개는 달력에 안 나와요. 점수표의 ‘날짜 없음’을 눌러 날짜를 넣을 수 있어요.</div>`:""}`;
+
+  box.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{ S.logDay=b.dataset.day; render(); });
+  box.querySelectorAll("[data-mon]").forEach(b=>b.onclick=()=>{ const d=new Date(Y, M-1+(+b.dataset.mon), 1);
+    S.logMonth=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+    const daysWith = Object.keys(byDate).filter(k=>k.startsWith(S.logMonth)).sort();
+    S.logDay = S.logMonth===t.slice(0,7) ? t : (daysWith.at(-1) || `${S.logMonth}-01`); render(); });
 }
 
 /* ---------------- 노트 (오답 · 암기카드) ---------------- */
@@ -1136,7 +1182,7 @@ function openStudyNoteForm(n0){
           const j = await aiJSON(`이 사진은 한국 자격증 시험 공부용 교재나 필기 노트입니다. 사진의 학습 내용을 빠짐없이 텍스트로 옮기세요.
 - 표나 목록은 한 줄에 하나씩 '항목 : 내용' 형식으로.
 - 단위 기호(Ω, ℃, ㎥, kgf/cm² 등)는 그대로.
-- 분수·지수·루트 같은 수식은 LaTeX로 쓰고 $ $로 감싸세요.
+- 분수·루트 같은 수식은 LaTeX로 쓰고 $ $로 감싸세요. 단위는 LaTeX 대신 m², s⁻¹, kgf/cm², kg·m/s² 처럼 위첨자 문자와 · 로 쓰세요 (^2, kg.m 금지).
 - 내용과 관계없는 쪽번호·머리글은 빼세요.
 JSON으로만 답하세요: {"title":"짧은 제목","text":"옮긴 내용"}`, [big]);
           const t = $("#snB"); t.value = (t.value.trim() ? t.value.trim()+"\n\n" : "") + String(j.text||"").trim();
@@ -1233,7 +1279,7 @@ function openExamSetup(c, preCat){
 - 오답 보기는 그럴듯하게 만들고, 보기끼리 서로 참조하는 보기(예: ①, ② 모두)는 쓰지 마세요.
 - category에는 그 문제가 나온 노트의 중분류 이름([ ] 안의 이름)을 그대로 쓰세요.
 - explanation에는 정답 근거를 노트 내용으로 1~2문장.
-- 분수·지수 같은 수식은 LaTeX로 쓰고 $ $로 감싸세요. 단위 기호는 그대로.
+- 분수·루트 같은 수식은 LaTeX로 쓰고 $ $로 감싸세요. 단위는 LaTeX 대신 m², s⁻¹, kgf/cm², kg·m/s² 처럼 위첨자 문자와 · 로 쓰세요 (^2, kg.m 금지).
 - summary에는 이번 범위의 핵심 주제와 출제 포인트를 2~3문장으로.
 
 JSON으로만 답하세요:
@@ -1719,7 +1765,7 @@ function aiPrompt(mode, ctx){
 - 4지선다 객관식(필기 등)이면 type="choice", choices에 보기 4개를 번호 기호(①②③④) 없이 순서대로, answer에 정답 번호(1~4)만.
 - 주관식(실기·계산·서술·작업형)이면 type="written", choices는 빈 배열, answers에 정답. 소문항 (1)(2)…이나 답이 여러 개면 각각 따로 나눠 넣으세요.
 - 문제에 그림·도면·회로도·표·그래프가 있으면 hasFigure=true로 하고, question 안의 그림 위치에 [그림]이라고 표시하세요.
-- 글자는 사진 그대로 옮기세요. Ω, ℃, ㎥ 같은 단위 기호도 그대로 쓰세요 (ohm처럼 바꾸지 말 것).\n- 분수·루트·지수·첨자 같은 수식은 LaTeX로 쓰고 반드시 $ $로 감싸세요. 예: $25+j\\frac{100}{3}$, $\\sqrt{3}$, $X_L$, $10^{-3}$. 수식이 아닌 글자는 $ 밖에 쓰세요.
+- 글자는 사진 그대로 옮기세요. Ω, ℃, ㎥ 같은 단위 기호도 그대로 쓰세요 (ohm처럼 바꾸지 말 것).\n- 분수·루트·지수·첨자 같은 수식은 LaTeX로 쓰고 반드시 $ $로 감싸세요. 예: $25+j\\frac{100}{3}$, $\\sqrt{3}$, $X_L$, $10^{-3}$. 수식이 아닌 글자는 $ 밖에 쓰세요.\n- 단위는 LaTeX 대신 m², s⁻¹, kgf/cm², kg·m/s² 처럼 위첨자 문자와 · 로 쓰세요 (^2, kg.m 금지).
 - 사진에 정답·해설이 있으면 그것을 쓰고 answerSource="image". 없으면 직접 풀어서 answerSource="ai". 그림을 그려야 하는 답이면 "[그림 답 — 직접 확인]"이라고 쓰세요.
 - 잘려서 읽을 수 없는 문제는 제외하세요.`;
 }
@@ -1980,6 +2026,10 @@ function openSettings(){
     $("#sOut")&&($("#sOut").onclick=async()=>{ await Store.logout(); S.ready=false; closeDlg(); render(); });
   });
 }
+
+/* ---------------- 맨 위로 버튼 ---------------- */
+(() => { const b=$("#toTop"); const upd=()=>b.classList.toggle("on", window.scrollY>320);
+  window.addEventListener("scroll", upd, { passive:true }); b.onclick=()=>window.scrollTo({ top:0, behavior:"smooth" }); upd(); })();
 
 /* ---------------- 시작 ---------------- */
 Store.init().then(render).catch(e=>{ $("#app").innerHTML=`<div class="wrap login"><div><h2>Firebase 연결 실패</h2><p class="muted sm">${esc(e.message)}</p></div></div>`; });
