@@ -145,6 +145,12 @@ table.sc input{width:56px;text-align:center;border:1px solid transparent;backgro
 table.sc input:focus{outline:2px solid var(--accent);background:var(--surface)}
 table.sc input.fail{color:var(--bad);font-weight:700}
 table.sc input.pass{color:var(--good);font-weight:700}
+table.sc .cv{font-size:11px;font-weight:600;color:var(--muted);margin-top:2px}
+table.sc .cv.fail{color:var(--bad)} table.sc .cv.pass{color:var(--good)}
+table.sc td{vertical-align:top}table.sc td.avg,table.sc td.name{vertical-align:middle}
+.qtot{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;color:var(--ink2)}
+.qtot input{width:64px;text-align:center;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:6px 4px;font-weight:700}
+.qtot input:focus{outline:2px solid var(--accent);outline-offset:-1px}
 table.sc td.avg{font-weight:700;color:var(--ink2)}
 table.sc input.name-in{width:100%;min-width:104px;border:0;background:transparent;font-weight:600;padding:4px 0;text-align:left}
 .chart{position:relative}
@@ -1450,24 +1456,34 @@ function viewScore(el){
   const l=L(); c.rounds = c.rounds||[];
   const stage = c.stages.includes(S.sel.stage) ? S.sel.stage : c.stages[0];
   const rounds = c.rounds.filter(r=>r.stage===stage);
+  // 필기(객관식)는 맞힌 개수로 입력 → 100점 환산, 실기는 점수 그대로
+  const cntMode = S.tab==="cert" && defaultType(stage)==="choice";
+  c.qTotal = c.qTotal || {};
+  const total = cntMode ? (+c.qTotal[stage] || defaultQTotal(c.name)) : 0;
+  const toScore = n => Math.round(n*1000/total)/10;
+  if (cntMode) rounds.forEach(r=>{ if (!r.correct) r.correct = r.scores.map(v=>v===null||v===undefined||v===""?null:Math.round(v*total/100)); r.scores = r.correct.map(n=>n===null||n===undefined?null:toScore(n)); });
   const nCols = Math.max(1, ...rounds.map(r=>r.scores.length)) + 1;
   const avgOf = arr => { const v=arr.filter(x=>x!==null&&x!==""&&!isNaN(x)); return v.length? Math.round(v.reduce((a,b)=>a+ +b,0)/v.length*10)/10 : null; };
   const colAvg = i => avgOf(rounds.map(r=>r.scores[i]));
   el.innerHTML = `
   <div class="stack">
     ${certPicker(c)}
-    ${c.stages.length>1?`<div class="seg">${c.stages.map(s=>`<button data-stage="${esc(s)}" class="${s===stage?"on":""}">${esc(s)}</button>`).join("")}</div>`:""}
+    <div class="row" style="gap:10px">
+      ${c.stages.length>1?`<div class="seg">${c.stages.map(s=>`<button data-stage="${esc(s)}" class="${s===stage?"on":""}">${esc(s)}</button>`).join("")}</div>`:""}
+      ${cntMode?`<label class="qtot">총 <input id="qTotal" type="number" inputmode="numeric" min="1" max="500" value="${total}"> 문제</label>`:""}
+    </div>
     <div class="card">
-      <div class="row between" style="margin-bottom:8px"><h2>${esc(c.name)} ${c.stages.length>1?esc(stage):""}</h2><span class="xs muted">${S.tab==="cert"?"합격선":"목표"} ${c.pass}점 · 빨간 숫자는 미달</span></div>
+      <div class="row between" style="margin-bottom:8px"><h2>${esc(c.name)} ${c.stages.length>1?esc(stage):""}</h2><span class="xs muted">${cntMode?`맞힌 개수 입력 · ${total}문제 = 100점 · `:""}${S.tab==="cert"?"합격선":"목표"} ${c.pass}점 · 빨간 숫자는 미달</span></div>
       ${rounds.length? `<div class="tbl-wrap"><table class="sc">
         <thead><tr><th style="text-align:left">${l.round}</th>${Array.from({length:nCols},(_,i)=>`<th>${i+1}${l.read}</th>`).join("")}<th>평균</th><th></th></tr></thead>
         <tbody>${rounds.map(r=>`<tr>
           <td class="name"><input class="name-in" data-rname="${r.id}" value="${esc(r.name)}"></td>
           ${Array.from({length:nCols},(_,i)=>{ const v=r.scores[i]; const cls = v===null||v===undefined||v===""?"":(+v>=c.pass?"pass":"fail");
-            return `<td><input inputmode="decimal" class="${cls}" data-r="${r.id}" data-i="${i}" value="${v??""}" aria-label="${esc(r.name)} ${i+1}${l.read}"></td>`; }).join("")}
-          <td class="avg">${avgOf(r.scores)??"-"}</td>
+            const shown = cntMode ? (r.correct?.[i] ?? "") : (v ?? "");
+            return `<td><input inputmode="${cntMode?"numeric":"decimal"}" class="${cls}" data-r="${r.id}" data-i="${i}" value="${shown}" placeholder="${cntMode?"개":""}" aria-label="${esc(r.name)} ${i+1}${l.read} ${cntMode?"맞힌 개수":"점수"}">${cntMode&&v!==null&&v!==undefined?`<div class="cv ${cls}">${v}점</div>`:""}</td>`; }).join("")}
+          <td class="avg">${avgOf(r.scores)!==null?avgOf(r.scores)+(cntMode?"점":""):"-"}</td>
           <td><button class="btn sm ghost" data-rdel="${r.id}" aria-label="삭제">✕</button></td></tr>`).join("")}
-          <tr><td class="name xs muted">${l.read}별 평균</td>${Array.from({length:nCols},(_,i)=>`<td class="avg">${colAvg(i)??""}</td>`).join("")}<td></td><td></td></tr>
+          <tr><td class="name xs muted">${l.read}별 평균</td>${Array.from({length:nCols},(_,i)=>`<td class="avg">${colAvg(i)!==null?colAvg(i)+(cntMode?"점":""):""}</td>`).join("")}<td></td><td></td></tr>
         </tbody></table></div>` : `<div class="empty"><b>${l.round}을 추가하세요</b>${S.tab==="cert"?"예: 2023년 1회":"예: ETS 1회"}</div>`}
       <div class="row" style="margin-top:10px">
         <input class="in grow" id="rName" placeholder="${S.tab==="cert"?"2024년 2회":"모의고사 3회"}" style="flex:1 1 140px">
@@ -1483,30 +1499,44 @@ function viewScore(el){
   el.querySelectorAll("input[data-r]").forEach(inp=>{
     inp.onchange = () => {
       const r=c.rounds.find(x=>x.id===inp.dataset.r), i=+inp.dataset.i, v=inp.value.trim();
-      while (r.scores.length<=i) r.scores.push(null);
-      r.scores[i] = v===""? null : +v;
-      while (r.scores.length && (r.scores.at(-1)===null)) r.scores.pop();
+      if (cntMode){
+        const n = v==="" ? null : Math.round(+v);
+        if (n!==null && (isNaN(n) || n<0 || n>total)) { toast(`0~${total} 사이 개수를 입력하세요`); inp.value = r.correct?.[i] ?? ""; return; }
+        r.correct = r.correct || [];
+        while (r.correct.length<=i) r.correct.push(null);
+        r.correct[i] = n;
+        while (r.correct.length && r.correct.at(-1)===null) r.correct.pop();
+        r.scores = r.correct.map(x=>x===null||x===undefined?null:toScore(x));
+      } else {
+        while (r.scores.length<=i) r.scores.push(null);
+        r.scores[i] = v===""? null : +v;
+        while (r.scores.length && (r.scores.at(-1)===null)) r.scores.pop();
+      }
       persist(); render();
       setTimeout(()=>{ const n=document.querySelector(`input[data-r="${r.id}"][data-i="${i+1}"]`); n && n.focus(); },0);
     };
     inp.onkeydown = e => { if (e.key==="Enter") inp.blur(); };
   });
+  $("#qTotal") && ($("#qTotal").onchange = e => { const t=Math.round(+e.target.value); if(!t||t<1){ e.target.value=total; return; }
+    const over = rounds.some(r=>(r.correct||[]).some(n=>n!==null&&n>t)); if (over && !confirm(`${t}문제보다 많이 맞힌 기록이 있어요. 그래도 바꿀까요?`)) { e.target.value=total; return; }
+    c.qTotal[stage]=t; rounds.forEach(r=>{ r.scores=(r.correct||[]).map(n=>n===null||n===undefined?null:Math.round(Math.min(n,t)*1000/t)/10); }); persist(); render(); toast(`총 ${t}문제 기준으로 다시 계산했어요`); });
   el.querySelectorAll("[data-rname]").forEach(inp=>inp.onchange=()=>{ c.rounds.find(x=>x.id===inp.dataset.rname).name=inp.value.trim(); persist(); });
   el.querySelectorAll("[data-rdel]").forEach(b=>b.onclick=()=>{ const r=c.rounds.find(x=>x.id===b.dataset.rdel); if(!confirm(`${r.name} 기록을 삭제할까요?`))return; c.rounds=c.rounds.filter(x=>x.id!==r.id); persist(); render(); });
-  const add = () => { const n=$("#rName").value.trim(); if(!n) return $("#rName").focus(); c.rounds.push({id:uid(),stage,name:n,scores:[]}); persist(); render(); };
+  const add = () => { const n=$("#rName").value.trim(); if(!n) return $("#rName").focus(); c.rounds.push({id:uid(),stage,name:n,scores:[],...(cntMode?{correct:[]}:{})}); persist(); render(); };
   $("#rAdd").onclick = add; $("#rName").onkeydown = e => { if(e.key==="Enter") add(); };
   $("#rBulk") && ($("#rBulk").onclick = () => {
     const y=new Date().getFullYear();
     dialog("기출 회차 한 번에 추가", `<div class="grid2"><div><label class="f">시작 연도</label><input class="in" id="bY1" type="number" value="${y-4}"></div><div><label class="f">끝 연도</label><input class="in" id="bY2" type="number" value="${y-1}"></div><div><label class="f">연간 회차 수</label><input class="in" id="bN" type="number" value="${/기능장/.test(c.name)?2:3}"></div></div><p class="xs muted">‘2023년 1회’ 형식으로 만들어집니다.</p>`,
       `<button class="btn" data-close>취소</button><button class="btn primary" id="bGo">추가</button>`, ()=>{
         $("#bGo").onclick=()=>{ const a=+$("#bY1").value,b=+$("#bY2").value,n=+$("#bN").value; let k=0;
-          for(let yy=Math.min(a,b); yy<=Math.max(a,b); yy++) for(let i=1;i<=n;i++){ const nm=`${yy}년 ${i}회`; if(!c.rounds.some(r=>r.stage===stage&&r.name===nm)){ c.rounds.push({id:uid(),stage,name:nm,scores:[]}); k++; } }
+          for(let yy=Math.min(a,b); yy<=Math.max(a,b); yy++) for(let i=1;i<=n;i++){ const nm=`${yy}년 ${i}회`; if(!c.rounds.some(r=>r.stage===stage&&r.name===nm)){ c.rounds.push({id:uid(),stage,name:nm,scores:[],...(cntMode?{correct:[]}:{})}); k++; } }
           persist(); closeDlg(); render(); toast(`${k}개 회차를 추가했어요`); };
       });
   });
   drawChart($("#chart"), rounds, c, nCols-1, l);
 }
 
+function defaultQTotal(name){ return /산업기사/.test(name)?80 : /기사/.test(name)?100 : 60; }   // 기능장·기능사 60, 산업기사 80, 기사 100
 function drawChart(box, rounds, c, n, l){
   if (n<1 || !rounds.some(r=>r.scores.some(v=>v!==null))){ box.innerHTML=`<div class="sm muted">점수를 입력하면 ${l.read}이 쌓일수록 어떻게 변하는지 보여드려요.</div>`; return; }
   const W=Math.max(300, Math.round(box.clientWidth||640)), H=Math.round(Math.min(280, Math.max(200, W*.5))), P={l:36,r:16,t:14,b:30}, iw=W-P.l-P.r, ih=H-P.t-P.b;
