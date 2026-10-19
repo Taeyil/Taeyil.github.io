@@ -17,6 +17,7 @@ from datetime import datetime, timezone, timedelta
 AUTH_HOST = os.environ.get("HYUNDAI_AUTH_HOST") or "https://prd.kr-ccapi.hyundai.com"
 API_HOST = os.environ.get("HYUNDAI_API_HOST") or "https://dev.kr-ccapi.hyundai.com"
 OUT = os.environ.get("ODO_PATH") or "car/odo.json"
+CONSENT = os.path.join(os.path.dirname(OUT) or ".", "consent.json")
 KST = timezone(timedelta(hours=9))
 
 
@@ -52,7 +53,9 @@ def get_tokens():
     mask(sec)
     basic = base64.b64encode(f"{cid}:{sec}".encode()).decode()
     h = {"Authorization": f"Basic {basic}", "Content-Type": "application/x-www-form-urlencoded"}
-    code = env("AUTH_CODE", required=False)
+    raw = env("AUTH_CODE", required=False)
+    code, _, pubkey = raw.partition("|")
+    code = code.strip()
     if code:
         data = {"grant_type": "authorization_code", "code": code,
                 "redirect_uri": env("HYUNDAI_REDIRECT_URI")}
@@ -69,7 +72,7 @@ def get_tokens():
     old_rt = os.environ.get("HYUNDAI_REFRESH_TOKEN", "")
     if new_rt and new_rt != old_rt:
         save_secret("HYUNDAI_REFRESH_TOKEN", new_rt)
-    return at
+    return at, pubkey.strip()
 
 
 def save_secret(name, value):
@@ -131,8 +134,33 @@ def pick_odometer(res):
     return round(km, 1), (ts or None)
 
 
+def write_consent(at, pubkey_b64):
+    """데이터 제공 동의용 access token을 hyundai.html 이 만든 공개키로 암호화해서 저장.
+    저장소가 공개라도 복호화 키는 그 브라우저에만 있음."""
+    from cryptography.hazmat.primitives import hashes, serialization
+    from cryptography.hazmat.primitives.asymmetric import padding
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+    pub = serialization.load_der_public_key(base64.b64decode(pubkey_b64))
+    key = AESGCM.generate_key(bit_length=256)
+    iv = os.urandom(12)
+    ct = AESGCM(key).encrypt(iv, at.encode(), None)
+    ek = pub.encrypt(key, padding.OAEP(mgf=padding.MGF1(hashes.SHA256()), algorithm=hashes.SHA256(), label=None))
+    b = lambda x: base64.b64encode(x).decode()
+    os.makedirs(os.path.dirname(CONSENT) or ".", exist_ok=True)
+    with open(CONSENT, "w", encoding="utf-8") as f:
+        json.dump({"ek": b(ek), "iv": b(iv), "ct": b(ct),
+                   "createdAt": datetime.now(KST).isoformat(timespec="seconds")}, f)
+    print(f"{CONSENT} 저장 — 같은 브라우저에서 hyundai.html 을 열어 동의를 진행하세요")
+
+
 def main():
-    at = get_tokens()
+    at, pubkey = get_tokens()
+    if pubkey:
+        write_consent(at, pubkey)
+        return
+    if os.path.exists(CONSENT):
+        os.remove(CONSENT)
+        print("동의용 임시 파일 삭제")
     car_id = find_car_id(at)
     mask(car_id)
     res = http("GET", f"{API_HOST}/api/v1/car/status/{car_id}/odometer",
