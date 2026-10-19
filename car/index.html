@@ -112,7 +112,12 @@ table.rep td,table.rep th{text-align:right;font-variant-numeric:tabular-nums;whi
 table.rep td:first-child,table.rep th:first-child{text-align:left}
 table.rep tr.dim td{color:var(--sub)}
 table.rep tfoot td{font-weight:800;border-top:2px solid var(--line)}
-svg.bars{width:100%;height:170px;display:block}
+svg.bars{width:100%;height:170px;display:block;margin-top:4px}
+.rsum{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:14px 0 2px}
+.rsum b{font-size:26px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.rsum span{font-size:13px;color:var(--sub)}
+table.rep th.on,table.rep td.on{color:var(--pri);font-weight:800}
+table.rep{margin-top:6px}
 </style>
 </head>
 <body>
@@ -232,12 +237,21 @@ const FIREBASE_COLLECTION = "carnote";
       <div class="muted" id="rCompare" style="margin-top:10px"></div>
     </div>
     <div class="card">
-      <h2>월별 지출 <span class="muted" style="font-weight:600"><span style="color:var(--pri)">■</span> 주유 <span style="color:var(--warn)">■</span> 정비</span></h2>
+      <h2>운행 · 주유 리포트</h2>
+      <div class="seg" id="rPer" style="margin-bottom:8px">
+        <button data-p="m" onclick="setRep('per','m')">월별</button>
+        <button data-p="y" onclick="setRep('per','y')">연별</button>
+      </div>
+      <div class="seg" id="rMet">
+        <button data-k="dist" onclick="setRep('met','dist')">운행거리</button>
+        <button data-k="liters" onclick="setRep('met','liters')">주유량</button>
+        <button data-k="fuel" onclick="setRep('met','fuel')">주유비</button>
+        <button data-k="total" onclick="setRep('met','total')">총비용</button>
+      </div>
+      <div class="rsum" id="rSum"></div>
       <div id="rChart"></div>
-    </div>
-    <div class="card">
-      <h2>월별 상세</h2>
-      <table class="cyc rep"><thead><tr><th>월</th><th>주유</th><th>정비</th><th>주행</th><th>연비</th></tr></thead><tbody id="rTable"></tbody><tfoot id="rFoot"></tfoot></table>
+      <table class="cyc rep"><thead id="rHead"></thead><tbody id="rTable"></tbody><tfoot id="rFoot"></tfoot></table>
+      <p class="note" style="font-size:11.5px;margin:8px 0 0">총비용 = 주유비 + 정비비. 운행거리는 그 기간의 마지막 km 기록에서 이전 기간 마지막 km를 뺀 값입니다.</p>
     </div>
     <div class="card">
       <h2>정비 항목별 지출</h2>
@@ -585,6 +599,65 @@ function renderChart(fc){
 
 /* ===================== 리포트 ===================== */
 let RY = new Date().getFullYear();
+let REP = { per:'m', met:'dist' };
+try{ Object.assign(REP, JSON.parse(localStorage.getItem('carnote_rep')||'{}')); }catch(e){}
+function setRep(k,v){ REP[k]=v; try{ localStorage.setItem('carnote_rep', JSON.stringify(REP)); }catch(e){} renderReport(); }
+const MET = {
+  dist:   { name:'운행거리', unit:'km', fmt:v=>v? Math.round(v).toLocaleString('ko-KR'):'-', big:v=>Math.round(v).toLocaleString('ko-KR')+'km', short:v=>v>=10000?(v/1000).toFixed(0)+'k':Math.round(v).toLocaleString('ko-KR') },
+  liters: { name:'주유량', unit:'L', fmt:v=>v? v.toFixed(1):'-', big:v=>v.toFixed(1)+'L', short:v=>Math.round(v) },
+  fuel:   { name:'주유비', unit:'원', fmt:v=>v? Math.round(v/1000).toLocaleString('ko-KR')+'천':'-', big:v=>won(v), short:v=>v>=10000?Math.round(v/10000)+'만':(v/10000).toFixed(1)+'만' },
+  total:  { name:'총비용', unit:'원', fmt:v=>v? Math.round(v/1000).toLocaleString('ko-KR')+'천':'-', big:v=>won(v), short:v=>v>=10000?Math.round(v/10000)+'만':(v/10000).toFixed(1)+'만' },
+};
+function dataYears(){
+  const ys = [...S.odo,...S.fuel,...S.maint].map(r=>+String(r.date).slice(0,4)).filter(Boolean);
+  const nowY = new Date().getFullYear();
+  if(!ys.length) return [nowY];
+  const out=[]; for(let y=Math.min(...ys); y<=nowY; y++) out.push(y); return out;
+}
+function renderRepChart(st){
+  document.querySelectorAll('#rPer button').forEach(b=>b.classList.toggle('on', b.dataset.p===REP.per));
+  document.querySelectorAll('#rMet button').forEach(b=>b.classList.toggle('on', b.dataset.k===REP.met));
+  const M = MET[REP.met], k = REP.met;
+  const nowY = new Date().getFullYear(), nowM = new Date().getMonth()+1;
+  let rows;
+  if(REP.per==='m'){
+    rows = st.months.map(m=>({ label:m.mo+'월', short:String(m.mo), dist:m.dist||0, liters:m.liters, fuel:m.fuel, total:m.fuel+m.maint,
+      future: RY>nowY || (RY===nowY && m.mo>nowM), cur: RY===nowY && m.mo===nowM }));
+  }else{
+    rows = dataYears().map(y=>{ const s = y===RY ? st : yearStats(y);
+      return { label:y+'년', short:String(y).slice(2)+'년', dist:s.dist>0?s.dist:0, liters:s.liters, fuel:s.fuel, total:s.total, cur:y===nowY }; });
+  }
+  const live = rows.filter(r=>!r.future);
+  const total = live.reduce((s,r)=>s+(r[k]||0),0);
+  const withVal = live.filter(r=>r[k]>0).length;
+  const avgLabel = REP.per==='m' ? '월평균' : '연평균';
+  const div = REP.per==='m' ? (RY===nowY ? nowM : 12) : live.length;
+  $('rSum').innerHTML = total
+    ? `<b>${M.big(total)}</b><span>${REP.per==='m'? RY+'년 합계':'전체 합계'} · ${avgLabel} ${M.big(total/Math.max(div,1))}</span>`
+    : `<b>-</b><span>${REP.per==='m'? RY+'년':'기록된'} ${M.name} 기록이 없습니다</span>`;
+
+  // 막대그래프
+  const W=600,H=170,pl=4,pb=22,pt=16, n=Math.max(rows.length, REP.per==='m'?12:4);
+  const mx = Math.max(...rows.map(r=>r[k]||0), 1), bw=(W-pl*2)/n;
+  const bars = rows.map((r,i)=>{
+    const x=pl+i*bw+bw*0.2, w=bw*0.6, v=r[k]||0, hh=(v/mx)*(H-pb-pt), y=H-pb-hh;
+    const col = r.cur ? 'var(--pri)' : 'color-mix(in srgb, var(--pri) 55%, transparent)';
+    return `${v?`<rect x="${x}" y="${y}" width="${w}" height="${Math.max(hh,2)}" rx="3" fill="${col}"><title>${r.label} ${M.big(v)}</title></rect>
+      <text x="${x+w/2}" y="${y-4}" text-anchor="middle" font-size="10" fill="var(--sub)">${M.short(v)}</text>`:''}
+      <text x="${x+w/2}" y="${H-6}" text-anchor="middle" font-size="11" fill="${r.future?'var(--line)':'var(--sub)'}" font-weight="${r.cur?700:400}">${r.short}</text>`;
+  }).join('');
+  $('rChart').innerHTML = withVal ? `<svg class="bars" viewBox="0 0 ${W} ${H}">${bars}</svg>` : '';
+
+  // 표
+  const cols = [['dist','운행 km'],['liters','주유 L'],['fuel','주유비'],['total','총비용']];
+  $('rHead').innerHTML = `<tr><th>${REP.per==='m'?'월':'연도'}</th>${cols.map(([c,t])=>`<th class="${c===k?'on':''}">${t}</th>`).join('')}</tr>`;
+  $('rTable').innerHTML = live.slice().reverse().map(r=>{
+    const empty = !r.dist && !r.liters && !r.total;
+    return `<tr class="${empty?'dim':''}"><td>${r.label}</td>${cols.map(([c])=>`<td class="${c===k?'on':''}">${MET[c].fmt(r[c])}</td>`).join('')}</tr>`;
+  }).join('');
+  const sum = c => live.reduce((s,r)=>s+(r[c]||0),0);
+  $('rFoot').innerHTML = `<tr><td>합계</td>${cols.map(([c])=>`<td class="${c===k?'on':''}">${MET[c].fmt(sum(c))}</td>`).join('')}</tr>`;
+}
 function repYear(d){ RY += d; renderReport(); }
 // 해당 날짜(포함)까지 기록된 최대 km
 function kmAt(dateStr){
@@ -634,31 +707,7 @@ function renderReport(){
       + (prev.eff && st.eff ? ` · 연비 ${(st.eff-prev.eff>=0?'+':'')}${(st.eff-prev.eff).toFixed(1)} km/L` : '');
   } else $('rCompare').textContent = '';
 
-  // 막대그래프 (주유+정비 누적)
-  const W=600,H=170,pl=4,pb=20,pt=14; const mx = Math.max(...st.months.map(m=>m.fuel+m.maint), 1);
-  const bw = (W-pl*2)/12;
-  const bars = st.months.map((m,i)=>{
-    const x = pl+i*bw+bw*0.18, w = bw*0.64;
-    const hf = (m.fuel/mx)*(H-pb-pt), hm = (m.maint/mx)*(H-pb-pt);
-    const yF = H-pb-hf, yM = yF-hm;
-    const lbl = (m.fuel+m.maint) ? `<text x="${x+w/2}" y="${yM-3}" text-anchor="middle" font-size="10" fill="var(--sub)">${Math.round((m.fuel+m.maint)/10000)||'<1'}만</text>` : '';
-    return `${hf?`<rect x="${x}" y="${yF}" width="${w}" height="${hf}" rx="3" fill="var(--pri)"/>`:''}
-      ${hm?`<rect x="${x}" y="${yM}" width="${w}" height="${hm}" rx="3" fill="var(--warn)"/>`:''}${lbl}
-      <text x="${x+w/2}" y="${H-5}" text-anchor="middle" font-size="11" fill="var(--sub)">${m.mo}</text>`;
-  }).join('');
-  $('rChart').innerHTML = st.total ? `<svg class="bars" viewBox="0 0 ${W} ${H}">${bars}</svg>` : '<div class="empty">이 해에는 기록이 없습니다</div>';
-
-  // 월별 표
-  const curKey = `${nowY}-${String(nowM).padStart(2,'0')}`;
-  $('rTable').innerHTML = st.months.map(m=>{
-    const key = `${RY}-${String(m.mo).padStart(2,'0')}`;
-    if(key>curKey) return '';
-    const empty = !m.fuel && !m.maint && !m.dist;
-    const e = m.el? (m.ed/m.el).toFixed(1) : '-';
-    return `<tr class="${empty?'dim':''}"><td>${m.mo}월</td><td>${m.fuel?Math.round(m.fuel/1000).toLocaleString()+'천':'-'}</td>
-      <td>${m.maint?Math.round(m.maint/1000).toLocaleString()+'천':'-'}</td><td>${m.dist?m.dist.toLocaleString():'-'}</td><td>${e}</td></tr>`;
-  }).reverse().join('');
-  $('rFoot').innerHTML = `<tr><td>합계</td><td>${st.fuel?Math.round(st.fuel/1000).toLocaleString()+'천':'-'}</td><td>${st.maint?Math.round(st.maint/1000).toLocaleString()+'천':'-'}</td><td>${st.dist>0?st.dist.toLocaleString():'-'}</td><td>${st.eff?st.eff.toFixed(1):'-'}</td></tr>`;
+  renderRepChart(st);
 
   // 항목별 지출 (여러 항목을 한 번에 한 정비는 '묶음'으로 표시)
   const nameOf = k => (S.items.find(i=>i.key===k)||{name:k}).name;
@@ -724,9 +773,12 @@ function applyAutoOdo(){
   render();
 }
 function autoInfoText(){
-  if(!AUTO) return '';
-  const t = (AUTO.fetchedAt||'').replace('T',' ').slice(5,16).replace('-','.');
-  return `🔄 블루링크 자동 연동 · ${t} 갱신`;
+  if(!AUTO || !AUTO.fetchedAt) return '';
+  const f = new Date(AUTO.fetchedAt);
+  if(isNaN(f)) return '🔄 블루링크 자동 연동';
+  const mins = Math.round((Date.now()-f)/60000);
+  const ago = mins < 1 ? '방금' : mins < 60 ? `${mins}분 전` : mins < 1440 ? `${Math.round(mins/60)}시간 전` : `${Math.round(mins/1440)}일 전`;
+  return `🔄 블루링크 자동 연동 · ${ago} 확인` + (mins > 8*60 ? ' ⚠️' : '');
 }
 
 /* ===================== 처음 설정 ===================== */
