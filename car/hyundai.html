@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>블루링크 연결</title>
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--ink:#111827;--sub:#6b7280;--line:#e5e7eb;--pri:#2563eb}
+@media (prefers-color-scheme: dark){:root{--bg:#0b0f17;--card:#151b26;--ink:#e5e7eb;--sub:#94a3b8;--line:#253041;--pri:#60a5fa}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.wrap{max-width:520px;margin:0 auto;padding:20px 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+h1{font-size:20px;margin:6px 0 14px}
+h2{font-size:15px;margin:0 0 8px}
+p,li{font-size:14px;line-height:1.6;color:var(--sub)}
+ol{padding-left:18px;margin:0}
+input{width:100%;font:inherit;font-size:16px;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);margin:6px 0 10px}
+button,a.btn{display:block;width:100%;text-align:center;text-decoration:none;border:0;border-radius:12px;padding:12px;font:inherit;font-weight:700;font-size:15px;background:var(--pri);color:#fff;cursor:pointer}
+code{background:var(--bg);padding:2px 6px;border-radius:6px;font-size:13px;word-break:break-all}
+.code{font-family:ui-monospace,monospace;font-size:15px;word-break:break-all;background:var(--bg);border-radius:12px;padding:12px;margin:8px 0;color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>블루링크 주행거리 연결</h1>
+
+  <div class="card" id="resultCard" style="display:none">
+    <h2>인증 코드</h2>
+    <div class="code" id="code"></div>
+    <button onclick="copyCode()">코드 복사</button>
+    <p>복사한 뒤 바로 GitHub 저장소 → <b>Actions</b> → <b>현대 주행거리 자동 갱신</b> → <b>Run workflow</b>에서 <code>auth_code</code> 칸에 붙여넣고 실행하세요. 코드는 몇 분 안에 만료됩니다.</p>
+  </div>
+
+  <div class="card">
+    <h2>1. 현대 계정 로그인</h2>
+    <p>현대 Developers 콘솔 → 설정에 있는 Client ID를 입력하세요. (Client Secret은 여기 넣지 않습니다)</p>
+    <input id="cid" placeholder="Client ID" autocomplete="off">
+    <p style="margin:0 0 10px">콘솔의 Redirect URI에는 아래 주소를 그대로 등록해야 합니다.<br><code id="redir"></code></p>
+    <button onclick="login()">현대 계정으로 로그인</button>
+  </div>
+</div>
+<script>
+const REDIRECT = location.origin + location.pathname;
+document.getElementById('redir').textContent = REDIRECT;
+const cidEl = document.getElementById('cid');
+try{ cidEl.value = localStorage.getItem('hyundai_cid') || ''; }catch(e){}
+
+function login(){
+  const cid = cidEl.value.trim();
+  if(!cid) return alert('Client ID를 입력하세요');
+  try{ localStorage.setItem('hyundai_cid', cid); }catch(e){}
+  const state = Math.random().toString(36).slice(2);
+  try{ sessionStorage.setItem('hyundai_state', state); }catch(e){}
+  const q = new URLSearchParams({response_type:'code', client_id:cid, redirect_uri:REDIRECT, state});
+  location.href = 'https://prd.kr-ccapi.hyundai.com/api/v1/user/oauth2/authorize?' + q;
+}
+
+const p = new URLSearchParams(location.search);
+if(p.get('code')){
+  let ok = true;
+  try{ const s = sessionStorage.getItem('hyundai_state'); ok = !s || s === p.get('state'); }catch(e){}
+  document.getElementById('resultCard').style.display = 'block';
+  document.getElementById('code').textContent = ok ? p.get('code') : '상태값이 맞지 않습니다. 다시 로그인하세요.';
+  history.replaceState(null, '', location.pathname);
+}
+if(p.get('error')){
+  document.getElementById('resultCard').style.display = 'block';
+  document.getElementById('code').textContent = '오류: ' + p.get('error') + ' ' + (p.get('error_description')||'');
+}
+function copyCode(){
+  const t = document.getElementById('code').textContent;
+  navigator.clipboard.writeText(t).then(()=>alert('복사했습니다'), ()=>prompt('길게 눌러 복사하세요', t));
+}
+</script>
+</body>
+</html>
