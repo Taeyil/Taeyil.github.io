@@ -175,12 +175,13 @@ def main():
             prev = json.load(open(OUT, encoding="utf-8"))
         except Exception:
             prev = {}
-    if prev.get("km") == km:
-        print("변경 없음 — 저장 안 함")
-        return
+    changed = prev.get("km") != km
+    print("주행거리 변경됨" if changed else "주행거리 변화 없음 (확인 시각만 기록)")
     os.makedirs(os.path.dirname(OUT) or ".", exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
-        json.dump({"km": km, "measuredAt": ts, "fetchedAt": now, "source": "hyundai"}, f, ensure_ascii=False, indent=1)
+        json.dump({"km": km, "measuredAt": ts, "fetchedAt": now,
+                   "changedAt": now if changed else prev.get("changedAt", prev.get("fetchedAt")),
+                   "source": "hyundai"}, f, ensure_ascii=False, indent=1)
     print(f"{OUT} 저장")
 
 
