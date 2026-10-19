@@ -1,0 +1,830 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>차 관리 노트</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{
+  --bg:#f4f5f7; --card:#fff; --ink:#111827; --sub:#6b7280; --line:#e5e7eb;
+  --pri:#2563eb; --pri-soft:#e8efff; --ok:#16a34a; --warn:#d97706; --bad:#dc2626; --none:#9ca3af;
+  --radius:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0b0f17; --card:#151b26; --ink:#e5e7eb; --sub:#94a3b8; --line:#253041;
+    --pri:#60a5fa; --pri-soft:#1b2a44; }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  -webkit-tap-highlight-color:transparent}
+body{padding-bottom:calc(80px + env(safe-area-inset-bottom))}
+.wrap{max-width:720px;margin:0 auto;padding:16px}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 0 14px}
+header.top h1{font-size:20px;margin:0;font-weight:800}
+header.top .carname{color:var(--sub);font-size:13px;margin-top:2px}
+.sync{font-size:11px;color:var(--sub);padding:4px 8px;border:1px solid var(--line);border-radius:99px;white-space:nowrap}
+.card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:12px;border:1px solid var(--line)}
+.card h2{font-size:15px;margin:0 0 10px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.odo{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+.odo .big{font-size:34px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.odo .big small{font-size:16px;color:var(--sub);font-weight:600;margin-left:4px}
+.muted{color:var(--sub);font-size:13px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--bg);border-radius:12px;padding:12px}
+.stat .k{font-size:12px;color:var(--sub)}
+.stat .v{font-size:19px;font-weight:800;margin-top:2px;font-variant-numeric:tabular-nums}
+.btn{appearance:none;border:0;border-radius:12px;padding:11px 14px;font:inherit;font-weight:700;cursor:pointer;
+  background:var(--pri);color:#fff;font-size:14px}
+.btn.ghost{background:var(--pri-soft);color:var(--pri)}
+.btn.line{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn.danger{background:transparent;color:var(--bad);border:1px solid var(--bad)}
+.btn.sm{padding:7px 10px;font-size:13px;border-radius:10px}
+.btn.full{width:100%}
+.row{display:flex;gap:8px;align-items:center}
+.list .it{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}
+.list .it:first-child{border-top:0}
+.it .l{min-width:0}
+.it .t{font-weight:700;font-size:15px}
+.it .s{font-size:12px;color:var(--sub);margin-top:2px}
+.it .r{text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums}
+.it .r .t{font-size:15px}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:99px;margin-left:6px;vertical-align:middle}
+.b-ok{background:#dcfce7;color:#166534}.b-warn{background:#fef3c7;color:#92400e}
+.b-bad{background:#fee2e2;color:#991b1b}.b-none{background:var(--bg);color:var(--sub)}
+.bar{height:6px;background:var(--bg);border-radius:99px;overflow:hidden;margin-top:7px}
+.bar i{display:block;height:100%;border-radius:99px}
+.due .it{display:block}
+.due .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.empty{text-align:center;color:var(--sub);padding:18px 0;font-size:14px}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
+  display:flex;justify-content:space-around;padding:6px 6px calc(6px + env(safe-area-inset-bottom));z-index:20}
+nav.tabs button{flex:1;background:none;border:0;font:inherit;color:var(--sub);padding:6px 0;font-size:12px;font-weight:600;cursor:pointer}
+nav.tabs button .ic{display:block;font-size:20px;line-height:1.2}
+nav.tabs button.on{color:var(--pri)}
+.fab{position:fixed;right:18px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:21;
+  width:56px;height:56px;border-radius:50%;font-size:28px;line-height:56px;text-align:center;padding:0;box-shadow:0 6px 18px rgba(37,99,235,.35)}
+section.page{display:none}section.page.on{display:block}
+/* sheet */
+.dim{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:40;display:none}
+.dim.on{display:block}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;background:var(--card);border-radius:20px 20px 0 0;
+  max-height:92vh;overflow:auto;padding:18px 16px calc(18px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .22s ease}
+.sheet.on{transform:none}
+.sheet .inner{max-width:640px;margin:0 auto}
+.sheet h3{margin:0 0 14px;font-size:18px}
+label.f{display:block;margin-bottom:12px}
+label.f span{display:block;font-size:13px;color:var(--sub);margin-bottom:5px;font-weight:600}
+input,select,textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;border-radius:12px;border:1px solid var(--line);
+  background:var(--bg);color:var(--ink);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--pri)}
+.calc{background:var(--pri-soft);color:var(--pri);border-radius:12px;padding:12px;font-weight:700;font-size:14px;margin-bottom:12px;line-height:1.6}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:99px;padding:7px 11px;font-size:13px;cursor:pointer;user-select:none}
+.chip.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.chk{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:14px}
+.chk input{width:20px;height:20px}
+.warnbox{background:#fef3c7;color:#92400e;border-radius:10px;padding:9px 11px;font-size:13px;margin-bottom:12px;display:none}
+table.cyc{width:100%;border-collapse:collapse;font-size:13px}
+table.cyc th,table.cyc td{padding:7px 4px;border-top:1px solid var(--line);text-align:left;vertical-align:middle}
+table.cyc th{color:var(--sub);font-weight:600;border-top:0}
+table.cyc input{padding:7px 6px;font-size:14px;border-radius:8px;min-width:0}
+table.cyc td.n{width:40%}
+.note{font-size:11px;color:var(--sub);margin-top:2px;line-height:1.4}
+.seg{display:flex;background:var(--bg);border-radius:12px;padding:3px;gap:3px}
+.seg button{flex:1;border:0;background:none;font:inherit;font-size:13px;font-weight:700;padding:8px;border-radius:10px;color:var(--sub);cursor:pointer}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+svg.spark{width:100%;height:90px;display:block}
+.toast{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#111827;color:#fff;
+  padding:10px 16px;border-radius:99px;font-size:14px;z-index:60;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+.setup{max-width:420px;margin:40px auto;padding:0 16px}
+table.rep td,table.rep th{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.rep td:first-child,table.rep th:first-child{text-align:left}
+table.rep tr.dim td{color:var(--sub)}
+table.rep tfoot td{font-weight:800;border-top:2px solid var(--line)}
+svg.bars{width:100%;height:170px;display:block}
+</style>
+</head>
+<body>
+
+<!-- ===================== Firebase 설정 =====================
+  가계부에서 쓰는 Firebase 설정값을 아래에 붙여넣으면 폰·PC·벽걸이 모니터가 같은 데이터를 봅니다.
+  null 그대로 두면 이 기기 브라우저(localStorage)에만 저장됩니다.
+=========================================================== -->
+<script>
+const FIREBASE_CONFIG = null;
+/* 예시:
+const FIREBASE_CONFIG = {
+  apiKey: "...",
+  authDomain: "...firebaseapp.com",
+  projectId: "...",
+  storageBucket: "...",
+  messagingSenderId: "...",
+  appId: "..."
+};
+*/
+const FIREBASE_DOC = "carnote/main"; // Firestore 컬렉션/문서 경로
+</script>
+
+<div id="setupView" class="setup" style="display:none">
+  <div class="card">
+    <h2>처음 설정</h2>
+    <p class="muted" style="margin-top:0">지금 계기판 주행거리부터 기록하고 이어서 관리합니다.</p>
+    <label class="f"><span>차량 이름</span><input id="su_name" placeholder="예: 아반떼 CN7"></label>
+    <label class="f"><span>연료</span>
+      <select id="su_fuel"><option>휘발유</option><option>경유</option><option>LPG</option><option>하이브리드</option></select></label>
+    <label class="f"><span>현재 주행거리 (km)</span><input id="su_km" type="number" inputmode="numeric" placeholder="예: 48230"></label>
+    <button class="btn full" onclick="finishSetup()">시작하기</button>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+<div class="wrap">
+  <header class="top">
+    <div><h1>차 관리 노트</h1><div class="carname" id="carName"></div></div>
+    <div class="sync" id="syncState">로컬 저장</div>
+  </header>
+
+  <!-- 홈 -->
+  <section class="page on" id="p-home">
+    <div class="card">
+      <div class="odo">
+        <div><div class="muted">현재 주행거리</div><div class="big" id="curKm">0<small>km</small></div>
+          <div class="muted" id="curKmDate"></div><div class="muted" id="autoInfo" style="font-size:12px"></div></div>
+        <button class="btn ghost sm" onclick="openOdo()">km 업데이트</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="grid2">
+        <div class="stat"><div class="k">평균 연비</div><div class="v" id="hAvgEff">-</div></div>
+        <div class="stat"><div class="k">최근 연비</div><div class="v" id="hLastEff">-</div></div>
+        <div class="stat"><div class="k">이번 달 유지비</div><div class="v" id="hMonth">-</div></div>
+        <div class="stat"><div class="k">1km당 유지비</div><div class="v" id="hPerKm">-</div></div>
+      </div>
+    </div>
+    <div class="card due">
+      <h2>다가오는 정비 <button class="btn line sm" onclick="go('maint')">전체</button></h2>
+      <div class="list" id="hDue"></div>
+    </div>
+    <div class="card">
+      <h2>최근 기록</h2>
+      <div class="list" id="hRecent"></div>
+    </div>
+  </section>
+
+  <!-- 주유 -->
+  <section class="page" id="p-fuel">
+    <div class="card">
+      <div class="grid2">
+        <div class="stat"><div class="k">평균 연비</div><div class="v" id="fAvg">-</div></div>
+        <div class="stat"><div class="k">평균 단가</div><div class="v" id="fAvgPrice">-</div></div>
+        <div class="stat"><div class="k">이번 달 주유비</div><div class="v" id="fMonth">-</div></div>
+        <div class="stat"><div class="k">누적 주유비</div><div class="v" id="fTotal">-</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>연비 추이</h2>
+      <div id="fChart"></div>
+    </div>
+    <div class="card">
+      <h2>주유 기록 <button class="btn sm" onclick="openFuel()">+ 주유</button></h2>
+      <div class="list" id="fList"></div>
+    </div>
+  </section>
+
+  <!-- 정비 -->
+  <section class="page" id="p-maint">
+    <div class="card due">
+      <h2>교체 예정 <span class="muted" id="modeLabel" style="font-weight:600"></span></h2>
+      <div class="list" id="mDue"></div>
+    </div>
+    <div class="card">
+      <h2>정비 이력 <button class="btn sm" onclick="openMaint()">+ 정비</button></h2>
+      <div class="muted" id="mTotal" style="margin:-4px 0 6px"></div>
+      <div class="list" id="mList"></div>
+    </div>
+  </section>
+
+  <!-- 리포트 -->
+  <section class="page" id="p-rep">
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <button class="btn line sm" onclick="repYear(-1)">◀</button>
+        <div style="font-size:18px;font-weight:800" id="rYear"></div>
+        <button class="btn line sm" onclick="repYear(1)">▶</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>연간 요약</h2>
+      <div class="grid2">
+        <div class="stat"><div class="k">총 유지비</div><div class="v" id="rTotal">-</div></div>
+        <div class="stat"><div class="k">월평균</div><div class="v" id="rAvgMonth">-</div></div>
+        <div class="stat"><div class="k">주유비</div><div class="v" id="rFuel">-</div></div>
+        <div class="stat"><div class="k">정비비</div><div class="v" id="rMaint">-</div></div>
+        <div class="stat"><div class="k">주행거리</div><div class="v" id="rDist">-</div></div>
+        <div class="stat"><div class="k">1km당 비용</div><div class="v" id="rPerKm">-</div></div>
+        <div class="stat"><div class="k">평균 연비</div><div class="v" id="rEff">-</div></div>
+        <div class="stat"><div class="k">주유량 · 횟수</div><div class="v" id="rLiters">-</div></div>
+      </div>
+      <div class="muted" id="rCompare" style="margin-top:10px"></div>
+    </div>
+    <div class="card">
+      <h2>월별 지출 <span class="muted" style="font-weight:600"><span style="color:var(--pri)">■</span> 주유 <span style="color:var(--warn)">■</span> 정비</span></h2>
+      <div id="rChart"></div>
+    </div>
+    <div class="card">
+      <h2>월별 상세</h2>
+      <table class="cyc rep"><thead><tr><th>월</th><th>주유</th><th>정비</th><th>주행</th><th>연비</th></tr></thead><tbody id="rTable"></tbody><tfoot id="rFoot"></tfoot></table>
+    </div>
+    <div class="card">
+      <h2>정비 항목별 지출</h2>
+      <div class="list" id="rItems"></div>
+    </div>
+  </section>
+
+  <!-- 설정 -->
+  <section class="page" id="p-set">
+    <div class="card">
+      <h2>차량</h2>
+      <label class="f"><span>차량 이름</span><input id="s_name" onchange="saveCar()"></label>
+      <label class="f"><span>연료</span>
+        <select id="s_fuel" onchange="saveCar()"><option>휘발유</option><option>경유</option><option>LPG</option><option>하이브리드</option></select></label>
+    </div>
+    <div class="card">
+      <h2>운행 조건</h2>
+      <div class="seg" id="segMode">
+        <button data-m="0" onclick="setSevere(false)">통상 조건</button>
+        <button data-m="1" onclick="setSevere(true)">가혹 조건</button>
+      </div>
+      <p class="note" style="font-size:12px;margin-top:8px">짧은 거리 반복, 막히는 시내, 잦은 급가감속, 산길, 먼지 많은 곳 위주라면 가혹 조건이 맞습니다. 국내 시내 주행은 대부분 가혹 쪽에 가깝습니다.</p>
+    </div>
+    <div class="card">
+      <h2>교체 주기 <button class="btn line sm" onclick="resetCycles()">기본값</button></h2>
+      <p class="note" style="font-size:12px;margin:-4px 0 8px">0은 해당 기준 사용 안 함. km·개월 중 먼저 오는 쪽이 기준입니다. 정확한 값은 내 차 취급설명서 '정기 점검' 표를 따르세요.</p>
+      <table class="cyc"><thead><tr><th>항목</th><th>km</th><th>개월</th><th>사용</th></tr></thead><tbody id="cycBody"></tbody></table>
+      <div class="row" style="margin-top:10px"><input id="newItem" placeholder="항목 추가 (예: 연료첨가제)"><button class="btn sm" onclick="addItem()">추가</button></div>
+    </div>
+    <div class="card">
+      <h2>주행거리 기록</h2>
+      <div class="list" id="oList"></div>
+    </div>
+    <div class="card">
+      <h2>데이터</h2>
+      <div class="row" style="flex-wrap:wrap">
+        <button class="btn ghost sm" onclick="exportData()">백업 다운로드</button>
+        <label class="btn ghost sm" style="display:inline-block">복원<input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
+        <button class="btn danger sm" onclick="wipe()">전체 초기화</button>
+      </div>
+      <p class="note" style="font-size:12px" id="storeInfo"></p>
+    </div>
+  </section>
+</div>
+
+<button class="btn fab" id="fab" onclick="fabClick()">+</button>
+
+<nav class="tabs">
+  <button data-t="home" class="on" onclick="go('home')"><span class="ic">🏠</span>홈</button>
+  <button data-t="fuel" onclick="go('fuel')"><span class="ic">⛽</span>주유·연비</button>
+  <button data-t="maint" onclick="go('maint')"><span class="ic">🔧</span>정비</button>
+  <button data-t="rep" onclick="go('rep')"><span class="ic">📊</span>리포트</button>
+  <button data-t="set" onclick="go('set')"><span class="ic">⚙️</span>설정</button>
+</nav>
+</div>
+
+<!-- 시트 -->
+<div class="dim" id="dim" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet"><div class="inner" id="sheetBody"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== 기본 교체 주기 =====================
+  km/mo = 통상 조건, skm/smo = 가혹 조건 (0 = 미사용)
+  근거: 기아 2026 K5 취급설명서 정기점검표, 현대 취급설명서, 정비업계 권장치 종합
+=========================================================== */
+const DEFAULT_ITEMS = [
+ {key:'oil',     name:'엔진오일·오일필터', km:10000, mo:12, skm:5000,  smo:6,  on:true, note:'제조사 통상 1만~1.5만km/12개월, 가혹 5천~7.5천km/6개월'},
+ {key:'cabin',   name:'에어컨 필터',       km:15000, mo:12, skm:10000, smo:6,  on:true, note:'1.5만km 또는 12개월'},
+ {key:'aircl',   name:'에어클리너',        km:40000, mo:0,  skm:20000, smo:0,  on:true, note:'1만km마다 점검, 4만km 교체'},
+ {key:'tirerot', name:'타이어 위치교환',   km:10000, mo:12, skm:10000, smo:6,  on:true, note:'1만km 또는 12개월'},
+ {key:'brakepad',name:'브레이크 패드',     km:40000, mo:0,  skm:30000, smo:0,  on:true, note:'1만km마다 두께 점검, 마모 시 교체'},
+ {key:'brakefl', name:'브레이크액',        km:40000, mo:24, skm:30000, smo:24, on:true, note:'신형 매뉴얼 5만km, 업계 4만km/2년'},
+ {key:'align',   name:'휠 얼라인먼트',     km:20000, mo:24, skm:20000, smo:12, on:true, note:'쏠림·편마모 있으면 바로 점검'},
+ {key:'wiper',   name:'와이퍼',            km:0,     mo:12, skm:0,     smo:6,  on:true, note:'6개월~1년, 줄 남거나 소리 나면 교체'},
+ {key:'battery', name:'배터리',            km:60000, mo:48, skm:50000, smo:36, on:true, note:'보통 3~4년, 3년 넘으면 전압 점검'},
+ {key:'coolant', name:'냉각수',            km:40000, mo:24, skm:40000, smo:24, on:true, note:'장수명 냉각수는 최초 20만km/10년, 이후 4만km/2년'},
+ {key:'atf',     name:'미션오일',          km:80000, mo:0,  skm:50000, smo:0,  on:true, note:'신형 매뉴얼 무교환(가혹 10만km), 업계 4~6만km. DCT는 4~6만km'},
+ {key:'tire',    name:'타이어 교체',       km:50000, mo:72, skm:40000, smo:60, on:true, note:'4~6만km 또는 제조 6년, 마모한계 확인'},
+ {key:'belt',    name:'구동벨트',          km:90000, mo:72, skm:60000, smo:48, on:true, note:'최초 9만km/6년 점검, 이후 3만km/2년'},
+ {key:'plug',    name:'점화플러그',        km:100000,mo:0,  skm:60000, smo:0,  on:true, note:'자연흡기 약 15만km, 터보 약 7만km (차종 확인)'},
+ {key:'fuelflt', name:'연료필터(디젤)',    km:40000, mo:0,  skm:30000, smo:0,  on:false,note:'디젤 4~6만km. 가솔린은 무교환'}
+];
+
+let S = null;            // state
+let fb = null;           // firestore doc ref
+let applyingRemote = false;
+
+const $ = id => document.getElementById(id);
+const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const today = () => { const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
+const won = n => (n==null||isNaN(n)) ? '-' : Math.round(n).toLocaleString('ko-KR')+'원';
+const km = n => (n==null||isNaN(n)) ? '-' : Math.round(n).toLocaleString('ko-KR')+'km';
+const num = v => { const n = parseFloat(String(v).replace(/,/g,'')); return isNaN(n)?null:n; };
+const esc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmtD = d => d ? d.slice(2).replace(/-/g,'.') : '';
+function addMonths(dateStr, m){ const d=new Date(dateStr+'T00:00:00'); d.setMonth(d.getMonth()+m); return d; }
+function daysUntil(d){ const t=new Date(today()+'T00:00:00'); return Math.round((d-t)/86400000); }
+
+function blank(){ return {v:1, car:{name:'',fuel:'휘발유'}, severe:false, odo:[], fuel:[], maint:[],
+  items: JSON.parse(JSON.stringify(DEFAULT_ITEMS))}; }
+
+/* ===================== 저장 ===================== */
+function loadLocal(){ try{ return JSON.parse(localStorage.getItem('carnote')||'null'); }catch(e){ return null; } }
+let saveTimer=null;
+function save(){
+  try{ localStorage.setItem('carnote', JSON.stringify(S)); }catch(e){}
+  if(fb && !applyingRemote){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(()=>{
+      $('syncState').textContent='저장 중…';
+      fb.set(JSON.parse(JSON.stringify(S))).then(()=>$('syncState').textContent='☁️ 동기화됨')
+        .catch(e=>{ $('syncState').textContent='⚠️ 저장 실패'; console.error(e); });
+    }, 300);
+  }
+}
+function loadScript(src){ return new Promise((ok,no)=>{ const s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=no; document.head.appendChild(s); }); }
+async function initFirebase(){
+  if(!FIREBASE_CONFIG) return;
+  try{
+    await loadScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
+    await loadScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js');
+    const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
+    fb = firebase.firestore(app).doc(FIREBASE_DOC);
+    $('syncState').textContent='연결 중…';
+    fb.onSnapshot(snap=>{
+      if(snap.metadata.hasPendingWrites) return;
+      if(snap.exists){
+        applyingRemote = true;
+        S = normalize(snap.data());
+        try{ localStorage.setItem('carnote', JSON.stringify(S)); }catch(e){}
+        boot(); applyingRemote=false;
+        if(AUTO && AUTO.km > currentKm().km) applyAutoOdo();
+      } else if(S && S.car.name){ save(); }
+      $('syncState').textContent='☁️ 동기화됨';
+    }, e=>{ $('syncState').textContent='⚠️ 연결 실패'; console.error(e); });
+  }catch(e){ $('syncState').textContent='⚠️ Firebase 로드 실패'; console.error(e); }
+}
+function normalize(d){
+  const b = blank(); d = Object.assign(b, d||{});
+  // 새로 추가된 기본 항목 병합
+  DEFAULT_ITEMS.forEach(di=>{ if(!d.items.find(i=>i.key===di.key)) d.items.push(JSON.parse(JSON.stringify(di))); });
+  return d;
+}
+
+/* ===================== 계산 ===================== */
+function currentKm(){
+  let m = 0, date = '';
+  const consider = (k,d)=>{ if(k!=null && k>=m){ m=k; date=d; } };
+  S.odo.forEach(o=>consider(o.km,o.date)); S.fuel.forEach(f=>consider(f.km,f.date)); S.maint.forEach(x=>consider(x.km,x.date));
+  return {km:m, date};
+}
+function lastKnownKm(excludeId){
+  let m=0; [...S.odo,...S.fuel,...S.maint].forEach(r=>{ if(r.id!==excludeId && r.km>m) m=r.km; }); return m;
+}
+// 가득 주유 → 가득 주유 방식 연비
+function fuelCalc(){
+  const arr = [...S.fuel].sort((a,b)=>a.km-b.km || a.date.localeCompare(b.date));
+  let prevFull = null, litersSince = 0, totDist=0, totL=0;
+  const eff = {};
+  arr.forEach(f=>{
+    litersSince += f.liters;
+    if(f.full){
+      if(prevFull){
+        const dist = f.km - prevFull.km;
+        if(dist>0 && litersSince>0){ eff[f.id] = {e: dist/litersSince, dist, l: litersSince};
+          totDist += dist; totL += litersSince; }
+      }
+      prevFull = f; litersSince = 0;
+    }
+  });
+  return {eff, avg: totL? totDist/totL : null, sorted:arr};
+}
+function interval(it){ return S.severe ? {k:it.skm, m:it.smo} : {k:it.km, m:it.mo}; }
+function dueList(){
+  const cur = currentKm().km;
+  return S.items.filter(i=>i.on).map(it=>{
+    const iv = interval(it);
+    const recs = S.maint.filter(m=>(m.items||[]).includes(it.key)).sort((a,b)=>b.km-a.km || b.date.localeCompare(a.date));
+    const last = recs[0];
+    if(!last) return {it, iv, last:null, status:'none', sortKey: 1e12};
+    let remainKm=null, nextKm=null, nextDate=null, remainDays=null, ratio=0;
+    if(iv.k>0){ nextKm = last.km + iv.k; remainKm = nextKm - cur; ratio = Math.max(ratio, (cur-last.km)/iv.k); }
+    if(iv.m>0){ nextDate = addMonths(last.date, iv.m); remainDays = daysUntil(nextDate);
+      const total = (nextDate - new Date(last.date+'T00:00:00'))/86400000; ratio = Math.max(ratio, 1 - remainDays/total); }
+    let status='ok';
+    if((remainKm!=null && remainKm<=0) || (remainDays!=null && remainDays<=0)) status='bad';
+    else if((remainKm!=null && (remainKm<=1000 || remainKm<=iv.k*0.1)) || (remainDays!=null && remainDays<=30)) status='warn';
+    return {it, iv, last, nextKm, remainKm, nextDate, remainDays, ratio:Math.min(ratio,1.2), status,
+      sortKey: status==='bad'?-1e9+ratio*-1 : -ratio};
+  }).sort((a,b)=>a.sortKey-b.sortKey);
+}
+function monthKey(d){ return d.slice(0,7); }
+
+/* ===================== 렌더 ===================== */
+function boot(){
+  if(!S.car.name && S.odo.length===0){ $('setupView').style.display='block'; $('app').style.display='none'; return; }
+  $('setupView').style.display='none'; $('app').style.display='block';
+  render();
+}
+function render(){
+  $('carName').textContent = [S.car.name, S.car.fuel].filter(Boolean).join(' · ');
+  const c = currentKm();
+  $('curKm').innerHTML = Math.round(c.km).toLocaleString('ko-KR')+'<small>km</small>';
+  $('curKmDate').textContent = c.date ? fmtD(c.date)+' 기준' : '';
+  $('autoInfo').textContent = autoInfoText();
+  const fc = fuelCalc();
+  const effTxt = v => v? v.toFixed(1)+' km/L':'-';
+  $('hAvgEff').textContent = effTxt(fc.avg); $('fAvg').textContent = effTxt(fc.avg);
+  const lastEffRec = [...fc.sorted].reverse().find(f=>fc.eff[f.id]);
+  $('hLastEff').textContent = lastEffRec ? effTxt(fc.eff[lastEffRec.id].e) : '-';
+  const mk = monthKey(today());
+  const fMonth = S.fuel.filter(f=>monthKey(f.date)===mk).reduce((s,f)=>s+f.amount,0);
+  const mMonth = S.maint.filter(m=>monthKey(m.date)===mk).reduce((s,m)=>s+(m.cost||0),0);
+  $('hMonth').textContent = won(fMonth+mMonth); $('fMonth').textContent = won(fMonth);
+  const fTot = S.fuel.reduce((s,f)=>s+f.amount,0), mTot = S.maint.reduce((s,m)=>s+(m.cost||0),0);
+  $('fTotal').textContent = won(fTot);
+  const totL = S.fuel.reduce((s,f)=>s+f.liters,0);
+  $('fAvgPrice').textContent = totL? won(fTot/totL)+'/L' : '-';
+  // 1km당 유지비: 기록 시작(주행거리·주유) 이후 주행거리와 그 이후 비용 기준 (과거 정비 소급 입력은 제외)
+  const startKms = [...S.odo,...S.fuel].map(r=>r.km).filter(v=>v!=null);
+  const startKm = startKms.length ? Math.min(...startKms) : 0;
+  const span = c.km - startKm;
+  const mSince = S.maint.filter(m=>m.km>=startKm).reduce((s,m)=>s+(m.cost||0),0);
+  $('hPerKm').textContent = span>0 ? won((fTot+mSince)/span) : '-';
+
+  // 교체 예정
+  const due = dueList();
+  $('modeLabel').textContent = S.severe ? '가혹 조건 기준' : '통상 조건 기준';
+  $('mDue').innerHTML = due.map(dueRow).join('') || '<div class="empty">사용 중인 항목이 없습니다</div>';
+  const urgent = due.filter(d=>d.status!=='none').slice(0,4);
+  const noneCnt = due.filter(d=>d.status==='none').length;
+  $('hDue').innerHTML = (urgent.map(dueRow).join('') || '<div class="empty">정비 기록을 넣으면 다음 교체 시점이 계산됩니다</div>')
+    + (noneCnt? `<div class="muted" style="padding-top:8px">기록 없는 항목 ${noneCnt}개 · 마지막 교체 시점을 정비 기록으로 넣어주세요</div>`:'');
+
+  // 주유 목록
+  $('fList').innerHTML = [...fc.sorted].reverse().map(f=>{
+    const e = fc.eff[f.id];
+    return `<div class="it" onclick="openFuel('${f.id}')"><div class="l">
+      <div class="t">${won(f.amount)} <span class="muted" style="font-weight:600">· ${f.liters.toFixed(2)}L</span></div>
+      <div class="s">${fmtD(f.date)} · ${km(f.km)} · ${won(f.price)}/L${f.full?'':' · 부분주유'}${f.station?' · '+esc(f.station):''}</div></div>
+      <div class="r"><div class="t">${e? e.e.toFixed(1)+' km/L':'—'}</div><div class="s">${e? km(e.dist)+' 주행':(f.full?'기준점':'다음 가득 때 계산')}</div></div></div>`;
+  }).join('') || '<div class="empty">첫 주유를 기록해 보세요. 가득 주유 두 번부터 연비가 계산됩니다.</div>';
+  renderChart(fc);
+
+  // 정비 목록
+  const nameOf = k => (S.items.find(i=>i.key===k)||{name:k}).name;
+  const ms = [...S.maint].sort((a,b)=>b.km-a.km || b.date.localeCompare(a.date));
+  $('mTotal').textContent = ms.length? `총 ${ms.length}건 · ${won(mTot)}` : '';
+  $('mList').innerHTML = ms.map(m=>`<div class="it" onclick="openMaint('${m.id}')"><div class="l">
+      <div class="t">${esc([...(m.items||[]).map(nameOf), ...(m.extra?[m.extra]:[])].join(', ')||'정비')}</div>
+      <div class="s">${fmtD(m.date)} · ${km(m.km)}${m.shop?' · '+esc(m.shop):''}${m.memo?' · '+esc(m.memo):''}</div></div>
+      <div class="r"><div class="t">${m.cost? won(m.cost):'-'}</div></div></div>`).join('')
+    || '<div class="empty">아직 정비 기록이 없습니다</div>';
+
+  // 최근 기록(홈)
+  const recent = [
+    ...S.fuel.map(f=>({d:f.date,k:f.km,h:`<div class="it" onclick="openFuel('${f.id}')"><div class="l"><div class="t">⛽ 주유 ${won(f.amount)}</div><div class="s">${fmtD(f.date)} · ${km(f.km)}</div></div><div class="r"><div class="t">${fc.eff[f.id]?fc.eff[f.id].e.toFixed(1)+' km/L':''}</div></div></div>`})),
+    ...S.maint.map(m=>({d:m.date,k:m.km,h:`<div class="it" onclick="openMaint('${m.id}')"><div class="l"><div class="t">🔧 ${esc([...(m.items||[]).map(nameOf),...(m.extra?[m.extra]:[])].join(', '))}</div><div class="s">${fmtD(m.date)} · ${km(m.km)}</div></div><div class="r"><div class="t">${m.cost?won(m.cost):''}</div></div></div>`}))
+  ].sort((a,b)=>b.d.localeCompare(a.d)||b.k-a.k).slice(0,5);
+  $('hRecent').innerHTML = recent.map(r=>r.h).join('') || '<div class="empty">아래 + 버튼으로 주유·정비를 기록하세요</div>';
+
+  // 설정
+  $('s_name').value = S.car.name; $('s_fuel').value = S.car.fuel;
+  document.querySelectorAll('#segMode button').forEach(b=>b.classList.toggle('on', (b.dataset.m==='1')===S.severe));
+  $('cycBody').innerHTML = S.items.map((it,i)=>{
+    const kk = S.severe?'skm':'km', mm = S.severe?'smo':'mo';
+    return `<tr><td class="n"><b>${esc(it.name)}</b><div class="note">${esc(it.note||'')}</div></td>
+      <td><input type="number" inputmode="numeric" value="${it[kk]}" onchange="setCyc(${i},'${kk}',this.value)"></td>
+      <td><input type="number" inputmode="numeric" value="${it[mm]}" onchange="setCyc(${i},'${mm}',this.value)" style="width:56px"></td>
+      <td><input type="checkbox" ${it.on?'checked':''} onchange="setOn(${i},this.checked)" style="width:20px;height:20px"></td></tr>`;
+  }).join('');
+  $('oList').innerHTML = [...S.odo].sort((a,b)=>b.km-a.km).map(o=>`<div class="it" onclick="openOdo('${o.id}')"><div class="l"><div class="t">${km(o.km)}</div><div class="s">${fmtD(o.date)}${o.memo?' · '+esc(o.memo):''}</div></div><div class="r muted">${o.auto?'🔄':'수정'}</div></div>`).join('') || '<div class="empty">-</div>';
+  renderReport();
+  $('storeInfo').textContent = FIREBASE_CONFIG ? 'Firebase에 저장 중 (기기 간 동기화)' : '이 브라우저에만 저장 중. 기기 간 동기화는 파일 상단 FIREBASE_CONFIG에 설정값을 넣으면 됩니다.';
+}
+function dueRow(d){
+  const cls = {ok:'b-ok',warn:'b-warn',bad:'b-bad',none:'b-none'}[d.status];
+  const lbl = {ok:'양호',warn:'곧 교체',bad:'교체 시기',none:'기록 없음'}[d.status];
+  const color = {ok:'var(--ok)',warn:'var(--warn)',bad:'var(--bad)',none:'var(--none)'}[d.status];
+  const ivTxt = [d.iv.k? km(d.iv.k):'', d.iv.m? d.iv.m+'개월':''].filter(Boolean).join(' / ');
+  if(d.status==='none'){
+    return `<div class="it" onclick="openMaint(null,'${d.it.key}')"><div class="top"><div class="t">${esc(d.it.name)}<span class="badge ${cls}">${lbl}</span></div>
+      <div class="muted">${ivTxt}</div></div><div class="s">마지막 교체 시점을 입력하면 계산됩니다</div></div>`;
+  }
+  const parts=[];
+  if(d.remainKm!=null) parts.push(d.remainKm>0 ? `${km(d.remainKm)} 남음` : `${km(-d.remainKm)} 초과`);
+  if(d.remainDays!=null) parts.push(d.remainDays>0 ? `${d.remainDays}일 남음` : `${-d.remainDays}일 지남`);
+  const nxt=[]; if(d.nextKm) nxt.push(km(d.nextKm)); if(d.nextDate){ const t=new Date(d.nextDate); t.setMinutes(t.getMinutes()-t.getTimezoneOffset()); nxt.push(fmtD(t.toISOString().slice(0,10))); }
+  return `<div class="it" onclick="openMaint(null,'${d.it.key}')"><div class="top"><div class="t">${esc(d.it.name)}<span class="badge ${cls}">${lbl}</span></div>
+    <div class="t" style="color:${color};font-size:14px;white-space:nowrap">${parts.join(' · ')}</div></div>
+    <div class="s">마지막 ${fmtD(d.last.date)} · ${km(d.last.km)} → 다음 ${nxt.join(' 또는 ')} (주기 ${ivTxt})</div>
+    <div class="bar"><i style="width:${Math.min(d.ratio,1)*100}%;background:${color}"></i></div></div>`;
+}
+function renderChart(fc){
+  const pts = fc.sorted.filter(f=>fc.eff[f.id]).map(f=>({d:f.date,e:fc.eff[f.id].e})).slice(-15);
+  if(pts.length<2){ $('fChart').innerHTML='<div class="empty">연비 기록이 2개 이상 쌓이면 그래프가 나옵니다</div>'; return; }
+  const W=600,H=90,p=8; const es=pts.map(x=>x.e); const mn=Math.min(...es)*0.95, mx=Math.max(...es)*1.05;
+  const X=i=>p+i*(W-2*p)/(pts.length-1), Y=v=>H-p-(v-mn)/(mx-mn||1)*(H-2*p);
+  const path=pts.map((x,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(x.e).toFixed(1)).join(' ');
+  const avgY = fc.avg? Y(fc.avg):null;
+  $('fChart').innerHTML = `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    ${avgY!=null?`<line x1="0" x2="${W}" y1="${avgY}" y2="${avgY}" stroke="var(--sub)" stroke-dasharray="4 4" stroke-width="1" vector-effect="non-scaling-stroke"/>`:''}
+    <path d="${path}" fill="none" stroke="var(--pri)" stroke-width="2.5" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+    ${pts.map((x,i)=>`<circle cx="${X(i)}" cy="${Y(x.e)}" r="3.5" fill="var(--pri)"/>`).join('')}</svg>
+    <div class="row muted" style="justify-content:space-between;font-size:12px"><span>${fmtD(pts[0].d)}</span><span>최저 ${Math.min(...es).toFixed(1)} · 최고 ${Math.max(...es).toFixed(1)} km/L</span><span>${fmtD(pts[pts.length-1].d)}</span></div>`;
+}
+
+/* ===================== 리포트 ===================== */
+let RY = new Date().getFullYear();
+function repYear(d){ RY += d; renderReport(); }
+// 해당 날짜(포함)까지 기록된 최대 km
+function kmAt(dateStr){
+  let m=null; [...S.odo,...S.fuel,...S.maint].forEach(r=>{ if(r.date<=dateStr && r.km!=null && (m==null||r.km>m)) m=r.km; }); return m;
+}
+function monthEnd(y,mo){ const d=new Date(y,mo,0); return `${y}-${String(mo).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function yearStats(y){
+  const fc = fuelCalc(); const pre = String(y);
+  const months = [];
+  let prevEnd = kmAt(`${y-1}-12-31`);
+  for(let mo=1; mo<=12; mo++){
+    const key = `${y}-${String(mo).padStart(2,'0')}`;
+    const fu = S.fuel.filter(f=>f.date.startsWith(key)), ma = S.maint.filter(m=>m.date.startsWith(key));
+    const end = kmAt(monthEnd(y,mo));
+    const hasRec = [...S.odo,...fu,...ma].some(r=>r.date.startsWith(key));
+    const dist = (end!=null && prevEnd!=null && hasRec) ? end-prevEnd : null;
+    if(end!=null) prevEnd = end;
+    let ed=0, el=0; fu.forEach(f=>{ const e=fc.eff[f.id]; if(e){ ed+=e.dist; el+=e.l; } });
+    months.push({mo, fuel: fu.reduce((s,f)=>s+f.amount,0), maint: ma.reduce((s,m)=>s+(m.cost||0),0),
+      liters: fu.reduce((s,f)=>s+f.liters,0), cnt: fu.length, dist, ed, el});
+  }
+  const sum = k => months.reduce((s,m)=>s+(m[k]||0),0);
+  const fuel=sum('fuel'), maint=sum('maint'), ed=sum('ed'), el=sum('el');
+  const start = kmAt(`${y-1}-12-31`) ?? Math.min(...[...S.odo,...S.fuel].filter(r=>r.date.startsWith(pre)).map(r=>r.km).concat([Infinity]));
+  const end = kmAt(`${y}-12-31`);
+  const dist = (end!=null && isFinite(start)) ? end-start : 0;
+  const activeMonths = months.filter(m=>m.fuel||m.maint).length;
+  return {months, fuel, maint, total:fuel+maint, dist, eff: el? ed/el : null, liters:sum('liters'), cnt:sum('cnt'), activeMonths,
+    maintRecs: S.maint.filter(m=>m.date.startsWith(pre))};
+}
+function renderReport(){
+  if(!S) return;
+  $('rYear').textContent = RY+'년';
+  const st = yearStats(RY), prev = yearStats(RY-1);
+  const nowY = new Date().getFullYear(), nowM = new Date().getMonth()+1;
+  const divM = RY===nowY ? nowM : (st.activeMonths||12);
+  $('rTotal').textContent = won(st.total);
+  $('rAvgMonth').textContent = st.total? won(st.total/divM) : '-';
+  $('rFuel').textContent = won(st.fuel); $('rMaint').textContent = won(st.maint);
+  $('rDist').textContent = st.dist>0? km(st.dist) : '-';
+  $('rPerKm').textContent = st.dist>0? won(st.total/st.dist) : '-';
+  $('rEff').textContent = st.eff? st.eff.toFixed(1)+' km/L' : '-';
+  $('rLiters').textContent = st.cnt? `${Math.round(st.liters)}L · ${st.cnt}회` : '-';
+  if(prev.total && st.total){
+    const diff = st.total-prev.total, pct = diff/prev.total*100;
+    $('rCompare').textContent = `작년(${won(prev.total)}) 대비 ${diff>=0?'+':''}${won(diff)} (${pct>=0?'+':''}${pct.toFixed(0)}%)`
+      + (prev.eff && st.eff ? ` · 연비 ${(st.eff-prev.eff>=0?'+':'')}${(st.eff-prev.eff).toFixed(1)} km/L` : '');
+  } else $('rCompare').textContent = '';
+
+  // 막대그래프 (주유+정비 누적)
+  const W=600,H=170,pl=4,pb=20,pt=14; const mx = Math.max(...st.months.map(m=>m.fuel+m.maint), 1);
+  const bw = (W-pl*2)/12;
+  const bars = st.months.map((m,i)=>{
+    const x = pl+i*bw+bw*0.18, w = bw*0.64;
+    const hf = (m.fuel/mx)*(H-pb-pt), hm = (m.maint/mx)*(H-pb-pt);
+    const yF = H-pb-hf, yM = yF-hm;
+    const lbl = (m.fuel+m.maint) ? `<text x="${x+w/2}" y="${yM-3}" text-anchor="middle" font-size="10" fill="var(--sub)">${Math.round((m.fuel+m.maint)/10000)||'<1'}만</text>` : '';
+    return `${hf?`<rect x="${x}" y="${yF}" width="${w}" height="${hf}" rx="3" fill="var(--pri)"/>`:''}
+      ${hm?`<rect x="${x}" y="${yM}" width="${w}" height="${hm}" rx="3" fill="var(--warn)"/>`:''}${lbl}
+      <text x="${x+w/2}" y="${H-5}" text-anchor="middle" font-size="11" fill="var(--sub)">${m.mo}</text>`;
+  }).join('');
+  $('rChart').innerHTML = st.total ? `<svg class="bars" viewBox="0 0 ${W} ${H}">${bars}</svg>` : '<div class="empty">이 해에는 기록이 없습니다</div>';
+
+  // 월별 표
+  const curKey = `${nowY}-${String(nowM).padStart(2,'0')}`;
+  $('rTable').innerHTML = st.months.map(m=>{
+    const key = `${RY}-${String(m.mo).padStart(2,'0')}`;
+    if(key>curKey) return '';
+    const empty = !m.fuel && !m.maint && !m.dist;
+    const e = m.el? (m.ed/m.el).toFixed(1) : '-';
+    return `<tr class="${empty?'dim':''}"><td>${m.mo}월</td><td>${m.fuel?Math.round(m.fuel/1000).toLocaleString()+'천':'-'}</td>
+      <td>${m.maint?Math.round(m.maint/1000).toLocaleString()+'천':'-'}</td><td>${m.dist?m.dist.toLocaleString():'-'}</td><td>${e}</td></tr>`;
+  }).reverse().join('');
+  $('rFoot').innerHTML = `<tr><td>합계</td><td>${st.fuel?Math.round(st.fuel/1000).toLocaleString()+'천':'-'}</td><td>${st.maint?Math.round(st.maint/1000).toLocaleString()+'천':'-'}</td><td>${st.dist>0?st.dist.toLocaleString():'-'}</td><td>${st.eff?st.eff.toFixed(1):'-'}</td></tr>`;
+
+  // 항목별 지출 (여러 항목을 한 번에 한 정비는 '묶음'으로 표시)
+  const nameOf = k => (S.items.find(i=>i.key===k)||{name:k}).name;
+  const agg = {};
+  st.maintRecs.forEach(m=>{
+    const names = [...(m.items||[]).map(nameOf), ...(m.extra?[m.extra]:[])];
+    const label = names.join(', ') || '정비';
+    (agg[label] = agg[label] || {cost:0,n:0}); agg[label].cost += (m.cost||0); agg[label].n++;
+  });
+  const rows = Object.entries(agg).sort((a,b)=>b[1].cost-a[1].cost);
+  $('rItems').innerHTML = rows.map(([k,v])=>`<div class="it" style="cursor:default"><div class="l"><div class="t">${esc(k)}</div><div class="s">${v.n}회</div></div>
+    <div class="r"><div class="t">${won(v.cost)}</div><div class="s">${st.maint?Math.round(v.cost/st.maint*100):0}%</div></div></div>`).join('')
+    || '<div class="empty">이 해 정비 기록이 없습니다</div>';
+}
+
+/* ===================== 네비 ===================== */
+let tab='home';
+function go(t){ tab=t;
+  document.querySelectorAll('section.page').forEach(s=>s.classList.toggle('on', s.id==='p-'+t));
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on', b.dataset.t===t));
+  $('fab').style.display = (t==='set'||t==='rep') ? 'none':'block'; window.scrollTo(0,0); }
+function fabClick(){
+  if(tab==='fuel') return openFuel();
+  if(tab==='maint') return openMaint();
+  openSheet(`<h3>무엇을 기록할까요?</h3>
+    <div style="display:grid;gap:8px"><button class="btn full" onclick="openFuel()">⛽ 주유</button>
+    <button class="btn ghost full" onclick="openMaint()">🔧 정비·교체</button>
+    <button class="btn line full" onclick="openOdo()">📍 주행거리만 업데이트</button></div>`);
+}
+function openSheet(html){ $('sheetBody').innerHTML=html; $('dim').classList.add('on'); $('sheet').classList.add('on'); }
+function closeSheet(){ $('dim').classList.remove('on'); $('sheet').classList.remove('on'); }
+function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('on'); setTimeout(()=>el.classList.remove('on'),1600); }
+function kmWarn(v, exId){ const last=lastKnownKm(exId); const w=$('kmWarn'); if(!w) return;
+  if(v!=null && last && v<last){ w.style.display='block'; w.textContent=`이전 기록(${km(last)})보다 작습니다. 과거 기록이면 그대로 저장해도 됩니다.`; } else w.style.display='none'; }
+
+/* ===================== 블루링크 자동 주행거리 =====================
+  GitHub Actions가 3시간마다 car/odo.json 을 갱신 → 페이지가 열릴 때 읽어서 기록
+=========================================================== */
+let AUTO = null;
+async function loadAutoOdo(){
+  try{
+    const r = await fetch('odo.json?t='+Date.now(), {cache:'no-store'});
+    if(!r.ok) return;
+    const j = await r.json();
+    if(!j || !(j.km>0)) return;
+    AUTO = j;
+    if(!S.car.name && S.odo.length===0){ $('su_km').value = Math.round(j.km); return; }
+    applyAutoOdo();
+  }catch(e){}
+}
+function applyAutoOdo(){
+  if(!AUTO) return;
+  const km = Math.round(AUTO.km*10)/10;
+  const d = (AUTO.measuredAt && /^\d{4}-\d{2}-\d{2}/.test(AUTO.measuredAt)) ? AUTO.measuredAt.slice(0,10)
+          : (AUTO.fetchedAt||'').slice(0,10) || today();
+  const cur = currentKm().km;
+  if(km > cur){
+    // 자동 기록은 하루 1건만 유지 (같은 날이면 덮어쓰기)
+    const same = S.odo.find(o=>o.auto && o.date===d);
+    if(same){ same.km = km; } else S.odo.push({id:uid(), date:d, km, memo:'블루링크 자동', auto:true});
+    save();
+  }
+  render();
+}
+function autoInfoText(){
+  if(!AUTO) return '';
+  const t = (AUTO.fetchedAt||'').replace('T',' ').slice(5,16).replace('-','.');
+  return `🔄 블루링크 자동 연동 · ${t} 갱신`;
+}
+
+/* ===================== 처음 설정 ===================== */
+function finishSetup(){
+  const k=num($('su_km').value); if(k==null){ alert('현재 주행거리를 입력하세요'); return; }
+  S.car.name=$('su_name').value.trim()||'내 차'; S.car.fuel=$('su_fuel').value;
+  S.items.forEach(i=>{ if(i.key==='fuelflt') i.on = S.car.fuel==='경유'; if(i.key==='plug') i.on = S.car.fuel!=='경유'; });
+  S.odo.push({id:uid(), date:today(), km:k, memo:'시작'}); save(); boot(); toast('시작합니다');
+}
+
+/* ===================== 주행거리 ===================== */
+function openOdo(id){
+  const o = id? S.odo.find(x=>x.id===id) : null;
+  openSheet(`<h3>${o?'주행거리 수정':'주행거리 업데이트'}</h3>
+    <label class="f"><span>날짜</span><input id="o_date" type="date" value="${o?o.date:today()}"></label>
+    <label class="f"><span>계기판 주행거리 (km)</span><input id="o_km" type="number" inputmode="numeric" value="${o?o.km:''}" placeholder="${currentKm().km}" oninput="kmWarn(num(this.value),'${id||''}')"></label>
+    <div class="warnbox" id="kmWarn"></div>
+    <label class="f"><span>메모 (선택)</span><input id="o_memo" value="${esc(o?o.memo:'')}"></label>
+    <button class="btn full" onclick="saveOdo('${id||''}')">저장</button>
+    ${o?`<button class="btn danger full" style="margin-top:8px" onclick="delRec('odo','${id}')">삭제</button>`:''}`);
+}
+function saveOdo(id){
+  const k=num($('o_km').value); if(k==null) return alert('주행거리를 입력하세요');
+  const rec={id:id||uid(), date:$('o_date').value||today(), km:k, memo:$('o_memo').value.trim()};
+  if(id){ Object.assign(S.odo.find(x=>x.id===id), rec); } else S.odo.push(rec);
+  save(); closeSheet(); render(); toast('저장했습니다');
+}
+
+/* ===================== 주유 ===================== */
+function lastPrice(){ const f=[...S.fuel].sort((a,b)=>b.date.localeCompare(a.date))[0]; return f? f.price : ''; }
+function openFuel(id){
+  const f = id? S.fuel.find(x=>x.id===id) : null;
+  openSheet(`<h3>${f?'주유 기록 수정':'주유 기록'}</h3>
+    <label class="f"><span>날짜</span><input id="f_date" type="date" value="${f?f.date:today()}"></label>
+    <label class="f"><span>주유할 때 계기판 km</span><input id="f_km" type="number" inputmode="numeric" value="${f?f.km:''}" placeholder="${currentKm().km}" oninput="fuelPreview('${id||''}')"></label>
+    <div class="warnbox" id="kmWarn"></div>
+    <div class="grid2">
+      <label class="f"><span>리터당 가격 (원)</span><input id="f_price" type="number" inputmode="decimal" value="${f?f.price:lastPrice()}" oninput="fuelPreview('${id||''}')"></label>
+      <label class="f"><span>주유 금액 (원)</span><input id="f_amt" type="number" inputmode="numeric" value="${f?f.amount:''}" placeholder="50000" oninput="fuelPreview('${id||''}')"></label>
+    </div>
+    <label class="chk"><input type="checkbox" id="f_full" ${!f||f.full?'checked':''} onchange="fuelPreview('${id||''}')"> 가득 주유 (연비 계산 기준)</label>
+    <label class="f"><span>주유소 (선택)</span><input id="f_st" value="${esc(f?f.station:'')}"></label>
+    <div class="calc" id="f_calc">금액과 단가를 넣으면 주유량과 연비가 계산됩니다</div>
+    <button class="btn full" onclick="saveFuel('${id||''}')">저장</button>
+    ${f?`<button class="btn danger full" style="margin-top:8px" onclick="delRec('fuel','${id}')">삭제</button>`:''}`);
+  fuelPreview(id||'');
+}
+function fuelPreview(id){
+  const k=num($('f_km').value), p=num($('f_price').value), a=num($('f_amt').value), full=$('f_full').checked;
+  kmWarn(k, id);
+  if(!p||!a){ $('f_calc').textContent='금액과 단가를 넣으면 주유량과 연비가 계산됩니다'; return; }
+  const L = a/p; let msg = `주유량 약 ${L.toFixed(2)}L`;
+  if(k!=null){
+    const others = S.fuel.filter(f=>f.id!==id);
+    const tmp = {id:'__tmp', km:k, date:$('f_date').value||today(), liters:L, full, amount:a, price:p};
+    const save_=S.fuel; S.fuel=[...others,tmp]; const fc=fuelCalc(); S.fuel=save_;
+    const e=fc.eff['__tmp'];
+    if(e) msg += `<br>연비 <b>${e.e.toFixed(2)} km/L</b> (${km(e.dist)} ÷ ${e.l.toFixed(2)}L) · 1km당 약 ${won(p*e.l/e.dist)}`;
+    else if(full) msg += `<br>이번 가득 주유가 다음 연비 계산의 기준점이 됩니다`;
+    else msg += `<br>부분 주유는 다음 가득 주유 때 합산해서 계산합니다`;
+  }
+  $('f_calc').innerHTML = msg;
+}
+function saveFuel(id){
+  const k=num($('f_km').value), p=num($('f_price').value), a=num($('f_amt').value);
+  if(k==null||!p||!a) return alert('km, 단가, 금액을 입력하세요');
+  const rec={id:id||uid(), date:$('f_date').value||today(), km:k, price:p, amount:a, liters:a/p, full:$('f_full').checked, station:$('f_st').value.trim()};
+  if(id) Object.assign(S.fuel.find(x=>x.id===id), rec); else S.fuel.push(rec);
+  save(); closeSheet(); render(); toast('주유 기록 저장');
+}
+
+/* ===================== 정비 ===================== */
+let selItems=[];
+function openMaint(id, preKey){
+  const m = id? S.maint.find(x=>x.id===id) : null;
+  selItems = m? [...(m.items||[])] : (preKey? [preKey] : []);
+  openSheet(`<h3>${m?'정비 기록 수정':'정비·교체 기록'}</h3>
+    <div class="grid2">
+      <label class="f"><span>날짜</span><input id="m_date" type="date" value="${m?m.date:today()}"></label>
+      <label class="f"><span>km</span><input id="m_km" type="number" inputmode="numeric" value="${m?m.km:''}" placeholder="${currentKm().km}" oninput="kmWarn(num(this.value),'${id||''}')"></label>
+    </div>
+    <div class="warnbox" id="kmWarn"></div>
+    <label class="f"><span>교체한 항목 (여러 개 선택)</span></label>
+    <div class="chips" id="m_chips" style="margin:-6px 0 12px"></div>
+    <label class="f"><span>기타 작업 (선택)</span><input id="m_extra" value="${esc(m?m.extra:'')}" placeholder="예: 전조등 전구, 하체 점검"></label>
+    <div class="grid2">
+      <label class="f"><span>비용 (원)</span><input id="m_cost" type="number" inputmode="numeric" value="${m&&m.cost?m.cost:''}"></label>
+      <label class="f"><span>정비소</span><input id="m_shop" value="${esc(m?m.shop:'')}"></label>
+    </div>
+    <label class="f"><span>메모 (오일 종류, 부품 품번 등)</span><input id="m_memo" value="${esc(m?m.memo:'')}"></label>
+    <p class="note" style="font-size:12px;margin-top:-4px">예전에 교체한 것도 그 당시 날짜·km로 넣으면 다음 교체 시점이 계산됩니다.</p>
+    <button class="btn full" onclick="saveMaint('${id||''}')">저장</button>
+    ${m?`<button class="btn danger full" style="margin-top:8px" onclick="delRec('maint','${id}')">삭제</button>`:''}`);
+  drawChips();
+}
+function drawChips(){
+  $('m_chips').innerHTML = S.items.filter(i=>i.on||selItems.includes(i.key)).map(i=>
+    `<span class="chip ${selItems.includes(i.key)?'on':''}" onclick="toggleChip('${i.key}')">${esc(i.name)}</span>`).join('');
+}
+function toggleChip(k){ selItems = selItems.includes(k)? selItems.filter(x=>x!==k) : [...selItems,k]; drawChips(); }
+function saveMaint(id){
+  const k=num($('m_km').value); const extra=$('m_extra').value.trim();
+  if(k==null) return alert('km를 입력하세요');
+  if(!selItems.length && !extra) return alert('항목을 선택하거나 기타 작업을 입력하세요');
+  const rec={id:id||uid(), date:$('m_date').value||today(), km:k, items:[...selItems], extra, cost:num($('m_cost').value)||0,
+    shop:$('m_shop').value.trim(), memo:$('m_memo').value.trim()};
+  if(id) Object.assign(S.maint.find(x=>x.id===id), rec); else S.maint.push(rec);
+  save(); closeSheet(); render(); toast('정비 기록 저장');
+}
+function delRec(type,id){ if(!confirm('삭제할까요?')) return; S[type]=S[type].filter(x=>x.id!==id); save(); closeSheet(); render(); toast('삭제했습니다'); }
+
+/* ===================== 설정 ===================== */
+function saveCar(){ S.car.name=$('s_name').value.trim(); S.car.fuel=$('s_fuel').value; save(); render(); }
+function setSevere(v){ S.severe=v; save(); render(); }
+function setCyc(i,f,v){ S.items[i][f]=Math.max(0,num(v)||0); save(); render(); }
+function setOn(i,v){ S.items[i].on=v; save(); render(); }
+function addItem(){ const n=$('newItem').value.trim(); if(!n) return;
+  S.items.push({key:'c_'+uid(), name:n, km:10000, mo:12, skm:10000, smo:12, on:true, note:'직접 추가한 항목'}); $('newItem').value=''; save(); render(); }
+function resetCycles(){ if(!confirm('교체 주기를 기본값으로 되돌릴까요? (기록은 유지)')) return;
+  S.items = S.items.map(it=>{ const d=DEFAULT_ITEMS.find(x=>x.key===it.key); return d? Object.assign({},d,{on:it.on}) : it; }); save(); render(); }
+function exportData(){
+  const b=new Blob([JSON.stringify(S,null,1)],{type:'application/json'}); const a=document.createElement('a');
+  a.href=URL.createObjectURL(b); a.download=`car-note-${today()}.json`; a.click(); }
+function importData(e){ const f=e.target.files[0]; if(!f) return; const r=new FileReader();
+  r.onload=()=>{ try{ S=normalize(JSON.parse(r.result)); save(); boot(); toast('복원 완료'); }catch(err){ alert('파일을 읽지 못했습니다'); } }; r.readAsText(f); }
+function wipe(){ if(!confirm('모든 기록을 지울까요? 백업 먼저 받는 걸 권합니다.')) return; if(!confirm('정말 삭제합니다.')) return;
+  S=blank(); save(); boot(); }
+
+/* ===================== 시작 ===================== */
+S = normalize(loadLocal());
+boot(); go('home');
+initFirebase();
+loadAutoOdo();
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') loadAutoOdo(); });
+setInterval(loadAutoOdo, 30*60*1000); // 벽걸이 화면처럼 계속 켜둘 때 30분마다
+</script>
+</body>
+</html>
