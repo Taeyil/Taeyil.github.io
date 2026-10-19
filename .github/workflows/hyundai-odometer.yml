@@ -1,0 +1,48 @@
+name: 현대 주행거리 자동 갱신
+
+on:
+  schedule:
+    - cron: "17 */3 * * *"   # 3시간마다 (UTC 기준 17분)
+  workflow_dispatch:
+    inputs:
+      auth_code:
+        description: "최초 연결할 때만: hyundai.html 에서 받은 인증 코드"
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hyundai-odometer
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: 주행거리 조회
+        env:
+          HYUNDAI_CLIENT_ID: ${{ secrets.HYUNDAI_CLIENT_ID }}
+          HYUNDAI_CLIENT_SECRET: ${{ secrets.HYUNDAI_CLIENT_SECRET }}
+          HYUNDAI_REFRESH_TOKEN: ${{ secrets.HYUNDAI_REFRESH_TOKEN }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+          HYUNDAI_REDIRECT_URI: ${{ vars.HYUNDAI_REDIRECT_URI }}
+          HYUNDAI_CAR_ID: ${{ vars.HYUNDAI_CAR_ID }}
+          HYUNDAI_API_HOST: ${{ vars.HYUNDAI_API_HOST }}
+          ODO_PATH: car/odo.json
+          AUTH_CODE: ${{ github.event.inputs.auth_code }}
+        run: python3 scripts/hyundai_odo.py
+
+      - name: 변경 시 커밋
+        run: |
+          if [ -n "$(git status --porcelain car/odo.json)" ]; then
+            git config user.name "car-bot"
+            git config user.email "car-bot@users.noreply.github.com"
+            git add car/odo.json
+            git commit -m "주행거리 자동 갱신"
+            git push
+          fi
