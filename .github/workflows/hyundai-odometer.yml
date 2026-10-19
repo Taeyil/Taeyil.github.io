@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       auth_code:
-        description: "최초 연결할 때만: hyundai.html 에서 받은 인증 코드"
+        description: "최초 연결할 때만: hyundai.html 에서 복사한 값"
         required: false
 
 permissions:
@@ -24,6 +24,10 @@ jobs:
         with:
           token: ${{ secrets.GH_PAT || github.token }}
 
+      - name: 암호화 라이브러리 (최초 연결 때만)
+        if: ${{ github.event.inputs.auth_code != '' }}
+        run: python3 -c "import cryptography" 2>/dev/null || python3 -m pip install --quiet --break-system-packages cryptography
+
       - name: 주행거리 조회
         env:
           HYUNDAI_CLIENT_ID: ${{ secrets.HYUNDAI_CLIENT_ID }}
@@ -39,10 +43,10 @@ jobs:
 
       - name: 변경 시 커밋
         run: |
-          if [ -n "$(git status --porcelain car/odo.json)" ]; then
+          git add -A car/
+          if ! git diff --cached --quiet; then
             git config user.name "car-bot"
             git config user.email "car-bot@users.noreply.github.com"
-            git add car/odo.json
             git commit -m "주행거리 자동 갱신"
             git push
           fi
