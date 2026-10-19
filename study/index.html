@@ -48,6 +48,10 @@ header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb, var(--
 .seg{display:inline-flex;background:var(--surface2);border-radius:999px;padding:3px;gap:2px}
 .seg button{border:0;background:transparent;padding:6px 14px;border-radius:999px;font-weight:600;font-size:13.5px;color:var(--muted);white-space:nowrap}
 .seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.home-btn{display:inline-flex;align-items:center;height:32px;padding:0 11px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink2);text-decoration:none;font-size:12.5px;font-weight:700;flex-shrink:0}
+.home-btn:active{transform:scale(.96)}
+.top-row .brand{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:380px){.top-row .brand{font-size:14px}.top-row .brand i{display:none}}
 .icon-btn{border:0;background:transparent;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:var(--ink2)}
 .icon-btn:hover{background:var(--surface2)}
 .icon-btn.sm{width:32px;height:32px;border-radius:10px}
@@ -475,6 +479,7 @@ function render(){
   const dueN = reviewPool().filter(o=>isDue(o.x)).length;
   app.innerHTML = `
   ${focus ? "" : `<header class="top"><div class="wrap top-row">
+      <a class="home-btn" href="/hub/">‹ HOME</a>
       <div class="brand"><i></i>자격증 노트</div>
       <div class="seg"><button data-tab="cert" class="${S.tab==="cert"?"on":""}">자격증</button><button data-tab="lang" class="${S.tab==="lang"?"on":""}">어학</button></div>
       <button class="icon-btn" id="setBtn" aria-label="설정">${I.gear}</button>
