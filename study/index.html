@@ -147,7 +147,28 @@ table.sc input.fail{color:var(--bad);font-weight:700}
 table.sc input.pass{color:var(--good);font-weight:700}
 table.sc .cv{font-size:11px;font-weight:600;color:var(--muted);margin-top:2px}
 table.sc .cv.fail{color:var(--bad)} table.sc .cv.pass{color:var(--good)}
-table.sc td{vertical-align:top}table.sc td.avg,table.sc td.name{vertical-align:middle}
+table.sc td{vertical-align:top}
+table.sc .cd{display:block;margin:2px auto 0;border:0;background:none;padding:1px 4px;font-size:10.5px;color:var(--muted);border-radius:5px;font-variant-numeric:tabular-nums}
+table.sc .cd:hover{background:var(--surface2);color:var(--ink2)}
+.heat{display:flex;flex-direction:column;gap:6px;overflow-x:auto}
+.hmon{display:grid;grid-template-columns:repeat(15,1fr);gap:4px;font-size:10.5px;color:var(--muted);min-width:300px}
+.hmon span{white-space:nowrap}
+.hgrid{display:grid;grid-template-columns:repeat(15,1fr);gap:4px;min-width:300px}
+.hcol{display:grid;grid-template-rows:repeat(7,1fr);gap:4px}
+.hgrid i,.hleg i{display:block;aspect-ratio:1;border-radius:3px;background:var(--surface2)}
+.hgrid i.fut{background:transparent}
+i.h1{background:color-mix(in srgb,var(--accent) 30%,var(--surface2))!important}
+i.h2{background:color-mix(in srgb,var(--accent) 55%,var(--surface2))!important}
+i.h3{background:color-mix(in srgb,var(--accent) 78%,var(--surface2))!important}
+i.h4{background:var(--accent)!important}
+.hleg{display:flex;align-items:center;justify-content:flex-end;gap:4px;margin-top:10px;font-size:11px;color:var(--muted)}
+.hleg i{width:11px}
+.day+.day{margin-top:10px}
+.day-h{display:flex;justify-content:space-between;align-items:center}
+.day-n{font-size:22px;font-weight:750;letter-spacing:-.03em}.day-n small{font-size:12px;font-weight:600;color:var(--muted);margin-left:2px}
+.day-g{margin-top:10px;padding-top:10px;border-top:1px solid var(--line2)}
+.day-r{display:flex;gap:8px;font-size:14px;padding:3px 0;font-variant-numeric:tabular-nums}
+.day-r .ok{color:var(--good);font-weight:650}.day-r .no{color:var(--bad);font-weight:650}table.sc td.avg,table.sc td.name{vertical-align:middle}
 .qtot{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;color:var(--ink2)}
 .qtot input{width:64px;text-align:center;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:6px 4px;font-weight:700}
 .qtot input:focus{outline:2px solid var(--accent);outline-offset:-1px}
@@ -611,8 +632,64 @@ function certCard(c){
 /* ---------------- 성적 ---------------- */
 function viewScorePage(el){
   if (!certsOfTab().length) return noCert(el);
-  el.innerHTML = `<div class="page-head"><div class="eyebrow">${L().round} × ${L().read}</div><h1>성적</h1></div><div id="scoreBody"></div>`;
-  viewScore($("#scoreBody"));
+  S.scoreMode = S.scoreMode || "table";
+  el.innerHTML = `<div class="page-head"><div class="eyebrow">${L().round} × ${L().read}</div><h1>성적</h1></div>
+    <div class="seg seg-full" style="margin-bottom:16px"><button data-sm="table" class="${S.scoreMode==="table"?"on":""}">점수표</button><button data-sm="log" class="${S.scoreMode==="log"?"on":""}">날짜별 기록</button></div>
+    <div id="scoreBody"></div>`;
+  el.querySelectorAll("[data-sm]").forEach(b=>b.onclick=()=>{ S.scoreMode=b.dataset.sm; render(); });
+  (S.scoreMode==="log" ? viewStudyLog : viewScore)($("#scoreBody"));
+}
+
+/* 날짜별 기록: 회차를 푼 날짜 모아보기 */
+function solvedEntries(){
+  const out=[];
+  for (const c of certsOfTab()) for (const r of (c.rounds||[])){
+    const cnt = S.tab==="cert" && defaultType(r.stage)==="choice";
+    (r.scores||[]).forEach((v,i)=>{ if (v===null||v===undefined) return;
+      out.push({ date:r.dates?.[i]||null, cert:c, stage:r.stage, round:r.name, read:i+1, score:v, correct:cnt?r.correct?.[i]:null, total:cnt?(+c.qTotal?.[r.stage]||defaultQTotal(c.name)):null, pass:v>=c.pass }); });
+  }
+  return out;
+}
+function viewStudyLog(box){
+  const l=L(), all=solvedEntries(), dated=all.filter(e=>e.date), undated=all.length-dated.length;
+  const byDate = {}; dated.forEach(e=>(byDate[e.date] ||= []).push(e));
+  const days = Object.keys(byDate).sort().reverse();
+  // 요약
+  const t=todayStr(), wk=addDays(-6);
+  const week = dated.filter(e=>e.date>=wk && e.date<=t).length;
+  let streak=0; for (let k=0;;k++){ const d=addDays(-k); if (byDate[d]) streak++; else if (k===0) continue; else break; }
+  // 잔디 (최근 15주)
+  const W=15, start=new Date(); start.setDate(start.getDate()-start.getDay()-(W-1)*7);
+  const ymdOf = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  let cells="", months="", lastM=-1;
+  for (let w=0; w<W; w++){
+    const col=new Date(start); col.setDate(start.getDate()+w*7);
+    months += `<span>${col.getMonth()!==lastM?(col.getMonth()+1)+"월":""}</span>`; lastM=col.getMonth();
+    cells += `<div class="hcol">`;
+    for (let d=0; d<7; d++){ const day=new Date(start); day.setDate(start.getDate()+w*7+d); const k=ymdOf(day), n=(byDate[k]||[]).length;
+      cells += k>t ? `<i class="fut"></i>` : `<i class="h${Math.min(n,4)}" title="${fmtDate(k)} ${n}개"></i>`; }
+    cells += `</div>`;
+  }
+  const valTxt = e => e.correct!==null&&e.correct!==undefined ? `${e.correct}/${e.total}개 · ${e.score}점` : `${e.score}점`;
+  box.innerHTML = `
+  <div class="stats">
+    <div class="stat"><b>${week}</b><span>최근 7일 푼 회차</span></div>
+    <div class="stat"><b>${days.length}</b><span>공부한 날</span></div>
+    <div class="stat"><b>${streak}</b><span>연속 학습일</span></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <div class="heat"><div class="hmon">${months}</div><div class="hgrid">${cells}</div></div>
+    <div class="hleg"><span>적음</span><i class="h0"></i><i class="h1"></i><i class="h2"></i><i class="h3"></i><i class="h4"></i><span>많음</span></div>
+  </div>
+  <div class="sec"><div class="sec-title">날짜별 <span>${dated.length}개 회차</span></div>
+  ${days.length ? days.map(d=>{ const es=byDate[d];
+      const groups={}; es.forEach(e=>{ const k=`${e.cert.name} ${e.stage}`; (groups[k] ||= []).push(e); });
+      return `<div class="card day"><div class="day-h"><div><b>${fmtDate(d)}</b>${d===t?` <span class="tag accent">오늘</span>`:""}</div><span class="day-n">${es.length}<small>개 회차</small></span></div>
+        ${Object.entries(groups).map(([k,g])=>`<div class="day-g"><div class="xs muted">${esc(k)} · ${g.length}개</div>${g.map(e=>`<div class="day-r"><span class="grow">${esc(e.round)} <span class="muted">· ${e.read}${l.read}</span></span><span class="${e.pass?"ok":"no"}">${valTxt(e)}</span></div>`).join("")}</div>`).join("")}
+      </div>`; }).join("")
+    : `<div class="card empty"><b>아직 기록이 없어요</b>점수표에 맞힌 개수를 적으면 그날 날짜로 여기에 모여요.</div>`}
+  ${undated?`<div class="xs muted" style="text-align:center;margin-top:10px">날짜가 없는 예전 기록 ${undated}개는 빠져 있어요. 점수표에서 ‘날짜 없음’을 눌러 날짜를 넣을 수 있어요.</div>`:""}
+  </div>`;
 }
 
 /* ---------------- 노트 (오답 · 암기카드) ---------------- */
@@ -1480,7 +1557,7 @@ function viewScore(el){
           <td class="name"><input class="name-in" data-rname="${r.id}" value="${esc(r.name)}"></td>
           ${Array.from({length:nCols},(_,i)=>{ const v=r.scores[i]; const cls = v===null||v===undefined||v===""?"":(+v>=c.pass?"pass":"fail");
             const shown = cntMode ? (r.correct?.[i] ?? "") : (v ?? "");
-            return `<td><input inputmode="${cntMode?"numeric":"decimal"}" class="${cls}" data-r="${r.id}" data-i="${i}" value="${shown}" placeholder="${cntMode?"개":""}" aria-label="${esc(r.name)} ${i+1}${l.read} ${cntMode?"맞힌 개수":"점수"}">${cntMode&&v!==null&&v!==undefined?`<div class="cv ${cls}">${v}점</div>`:""}</td>`; }).join("")}
+            return `<td><input inputmode="${cntMode?"numeric":"decimal"}" class="${cls}" data-r="${r.id}" data-i="${i}" value="${shown}" placeholder="${cntMode?"개":""}" aria-label="${esc(r.name)} ${i+1}${l.read} ${cntMode?"맞힌 개수":"점수"}">${cntMode&&v!==null&&v!==undefined?`<div class="cv ${cls}">${v}점</div>`:""}${v!==null&&v!==undefined?`<button class="cd" data-dr="${r.id}" data-di="${i}" aria-label="푼 날짜 바꾸기">${r.dates?.[i]?mdShort(r.dates[i]):"날짜 없음"}</button>`:""}</td>`; }).join("")}
           <td class="avg">${avgOf(r.scores)!==null?avgOf(r.scores)+(cntMode?"점":""):"-"}</td>
           <td><button class="btn sm ghost" data-rdel="${r.id}" aria-label="삭제">✕</button></td></tr>`).join("")}
           <tr><td class="name xs muted">${l.read}별 평균</td>${Array.from({length:nCols},(_,i)=>`<td class="avg">${colAvg(i)!==null?colAvg(i)+(cntMode?"점":""):""}</td>`).join("")}<td></td><td></td></tr>
@@ -1499,6 +1576,7 @@ function viewScore(el){
   el.querySelectorAll("input[data-r]").forEach(inp=>{
     inp.onchange = () => {
       const r=c.rounds.find(x=>x.id===inp.dataset.r), i=+inp.dataset.i, v=inp.value.trim();
+      const had = cntMode ? (r.correct?.[i] ?? null) : (r.scores?.[i] ?? null);
       if (cntMode){
         const n = v==="" ? null : Math.round(+v);
         if (n!==null && (isNaN(n) || n<0 || n>total)) { toast(`0~${total} 사이 개수를 입력하세요`); inp.value = r.correct?.[i] ?? ""; return; }
@@ -1512,6 +1590,12 @@ function viewScore(el){
         r.scores[i] = v===""? null : +v;
         while (r.scores.length && (r.scores.at(-1)===null)) r.scores.pop();
       }
+      // 푼 날짜: 처음 기록할 때 오늘 날짜, 지우면 날짜도 지움 (고칠 땐 날짜 유지)
+      r.dates = r.dates || [];
+      while (r.dates.length<=i) r.dates.push(null);
+      if (v==="") r.dates[i]=null; else if (had===null || !r.dates[i]) r.dates[i]=todayStr();
+      r.dates.length = Math.max(r.scores.length, (r.correct||[]).length);
+      for (let k=0;k<r.dates.length;k++) if (r.dates[k]===undefined) r.dates[k]=null;
       persist(); render();
       setTimeout(()=>{ const n=document.querySelector(`input[data-r="${r.id}"][data-i="${i+1}"]`); n && n.focus(); },0);
     };
@@ -1520,6 +1604,13 @@ function viewScore(el){
   $("#qTotal") && ($("#qTotal").onchange = e => { const t=Math.round(+e.target.value); if(!t||t<1){ e.target.value=total; return; }
     const over = rounds.some(r=>(r.correct||[]).some(n=>n!==null&&n>t)); if (over && !confirm(`${t}문제보다 많이 맞힌 기록이 있어요. 그래도 바꿀까요?`)) { e.target.value=total; return; }
     c.qTotal[stage]=t; rounds.forEach(r=>{ r.scores=(r.correct||[]).map(n=>n===null||n===undefined?null:Math.round(Math.min(n,t)*1000/t)/10); }); persist(); render(); toast(`총 ${t}문제 기준으로 다시 계산했어요`); });
+  el.querySelectorAll("[data-dr]").forEach(b=>b.onclick=()=>{
+    const r=c.rounds.find(x=>x.id===b.dataset.dr), i=+b.dataset.di;
+    dialog("푼 날짜", `<div class="stack"><div class="sm muted">${esc(r.name)} · ${i+1}${l.read}</div><input class="in" type="date" id="dIn" value="${r.dates?.[i]||todayStr()}" max="${todayStr()}"></div>`,
+      `<button class="btn" data-close>취소</button><button class="btn primary" id="dOk">저장</button>`, ()=>{
+        $("#dOk").onclick=()=>{ const d=$("#dIn").value; if(!d) return; r.dates=r.dates||[]; while(r.dates.length<=i) r.dates.push(null); r.dates[i]=d; persist(); closeDlg(); render(); };
+      });
+  });
   el.querySelectorAll("[data-rname]").forEach(inp=>inp.onchange=()=>{ c.rounds.find(x=>x.id===inp.dataset.rname).name=inp.value.trim(); persist(); });
   el.querySelectorAll("[data-rdel]").forEach(b=>b.onclick=()=>{ const r=c.rounds.find(x=>x.id===b.dataset.rdel); if(!confirm(`${r.name} 기록을 삭제할까요?`))return; c.rounds=c.rounds.filter(x=>x.id!==r.id); persist(); render(); });
   const add = () => { const n=$("#rName").value.trim(); if(!n) return $("#rName").focus(); c.rounds.push({id:uid(),stage,name:n,scores:[],...(cntMode?{correct:[]}:{})}); persist(); render(); };
@@ -1536,6 +1627,7 @@ function viewScore(el){
   drawChart($("#chart"), rounds, c, nCols-1, l);
 }
 
+const mdShort = d => { const [y,m,dd]=d.split("-"); return `${+m}.${+dd}`; };
 function defaultQTotal(name){ return /산업기사/.test(name)?80 : /기사/.test(name)?100 : 60; }   // 기능장·기능사 60, 산업기사 80, 기사 100
 function drawChart(box, rounds, c, n, l){
   if (n<1 || !rounds.some(r=>r.scores.some(v=>v!==null))){ box.innerHTML=`<div class="sm muted">점수를 입력하면 ${l.read}이 쌓일수록 어떻게 변하는지 보여드려요.</div>`; return; }
