@@ -25,9 +25,11 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom))}
 header.top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 0 14px}
 header.top h1{font-size:20px;margin:0;font-weight:800}
 header.top .carname{color:var(--sub);font-size:13px;margin-top:2px}
-.homebtn{display:inline-flex;align-items:center;gap:4px;height:34px;padding:0 11px;border-radius:10px;border:1px solid var(--line);
-  background:var(--card);color:var(--ink);text-decoration:none;font-size:13px;font-weight:700;flex-shrink:0}
-.homebtn:active{transform:scale(.96)}
+.homebtn{display:grid;place-items:center;width:38px;height:38px;margin-left:-8px;border-radius:12px;color:var(--ink);text-decoration:none;flex-shrink:0}
+.homebtn:hover{background:var(--line)}
+.homebtn:active{transform:scale(.94)}
+.homebtn svg,.homelink svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.homelink{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;padding:11px;border-radius:12px;color:var(--sub);text-decoration:none;font-weight:700;font-size:14px}
 button.sync{font:inherit;background:none;cursor:pointer}
 .sync.need{color:#fff;background:var(--pri);border-color:var(--pri);font-weight:700}
 .sync{font-size:11px;color:var(--sub);padding:4px 8px;border:1px solid var(--line);border-radius:99px;white-space:nowrap}
@@ -134,13 +136,14 @@ const FIREBASE_COLLECTION = "carnote";
     <label class="f"><span>현재 주행거리 (km)</span><input id="su_km" type="number" inputmode="numeric" placeholder="예: 48230"></label>
     <button class="btn full" onclick="finishSetup()">시작하기</button>
     <button class="btn line full" style="margin-top:10px" onclick="login()">다른 기기에서 쓰던 기록 불러오기 (구글 로그인)</button>
+    <a class="homelink" href="/hub/"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg> HOME으로</a>
   </div>
 </div>
 
 <div id="app" style="display:none">
 <div class="wrap">
   <header class="top">
-    <div class="row" style="gap:10px;min-width:0"><a class="homebtn" href="/hub/" title="HOME">🏠 HOME</a>
+    <div class="row" style="gap:10px;min-width:0"><a class="homebtn" href="/hub/" aria-label="HOME으로" title="HOME"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg></a>
       <div style="min-width:0"><h1>차 관리 노트</h1><div class="carname" id="carName"></div></div></div>
     <button class="sync" id="syncState" onclick="syncClick()">불러오는 중…</button>
   </header>
