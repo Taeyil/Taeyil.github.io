@@ -28,6 +28,8 @@ header.top .carname{color:var(--sub);font-size:13px;margin-top:2px}
 .homebtn{display:inline-flex;align-items:center;gap:4px;height:34px;padding:0 11px;border-radius:10px;border:1px solid var(--line);
   background:var(--card);color:var(--ink);text-decoration:none;font-size:13px;font-weight:700;flex-shrink:0}
 .homebtn:active{transform:scale(.96)}
+button.sync{font:inherit;background:none;cursor:pointer}
+.sync.need{color:#fff;background:var(--pri);border-color:var(--pri);font-weight:700}
 .sync{font-size:11px;color:var(--sub);padding:4px 8px;border:1px solid var(--line);border-radius:99px;white-space:nowrap}
 .card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:12px;border:1px solid var(--line)}
 .card h2{font-size:15px;margin:0 0 10px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
@@ -114,22 +116,12 @@ svg.bars{width:100%;height:170px;display:block}
 <body>
 
 <!-- ===================== Firebase 설정 =====================
-  가계부에서 쓰는 Firebase 설정값을 아래에 붙여넣으면 폰·PC·벽걸이 모니터가 같은 데이터를 봅니다.
-  null 그대로 두면 이 기기 브라우저(localStorage)에만 저장됩니다.
+  이직 노트와 같은 Firebase 프로젝트 · 같은 구글 계정으로 로그인하면 폰·PC가 동기화됩니다.
+  데이터 위치: Firestore  carnote/{내 계정 uid}
 =========================================================== -->
 <script>
-const FIREBASE_CONFIG = null;
-/* 예시:
-const FIREBASE_CONFIG = {
-  apiKey: "...",
-  authDomain: "...firebaseapp.com",
-  projectId: "...",
-  storageBucket: "...",
-  messagingSenderId: "...",
-  appId: "..."
-};
-*/
-const FIREBASE_DOC = "carnote/main"; // Firestore 컬렉션/문서 경로
+const FIREBASE_CONFIG = {apiKey:"AIzaSyAOeHgseYEGdyGN6HcgUfBHD4LHhEm69tU",authDomain:"yil-hyun.firebaseapp.com",projectId:"yil-hyun",storageBucket:"yil-hyun.firebasestorage.app",messagingSenderId:"86114194305",appId:"1:86114194305:web:b468c93429a19c40bb4e80"};
+const FIREBASE_COLLECTION = "carnote";
 </script>
 
 <div id="setupView" class="setup" style="display:none">
@@ -141,6 +133,7 @@ const FIREBASE_DOC = "carnote/main"; // Firestore 컬렉션/문서 경로
       <select id="su_fuel"><option>휘발유</option><option>경유</option><option>LPG</option><option>하이브리드</option></select></label>
     <label class="f"><span>현재 주행거리 (km)</span><input id="su_km" type="number" inputmode="numeric" placeholder="예: 48230"></label>
     <button class="btn full" onclick="finishSetup()">시작하기</button>
+    <button class="btn line full" style="margin-top:10px" onclick="login()">다른 기기에서 쓰던 기록 불러오기 (구글 로그인)</button>
   </div>
 </div>
 
@@ -149,7 +142,7 @@ const FIREBASE_DOC = "carnote/main"; // Firestore 컬렉션/문서 경로
   <header class="top">
     <div class="row" style="gap:10px;min-width:0"><a class="homebtn" href="/hub/" title="HOME">🏠 HOME</a>
       <div style="min-width:0"><h1>차 관리 노트</h1><div class="carname" id="carName"></div></div></div>
-    <div class="sync" id="syncState">로컬 저장</div>
+    <button class="sync" id="syncState" onclick="syncClick()">불러오는 중…</button>
   </header>
 
   <!-- 홈 -->
@@ -346,39 +339,74 @@ function blank(){ return {v:1, car:{name:'',fuel:'휘발유'}, severe:false, odo
 
 /* ===================== 저장 ===================== */
 function loadLocal(){ try{ return JSON.parse(localStorage.getItem('carnote')||'null'); }catch(e){ return null; } }
-let saveTimer=null;
+let saveTimer=null, pending=false, USER=null, AUTH=null, AU=null;
+function setSync(t, need){ const b=$('syncState'); if(!b) return; b.textContent=t; b.classList.toggle('need', !!need); }
 function save(){
   try{ localStorage.setItem('carnote', JSON.stringify(S)); }catch(e){}
-  if(fb && !applyingRemote){
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(()=>{
-      $('syncState').textContent='저장 중…';
-      fb.set(JSON.parse(JSON.stringify(S))).then(()=>$('syncState').textContent='☁️ 동기화됨')
-        .catch(e=>{ $('syncState').textContent='⚠️ 저장 실패'; console.error(e); });
-    }, 300);
+  if(!fb || applyingRemote) return;
+  pending = true;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>{
+    setSync('저장 중…');
+    fb.set({json: JSON.stringify(S), t: Date.now()})
+      .then(()=>{ pending=false; setSync('☁️ 동기화됨'); })
+      .catch(e=>{ pending=false; setSync('⚠️ 저장 실패'); console.error(e); toast('저장 실패: '+(e.code||e.message)); });
+  }, 400);
+}
+function syncClick(){ if(!USER) login(); else go('set'); }
+async function login(){
+  if(!AUTH){ toast('잠시 후 다시 눌러주세요'); return; }
+  const prov = new AU.GoogleAuthProvider();
+  try{ await AU.signInWithPopup(AUTH, prov); }
+  catch(e){
+    if(/popup-blocked|operation-not-supported|popup-closed-by-user|cancelled-popup/.test(e.code||'')){
+      if(e.code==='auth/popup-closed-by-user' || e.code==='auth/cancelled-popup-request') return;
+      try{ await AU.signInWithRedirect(AUTH, prov); }catch(e2){ toast('로그인 실패: '+(e2.code||e2.message)); }
+    } else toast('로그인 실패: '+(e.code||e.message));
   }
 }
-function loadScript(src){ return new Promise((ok,no)=>{ const s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=no; document.head.appendChild(s); }); }
+async function logout(){
+  if(!confirm('로그아웃할까요? 이 기기의 기록은 그대로 남습니다.')) return;
+  await AU.signOut(AUTH); toast('로그아웃했습니다');
+}
 async function initFirebase(){
-  if(!FIREBASE_CONFIG) return;
+  if(!FIREBASE_CONFIG){ setSync('로컬 저장'); return; }
   try{
-    await loadScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
-    await loadScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js');
-    const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
-    fb = firebase.firestore(app).doc(FIREBASE_DOC);
-    $('syncState').textContent='연결 중…';
-    fb.onSnapshot(snap=>{
-      if(snap.metadata.hasPendingWrites) return;
-      if(snap.exists){
+    const V='https://www.gstatic.com/firebasejs/10.12.2/';
+    const A = await import(V+'firebase-app.js'), F = await import(V+'firebase-firestore.js');
+    AU = await import(V+'firebase-auth.js');
+    const app = A.getApps().length ? A.getApp() : A.initializeApp(FIREBASE_CONFIG);
+    AUTH = AU.getAuth(app); const fs = F.getFirestore(app);
+    AU.getRedirectResult(AUTH).catch(e=>toast('로그인 실패: '+(e.code||e.message)));
+    let unsub = null;
+    AU.onAuthStateChanged(AUTH, u=>{
+      if(unsub){ unsub(); unsub=null; }
+      USER = u; fb = null;
+      if(!u){ setSync('로그인해서 동기화', true); if($('storeInfo')) render(); return; }
+      setSync('연결 중…');
+      const d = F.doc(fs, FIREBASE_COLLECTION, u.uid);
+      fb = { set: o => F.setDoc(d, o) };
+      unsub = F.onSnapshot(d, snap=>{
+        if(pending || snap.metadata.hasPendingWrites) return;
+        setSync('☁️ 동기화됨');
+        if(!snap.exists()){                       // 서버에 아직 없음 → 이 기기 기록을 올림
+          if(S.car.name || S.odo.length) save();
+          return;
+        }
+        let R; try{ R = normalize(JSON.parse(snap.data().json)); }catch(e){ return; }
+        if(JSON.stringify(R) === JSON.stringify(S)) return;
+        // 서버 기록을 따르되, 이 기기에만 있던 기록은 혹시 몰라 백업
+        try{ if(S.car.name && !localStorage.getItem('carnote_local_backup')) localStorage.setItem('carnote_local_backup', JSON.stringify(S)); }catch(e){}
         applyingRemote = true;
-        S = normalize(snap.data());
+        S = R;
         try{ localStorage.setItem('carnote', JSON.stringify(S)); }catch(e){}
-        boot(); applyingRemote=false;
+        const sheetOpen = $('sheet') && $('sheet').classList.contains('on');
+        if(!sheetOpen) boot();
+        applyingRemote = false;
         if(AUTO && AUTO.km > currentKm().km) applyAutoOdo();
-      } else if(S && S.car.name){ save(); }
-      $('syncState').textContent='☁️ 동기화됨';
-    }, e=>{ $('syncState').textContent='⚠️ 연결 실패'; console.error(e); });
-  }catch(e){ $('syncState').textContent='⚠️ Firebase 로드 실패'; console.error(e); }
+      }, e=>{ setSync('⚠️ 동기화 오류'); console.error(e); toast('동기화 오류: '+(e.code||e.message)); });
+    });
+  }catch(e){ setSync('⚠️ 연결 불가'); console.error(e); }
 }
 function normalize(d){
   const b = blank(); d = Object.assign(b, d||{});
@@ -516,7 +544,9 @@ function render(){
   }).join('');
   $('oList').innerHTML = [...S.odo].sort((a,b)=>b.km-a.km).map(o=>`<div class="it" onclick="openOdo('${o.id}')"><div class="l"><div class="t">${km(o.km)}</div><div class="s">${fmtD(o.date)}${o.memo?' · '+esc(o.memo):''}</div></div><div class="r muted">${o.auto?'🔄':'수정'}</div></div>`).join('') || '<div class="empty">-</div>';
   renderReport();
-  $('storeInfo').textContent = FIREBASE_CONFIG ? 'Firebase에 저장 중 (기기 간 동기화)' : '이 브라우저에만 저장 중. 기기 간 동기화는 파일 상단 FIREBASE_CONFIG에 설정값을 넣으면 됩니다.';
+  $('storeInfo').innerHTML = USER
+    ? `${esc(USER.email||'')} 계정으로 동기화 중 · <a href="#" onclick="logout();return false" style="color:var(--sub)">로그아웃</a>`
+    : '이 기기에만 저장 중입니다. 위쪽 <b>로그인해서 동기화</b>를 누르면 폰·PC가 같은 기록을 봅니다.';
 }
 function dueRow(d){
   const cls = {ok:'b-ok',warn:'b-warn',bad:'b-bad',none:'b-none'}[d.status];
@@ -702,6 +732,7 @@ function finishSetup(){
   S.car.name=$('su_name').value.trim()||'내 차'; S.car.fuel=$('su_fuel').value;
   S.items.forEach(i=>{ if(i.key==='fuelflt') i.on = S.car.fuel==='경유'; if(i.key==='plug') i.on = S.car.fuel!=='경유'; });
   S.odo.push({id:uid(), date:today(), km:k, memo:'시작'}); save(); boot(); toast('시작합니다');
+  if(AUTO) applyAutoOdo();
 }
 
 /* ===================== 주행거리 ===================== */
