@@ -142,9 +142,19 @@ textarea{min-height:200px;resize:vertical;line-height:1.75}
 .foot{margin-top:34px;display:flex;justify-content:center;flex-wrap:wrap;gap:8px}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,12px);background:var(--ink);color:var(--onink);padding:11px 20px;border-radius:999px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:60;white-space:nowrap;box-shadow:0 10px 30px -10px rgba(0,0,0,.4)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
-</style></head><body>
+body.locked #sup,body.locked main.w,body.locked #hsum,body.locked .sline,body.locked #acct{display:none!important}
+body:not(.locked) #lock{display:none}
+.lock{max-width:420px;margin:56px auto 0;padding:0 20px;text-align:center}
+.lock .lk-ic{width:56px;height:56px;margin:0 auto 18px;border-radius:16px;display:grid;place-items:center;background:var(--sf);border:1px solid var(--bd);color:var(--gold)}
+.lock h2{font-family:"Noto Serif KR","Nanum Myeongjo",serif;font-size:21px;font-weight:700;letter-spacing:-.02em}
+.lock p{color:var(--mu);font-size:14px;margin-top:8px;line-height:1.65}
+.lock .acts{display:flex;flex-direction:column;gap:10px;margin-top:26px}
+.lock .acts .btn{width:100%;padding:13px 18px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.lock .err{color:var(--no);font-size:13px;margin-top:14px;min-height:1em}
+</style></head><body class="locked">
 <header class="bar"><div class="bw"><div class="top"><div><div class="ttl"><a class="home" href="/hub/" aria-label="HOME" title="HOME"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg></a><h1>이직 준비</h1></div><div class="sline"><span class="dot" id="dot"></span><span class="st" id="st">불러오는 중…</span></div></div><button class="btn g sm" id="lg" style="display:none">구글 로그인</button><div class="acct" id="acct" hidden><span class="who" id="who"></span><button class="btn g sm" id="lo">로그아웃</button></div></div><div id="hsum"></div></div></header>
 <nav class="seg" id="sup"></nav>
+<section class="lock" id="lock" aria-live="polite"><div class="lk-ic"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg></div><h2>로그인이 필요해요</h2><p id="lockMsg">확인 중…</p><div class="acts"><button class="btn" id="lg2" hidden>구글 계정으로 로그인</button><a class="btn g" href="/hub/"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg>HOME으로</a></div><div class="err" id="lockErr"></div></section>
 <main class="w"><div class="chips" id="tb"></div><div id="v"></div><div class="foot"><button class="btn g sm" id="cps">스펙 전체 복사</button><button class="btn g sm" id="exp">백업 저장</button><button class="btn g sm" id="imp">백업 불러오기</button><input type="file" id="impf" accept="application/json,.json" hidden></div></main>
 <div class="toast" id="toast" role="status"></div>
 <script>
@@ -406,7 +416,7 @@ $("#impf").onchange=function(){
   r.onload=function(){try{IMP=fill(JSON.parse(r.result));$("#imp").textContent="한 번 더 누르면 덮어써요";toast("불러온 백업을 확인했어요")}catch(e){toast("백업 파일을 읽지 못했어요")}};
   r.readAsText(f);this.value="";
 };
-try{S.L=fill(JSON.parse(localStorage.getItem("jobprep2")||"{}"))}catch(e){S.L=fill({})}
+if(FIREBASE_CONFIG.apiKey)S.L=fill({});else{document.body.classList.remove("locked");try{S.L=fill(JSON.parse(localStorage.getItem("jobprep2")||"{}"))}catch(e){S.L=fill({})}}
 render();
 (async function(){
   if(!FIREBASE_CONFIG.apiKey){setSt("firebaseConfig를 넣어야 연동돼요 (지금은 이 기기에만 저장)");return}
@@ -425,16 +435,22 @@ render();
         if(pending&&ref){setSt("저장 중…");await ref.set({json:JSON.stringify(S.L),t:Date.now()})}
         pending=false;if(unsub){unsub();unsub=null}ref=null;
         await Au.signOut(auth);
-        try{localStorage.removeItem("jobprep2")}catch(e){}
-        S.L=fill({});form=null;formL=null;OPENID=null;render();
         toast("로그아웃했어요");
       }catch(e){setSt("로그아웃 실패: "+e.message)}
       b.disabled=false;b.textContent="로그아웃";
     };
-    $("#lg").onclick=function(){Au.signInWithPopup(auth,new Au.GoogleAuthProvider()).catch(function(e){setSt("로그인 실패: "+e.message)})};
+    $("#lg").onclick=$("#lg2").onclick=function(){$("#lockErr").textContent="";Au.signInWithPopup(auth,new Au.GoogleAuthProvider()).catch(function(e){if(e&&e.code==="auth/popup-closed-by-user")return;$("#lockErr").textContent="로그인하지 못했어요: "+e.message;setSt("로그인 실패: "+e.message)})};
     Au.onAuthStateChanged(auth,function(u){
       if(unsub){unsub();unsub=null}
-      if(!u){ref=null;$("#acct").hidden=true;$("#lg").style.display="";setSt("로그인하면 PC·휴대폰이 연동돼요");return}
+      if(!u){
+        ref=null;pending=false;clearTimeout(timer);$("#acct").hidden=true;
+        try{localStorage.removeItem("jobprep2");localStorage.removeItem("jobprepUid")}catch(e){}
+        S.L=fill({});form=null;formL=null;OPENID=null;SUP="spec";render();
+        document.body.classList.add("locked");$("#lockMsg").textContent="로그아웃 상태에서는 정보가 표시되지 않아요. 구글 계정으로 로그인하면 스펙과 지원현황을 볼 수 있어요.";$("#lg2").hidden=false;
+        return;
+      }
+      try{if(localStorage.getItem("jobprepUid")===u.uid)S.L=fill(JSON.parse(localStorage.getItem("jobprep2")||"{}"));else{localStorage.removeItem("jobprep2");localStorage.setItem("jobprepUid",u.uid);S.L=fill({})}}catch(e){S.L=fill({})}
+      render();document.body.classList.remove("locked");$("#lg2").hidden=true;setSt("불러오는 중…");
       $("#lg").style.display="none";$("#acct").hidden=false;$("#who").textContent=u.email||u.displayName||"";$("#lo").textContent="로그아웃";
       var d=F.doc(fs,"jobprep",u.uid);
       ref={set:function(o){return F.setDoc(d,o)}};
@@ -448,6 +464,6 @@ render();
         if(!(a&&(a.tagName==="TEXTAREA"||a.tagName==="INPUT")))render();
       },function(x){setSt("동기화 오류: "+x.message)});
     });
-  }catch(e){setSt("연동 불가: "+e.message)}
+  }catch(e){setSt("연동 불가: "+e.message);$("#lockMsg").textContent="서버에 연결하지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.";$("#lockErr").textContent=e.message}
 })();
 </script></body></html>
