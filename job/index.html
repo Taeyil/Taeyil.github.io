@@ -49,6 +49,9 @@ button.hsum{cursor:pointer;transition:background .15s}button.hsum:hover{backgrou
 .chips button.on{background:var(--ink);color:var(--onink);border-color:var(--ink)}
 .chips i{font-style:normal;margin-left:6px;opacity:.55;font-size:12px}
 .gh{display:flex;align-items:center;justify-content:space-between;margin:26px 2px 10px}
+.gha{display:flex;align-items:center;gap:6px}
+.sortb{display:inline-flex;align-items:center;gap:5px;background:none;border:1px solid var(--bd);color:var(--mu);border-radius:8px;padding:5px 10px;font:inherit;font-size:13px;cursor:pointer}
+.sortb:hover{color:var(--tx);border-color:var(--mu)}
 .gh h2{font-size:15px;font-weight:700;letter-spacing:-.01em}
 .list,.app,.stats{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);box-shadow:0 1px 2px rgba(16,24,40,.04),0 12px 28px -20px rgba(16,24,40,.22)}
 .list{overflow:hidden}
@@ -250,7 +253,12 @@ function syncY(id){
 }
 function dday(ds){var n=Math.round((new Date(ds+"T00:00:00")-new Date(today()+"T00:00:00"))/864e5);return n===0?"D-Day":n>0?"D-"+n:"D+"+(-n)}
 var KEYF={cert:"취득일",lang:"취득일",job:"근무기간S",hs:"재학기간S",univ:"재학기간S",edu:"교육기간S",mil:"복무기간S"};
-function srt(k,L){var f=KEYF[k];return f?L.slice().sort(function(a,b){return(b[f]||"").localeCompare(a[f]||"")}):L}
+var SORTK={cert:"취득일순",job:"근무 시작일순"},SD={cert:"desc",job:"desc"};
+try{var _sd=JSON.parse(localStorage.getItem("jobprepSort")||"{}");if(_sd.cert)SD.cert=_sd.cert;if(_sd.job)SD.job=_sd.job}catch(e){}
+function srt(k,L){var f=KEYF[k];if(!f)return L;var asc=SD[k]==="asc";
+  return L.slice().sort(function(a,b){var x=a[f]||"",y=b[f]||"";if(!x||!y)return x?-1:y?1:0;return asc?x.localeCompare(y):y.localeCompare(x)})}
+function sortBtn(k){if(!SORTK[k]||S.L[k].length<2)return"";var asc=SD[k]==="asc";
+  return'<button class="sortb" data-sort="'+k+'" aria-label="'+SORTK[k]+' 정렬 바꾸기">'+(asc?"오래된순":"최신순")+'<svg viewBox="0 0 12 12" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.6"><path d="'+(asc?"M3 7.5l3-3 3 3":"M3 4.5l3 3 3-3")+'"/></svg></button>'}
 function val(d,it){
   var n=d[0],t=d[1];
   if(t==="pd"||t==="pm"){var a=it[n+"S"],b=it[n+"E"],du=a&&d[3]?dur(a,b):"";return a||b?(a?fd(a):"")+" ~"+(b?" "+fd(b):(a&&d[2]?" "+d[2]:""))+(du?" ("+du+")":""):""}
@@ -283,7 +291,7 @@ function info(A){
   return h+'<details class="stgd" data-sd="i'+A.id+'"'+(OS["i"+A.id]?" open":"")+'><summary>지원 정보 수정</summary><div class="grid" style="margin-bottom:12px"><label>회사명<input'+b("company")+' data-re="1" value="'+esc(A.company)+'"></label><label>지원직무<input'+b("job")+' data-re="1" value="'+esc(A.job)+'"></label><div class="lab p">지원날짜'+ymd("ad"+A.id,A.date,b("date"))+'</div><div class="lab p">서류 마감일'+ymd("dl"+A.id,A.deadline,b("deadline"))+'</div><label class="p">채용공고 링크<input type="url" inputmode="url"'+b("url")+' data-re="1" value="'+esc(A.url)+'" placeholder="https://"></label></div></details>';
 }
 function sec(k){
-  var s=SEC[k],L=S.L[k],h='<div class="gh"><h2>'+s.t+'</h2><button class="btn sm" data-add="'+k+'">+ 추가</button></div>';
+  var s=SEC[k],L=S.L[k],h='<div class="gh"><h2>'+s.t+'</h2><span class="gha">'+sortBtn(k)+'<button class="btn sm" data-add="'+k+'">+ 추가</button></span></div>';
   if(L.length)h+='<div class="list">'+srt(k,L).map(function(it){return'<article class="item"><div class="ih"><b>'+(esc(it[s.f[0][0]])||"(이름 없음)")+'</b><span class="ia"><button class="lnk" data-edit="'+k+'" data-id="'+it.id+'">수정</button><button class="lnk d" data-del="'+k+'" data-id="'+it.id+'">삭제</button></span></div><dl class="kv">'+s.f.slice(1).map(function(d){return show(d,it)}).join("")+'</dl></article>'}).join("")+'</div>';
   else h+='<div class="empty">아직 기록이 없어요. 추가를 눌러 첫 항목을 입력하세요.</div>';
   if(form&&form.k===k){
@@ -332,6 +340,7 @@ function onClick(e){
   if(d.back){OPENID=null;formL=null;render();return}
   if(d.opn){SUP="app";OPENID=d.opn;window.scrollTo&&window.scrollTo(0,0);formL=null;render();return}
   if(d.cancel){form=null;render();return}
+  if(d.sort){SD[d.sort]=SD[d.sort]==="asc"?"desc":"asc";try{localStorage.setItem("jobprepSort",JSON.stringify(SD))}catch(e){}render();toast(SORTK[d.sort]+" · "+(SD[d.sort]==="asc"?"오래된 것부터":"최신 것부터"));return}
   if(d.add){form={k:d.add,id:null};render();return}
   if(d.edit){form={k:d.edit,id:d.id};render();return}
   if(d.ok){
