@@ -140,7 +140,16 @@ const FIREBASE_COLLECTION = "carnote";
       <select id="su_fuel"><option>휘발유</option><option>경유</option><option>LPG</option><option>하이브리드</option></select></label>
     <label class="f"><span>현재 주행거리 (km)</span><input id="su_km" type="number" inputmode="numeric" placeholder="예: 48230"></label>
     <button class="btn full" onclick="finishSetup()">시작하기</button>
-    <button class="btn line full" style="margin-top:10px" onclick="login()">다른 기기에서 쓰던 기록 불러오기 (구글 로그인)</button>
+    <a class="homelink" href="/hub/"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg> HOME으로</a>
+  </div>
+</div>
+
+<div id="gateView" class="setup">
+  <div class="card" style="text-align:center;padding:28px 20px">
+    <div style="font-size:34px;line-height:1;margin-bottom:12px">🔒</div>
+    <h2 style="justify-content:center;font-size:18px;margin-bottom:6px">차 관리 노트</h2>
+    <p class="muted" id="gateMsg" style="margin:0 0 18px">불러오는 중…</p>
+    <button class="btn full" id="gateBtn" onclick="login()" style="display:none">Google 계정으로 로그인</button>
     <a class="homelink" href="/hub/"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg> HOME으로</a>
   </div>
 </div>
@@ -357,8 +366,16 @@ function blank(){ return {v:1, car:{name:'',fuel:'휘발유'}, severe:false, odo
 /* ===================== 저장 ===================== */
 function loadLocal(){ try{ return JSON.parse(localStorage.getItem('carnote')||'null'); }catch(e){ return null; } }
 let saveTimer=null, pending=false, USER=null, AUTH=null, AU=null;
+let LOCKED = !!FIREBASE_CONFIG;   // 로그인 전에는 아무 기록도 보여주지 않음
+function clearLocal(){
+  try{ ['carnote','carnote_local_backup'].forEach(k=>localStorage.removeItem(k)); }catch(e){}
+}
+function gate(msg, showBtn){
+  $('gateMsg').textContent = msg; $('gateBtn').style.display = showBtn ? '' : 'none';
+}
 function setSync(t, need){ const b=$('syncState'); if(!b) return; b.textContent=t; b.classList.toggle('need', !!need); }
 function save(){
+  if(LOCKED) return;
   try{ localStorage.setItem('carnote', JSON.stringify(S)); }catch(e){}
   if(!fb || applyingRemote) return;
   pending = true;
@@ -383,11 +400,14 @@ async function login(){
   }
 }
 async function logout(){
-  if(!confirm('로그아웃할까요? 이 기기의 기록은 그대로 남습니다.')) return;
+  if(!confirm('로그아웃할까요? 다시 로그인하면 기록을 불러옵니다.')) return;
+  clearTimeout(saveTimer);
+  if(pending && fb){ try{ await fb.set({json: JSON.stringify(S), t: Date.now()}); }catch(e){} }
+  pending = false;
   await AU.signOut(AUTH); toast('로그아웃했습니다');
 }
 async function initFirebase(){
-  if(!FIREBASE_CONFIG){ setSync('로컬 저장'); return; }
+  if(!FIREBASE_CONFIG){ setSync('로컬 저장'); LOCKED=false; boot(); return; }
   try{
     const V='https://www.gstatic.com/firebasejs/10.12.2/';
     const A = await import(V+'firebase-app.js'), F = await import(V+'firebase-firestore.js');
@@ -399,7 +419,13 @@ async function initFirebase(){
     AU.onAuthStateChanged(AUTH, u=>{
       if(unsub){ unsub(); unsub=null; }
       USER = u; fb = null;
-      if(!u){ setSync('로그인해서 동기화', true); if($('storeInfo')) render(); return; }
+      if(!u){
+        setSync('로그인해서 동기화', true);
+        LOCKED = true; S = blank(); clearLocal(); closeSheet(); go('home');
+        gate('로그인하면 기록이 보여요', true); boot();
+        return;
+      }
+      LOCKED = false; boot();
       setSync('연결 중…');
       const d = F.doc(fs, FIREBASE_COLLECTION, u.uid);
       fb = { set: o => F.setDoc(d, o) };
@@ -423,7 +449,12 @@ async function initFirebase(){
         if(AUTO && AUTO.km > currentKm().km) applyAutoOdo();
       }, e=>{ setSync('⚠️ 동기화 오류'); console.error(e); toast('동기화 오류: '+(e.code||e.message)); });
     });
-  }catch(e){ setSync('⚠️ 연결 불가'); console.error(e); }
+  }catch(e){
+    // 인터넷 연결 문제 등으로 로그인 확인이 안 될 때: 이전에 로그인했던 기기면 그 기록을 보여줌
+    setSync('⚠️ 연결 불가'); console.error(e);
+    if(S.car.name || S.odo.length){ LOCKED=false; boot(); }
+    else gate('연결할 수 없습니다. 인터넷 연결을 확인해 주세요.', false);
+  }
 }
 function normalize(d){
   const b = blank(); d = Object.assign(b, d||{});
@@ -483,6 +514,8 @@ function monthKey(d){ return d.slice(0,7); }
 
 /* ===================== 렌더 ===================== */
 function boot(){
+  if(LOCKED){ $('gateView').style.display='block'; $('setupView').style.display='none'; $('app').style.display='none'; return; }
+  $('gateView').style.display='none';
   if(!S.car.name && S.odo.length===0){ $('setupView').style.display='block'; $('app').style.display='none'; return; }
   $('setupView').style.display='none'; $('app').style.display='block';
   render();
@@ -759,7 +792,7 @@ async function loadAutoOdo(){
   }catch(e){}
 }
 function applyAutoOdo(){
-  if(!AUTO) return;
+  if(!AUTO || LOCKED) return;
   const km = Math.round(AUTO.km*10)/10;
   const d = (AUTO.measuredAt && /^\d{4}-\d{2}-\d{2}/.test(AUTO.measuredAt)) ? AUTO.measuredAt.slice(0,10)
           : (AUTO.fetchedAt||'').slice(0,10) || today();
