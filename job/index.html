@@ -23,6 +23,11 @@ h1{font-size:27px;font-weight:700;letter-spacing:-.02em;line-height:1.25}
 .sline{display:flex;align-items:center;gap:7px;margin-top:7px;min-width:0}
 .st{font-size:12px;color:var(--hdm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);flex:none}.dot.ok{background:#5cc08a}.dot.err{background:#ff8a80}
+.ttl{display:flex;align-items:center;gap:10px}
+.home{display:inline-grid;place-items:center;width:36px;height:36px;border-radius:10px;color:var(--hdt);border:1px solid rgba(255,255,255,.22);flex:none;transition:background .15s}
+.home:hover{background:rgba(255,255,255,.1)}
+.dl2{display:flex;align-items:center;gap:8px;margin-top:6px}.dl2 em{font-style:normal;font-size:12px;color:var(--mu);width:38px;flex:none}.dl2 .ymd{flex:1;margin-top:0}
+.steps small.an{color:var(--gold);font-weight:600}
 .acct{display:flex;flex-direction:column;align-items:flex-end;gap:6px;min-width:0;flex:none;max-width:48%}
 .acct[hidden]{display:none}
 .who{font-size:12px;color:var(--hdm);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -132,14 +137,10 @@ textarea{min-height:200px;resize:vertical;line-height:1.75}
 .add summary::-webkit-details-marker{display:none}
 .add summary::before{content:"+";display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--onink);font-size:15px;line-height:1}
 .foot{margin-top:34px;display:flex;justify-content:center;flex-wrap:wrap;gap:8px}
-.ttl{display:flex;align-items:center;gap:6px}
-.home{display:grid;place-items:center;width:38px;height:38px;margin-left:-9px;border-radius:12px;color:var(--hdt);text-decoration:none;flex:none;transition:background .15s}
-.home:hover{background:rgba(255,255,255,.1)}.home:active{transform:scale(.94)}
-.home svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,12px);background:var(--ink);color:var(--onink);padding:11px 20px;border-radius:999px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:60;white-space:nowrap;box-shadow:0 10px 30px -10px rgba(0,0,0,.4)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 </style></head><body>
-<header class="bar"><div class="bw"><div class="top"><div><div class="ttl"><a class="home" href="/hub/" aria-label="HOME으로" title="HOME"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg></a><h1>이직 준비</h1></div><div class="sline"><span class="dot" id="dot"></span><span class="st" id="st">불러오는 중…</span></div></div><button class="btn g sm" id="lg" style="display:none">구글 로그인</button><div class="acct" id="acct" hidden><span class="who" id="who"></span><button class="btn g sm" id="lo">로그아웃</button></div></div><div id="hsum"></div></div></header>
+<header class="bar"><div class="bw"><div class="top"><div><div class="ttl"><a class="home" href="/hub/" aria-label="HOME" title="HOME"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg></a><h1>이직 준비</h1></div><div class="sline"><span class="dot" id="dot"></span><span class="st" id="st">불러오는 중…</span></div></div><button class="btn g sm" id="lg" style="display:none">구글 로그인</button><div class="acct" id="acct" hidden><span class="who" id="who"></span><button class="btn g sm" id="lo">로그아웃</button></div></div><div id="hsum"></div></div></header>
 <nav class="seg" id="sup"></nav>
 <main class="w"><div class="chips" id="tb"></div><div id="v"></div><div class="foot"><button class="btn g sm" id="cps">스펙 전체 복사</button><button class="btn g sm" id="exp">백업 저장</button><button class="btn g sm" id="imp">백업 불러오기</button><input type="file" id="impf" accept="application/json,.json" hidden></div></main>
 <div class="toast" id="toast" role="status"></div>
@@ -173,13 +174,13 @@ function pill(a){var st=a.stages||[],bad=st.filter(function(x){return x.result==
   if(!l)return"";
   return'<span class="pill '+(l.result==="합격"?"s-합격":"s-제출완료")+'">'+esc(l.name)+' '+esc(l.result)+'</span>'}
 function stt(a){var st=a.stages||[],l=st[st.length-1];return st.some(function(x){return x.result==="불합격"})?"no":(l&&l.name==="최종"&&l.result==="합격")?"ok":"go"}
-function steps(a){return'<ol class="steps">'+(a.stages||[]).map(function(x){return'<li class="'+(x.result==="합격"?"ok":x.result==="불합격"?"no":"")+'"><i></i>'+esc(x.name)+(sd(x.date)?'<small>'+sd(x.date)+'</small>':"")+'</li>'}).join("")+'</ol>'}
+function steps(a){return'<ol class="steps">'+(a.stages||[]).map(function(x){return'<li class="'+(x.result==="합격"?"ok":x.result==="불합격"?"no":"")+'"><i></i>'+esc(x.name)+(sd(x.date)?'<small>'+sd(x.date)+'</small>':"")+(sd(x.ann)?'<small class="an">발표 '+sd(x.ann)+'</small>':"")+'</li>'}).join("")+'</ol>'}
 var OS={};
 function stg(a,force){
   var st=a.stages||[],r="";
   st.forEach(function(s){
     var R=s.name==="서류"?["작성 중","제출완료","합격","불합격"]:["대기","합격","불합격"],b=' data-l="apps" data-id="'+a.id+'" data-sid="'+s.id+'"';
-    r+='<div class="sr"><div class="sh2"><b>'+esc(s.name)+'</b><select'+b+' data-f="result" data-re="1">'+sopts(R,s.result)+'</select><button class="x" data-delst="'+s.id+'" data-id="'+a.id+'" aria-label="단계 삭제">×</button></div>'+ymd("sd"+s.id,s.date,b+' data-f="date"')+'</div>';
+    r+='<div class="sr"><div class="sh2"><b>'+esc(s.name)+'</b><select'+b+' data-f="result" data-re="1">'+sopts(R,s.result)+'</select><button class="x" data-delst="'+s.id+'" data-id="'+a.id+'" aria-label="단계 삭제">×</button></div>'+'<div class="dl2"><em>'+(s.name==="서류"?"제출일":"진행일")+'</em>'+ymd("sd"+s.id,s.date,b+' data-f="date"')+'</div><div class="dl2"><em>발표일</em>'+ymd("sa"+s.id,s.ann,b+' data-f="ann"')+'</div></div>';
   });
   var have=st.map(function(x){return x.name});
   r+='<div class="adds">'+PRE.filter(function(p){return have.indexOf(p)<0}).map(function(p){return'<button class="chip2" data-addst="'+p+'" data-id="'+a.id+'">+ '+p+'</button>'}).join("")+'</div>';
@@ -187,7 +188,7 @@ function stg(a,force){
 }
 function upl(){
   var t=today(),u=[];
-  S.L.apps.forEach(function(a){var s0=(a.stages||[])[0];if(a.deadline&&a.deadline>=t&&s0&&s0.result==="작성 중")u.push({a:a,x:{name:"서류 마감",date:a.deadline}});(a.stages||[]).forEach(function(x){if(x.result==="대기"&&x.date&&x.date>=t)u.push({a:a,x:x})})});
+  S.L.apps.forEach(function(a){var s0=(a.stages||[])[0];if(a.deadline&&a.deadline>=t&&s0&&s0.result==="작성 중")u.push({a:a,x:{name:"서류 마감",date:a.deadline}});(a.stages||[]).forEach(function(x){if(x.result==="대기"&&x.date&&x.date>=t)u.push({a:a,x:x});if(x.ann&&x.ann>=t&&(x.result==="대기"||x.result==="제출완료"))u.push({a:a,x:{name:x.name+" 결과 발표",date:x.ann}})})});
   return u.sort(function(p,q){return p.x.date.localeCompare(q.x.date)});
 }
 function upc(){
@@ -245,7 +246,7 @@ function ymd(id,val,ex){
 function syncY(id){
   var y=$("#"+id+"_y").value,m=$("#"+id+"_m").value,d=$("#"+id+"_d").value,h=$("#"+id);
   h.value=y&&m?(d?y+"-"+m+"-"+d:y+"-"+m):"";
-  if(h.dataset.l){edit({target:h});render()}
+  if(h.dataset.l){if(!(y&&m&&d)&&(y||m||d))return;edit({target:h});render()}
 }
 function dday(ds){var n=Math.round((new Date(ds+"T00:00:00")-new Date(today()+"T00:00:00"))/864e5);return n===0?"D-Day":n>0?"D-"+n:"D+"+(-n)}
 var KEYF={cert:"취득일",lang:"취득일",job:"근무기간S",hs:"재학기간S",univ:"재학기간S",edu:"교육기간S",mil:"복무기간S"};
