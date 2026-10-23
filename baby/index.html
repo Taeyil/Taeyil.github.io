@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#faf6f2">
+<title>아기 노트</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="아기 노트">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<!--
+  ===== 같이 쓰기 설정 (선택) =====
+  비워두면 이 기기에만 저장됩니다.
+  아내와 같이 보려면:
+  1) 아래 <script> 맨 위 FIREBASE_CONFIG 에 Firebase 설정값을 넣으세요.
+  2) Firestore 규칙에 아래 내용을 추가하세요. (SHARE_KEY 는 주소를 모르면 못 찾는 비밀 열쇠 역할)
+
+     match /babynote/{key} {
+       allow get, update, create: if key.size() >= 16;
+       match /logs/{id} { allow read, write: if key.size() >= 16; }
+     }
+-->
+<style>
+:root{
+  --bg:#faf6f2; --card:#fff; --ink:#3b3431; --sub:#8f857f; --line:#efe7e1; --soft:#f4eee9;
+  --pink:#e2826f; --pink-soft:#fcebe6;
+  --sage:#6fa382; --sage-soft:#e7f1ea;
+  --blue:#6f8fc7; --blue-soft:#e8eef8;
+  --amber:#d99a45; --amber-soft:#fbf1e0;
+  --r:18px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Pretendard,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.muted{color:var(--sub)}
+
+/* header */
+header{position:sticky;top:0;z-index:5;background:rgba(250,246,242,.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.header-in{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:14px 16px 10px;padding-top:max(14px,env(safe-area-inset-top))}
+.brand{font-weight:800;font-size:19px;flex:1;letter-spacing:-.2px}
+.icon-btn{width:36px;height:36px;border-radius:11px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;color:var(--sub)}
+.icon-btn svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.seg{max-width:528px;margin:2px auto 12px;display:flex;gap:4px;background:#efe7e0;border-radius:14px;padding:4px}
+.seg-wrap{padding:0 16px}
+.seg button{flex:1;border:0;background:none;padding:9px;border-radius:11px;font-weight:600;color:var(--sub);transition:.15s}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(80,50,30,.08)}
+
+main{padding:0 16px 48px;max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.card{background:var(--card);border-radius:var(--r);padding:16px;border:1px solid var(--line)}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.card-h h2{font-size:15.5px;margin:0;font-weight:700;letter-spacing:-.2px}
+.card-h .meta{font-size:12.5px;color:var(--sub);font-weight:500;margin-left:6px}
+.add{border:0;background:var(--pink-soft);color:var(--pink);font-size:13px;font-weight:600;padding:6px 11px;border-radius:999px;white-space:nowrap}
+.empty{color:var(--sub);font-size:13.5px;padding:6px 0 2px}
+.more{display:block;width:100%;margin-top:8px;border:0;background:none;color:var(--sub);font-size:13px;padding:6px}
+
+/* hero */
+.hero{background:linear-gradient(145deg,#fbe2da 0%,#f8ece3 55%,#ecf3ec 100%);border:0;padding:20px}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.hero .label{font-size:13px;color:#8a6f66}
+.hero .big{font-size:30px;font-weight:800;letter-spacing:-.6px;margin-top:2px}
+.dday{background:rgba(255,255,255,.75);padding:6px 12px;border-radius:999px;font-weight:700;font-size:14px;color:var(--pink)}
+.bar{height:8px;background:rgba(255,255,255,.7);border-radius:99px;margin:16px 0 10px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#f0a795,var(--pink));border-radius:99px}
+.hero-foot{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:#7d6a63;flex-wrap:wrap}
+.hero-foot b{color:var(--ink)}
+.hero .btn{margin-top:14px}
+
+/* list rows */
+.row{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+.row:first-child{border-top:0;padding-top:2px}
+.row .main{flex:1;min-width:0}
+.row .t{font-weight:600;font-size:14.5px}
+.row .s{font-size:12.5px;color:var(--sub);margin-top:1px;white-space:pre-wrap;word-break:break-word}
+.row.tap{cursor:pointer}
+.row.done .t{color:var(--sub);text-decoration:line-through;text-decoration-color:#cfc5bf}
+.row.next{background:var(--pink-soft);margin:0 -10px;padding:11px 10px;border-radius:12px;border-top-color:transparent}
+.row.next + .row{border-top-color:transparent}
+.right{text-align:right;font-size:13px;color:var(--sub);white-space:nowrap}
+.pill{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:99px;background:var(--soft);color:var(--sub)}
+.pill.pink{background:var(--pink-soft);color:var(--pink)}
+.pill.sage{background:var(--sage-soft);color:var(--sage)}
+.pill.blue{background:var(--blue-soft);color:var(--blue)}
+.pill.amber{background:var(--amber-soft);color:var(--amber)}
+
+.chk{width:24px;height:24px;border-radius:8px;border:1.8px solid #d9cfc8;background:#fff;display:grid;place-items:center;flex:none;padding:0}
+.chk svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.chk.on{background:var(--sage);border-color:var(--sage)}
+.chk.on svg{opacity:1}
+.x{border:0;background:none;color:#c9bfb9;font-size:18px;line-height:1;padding:4px 2px}
+
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.preset{border:1px dashed #e3cfc8;background:none;color:var(--pink);font-size:12.5px;padding:5px 10px;border-radius:99px}
+
+.group-t{display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;color:var(--sub);margin:14px 0 4px}
+.group-t:first-child{margin-top:0}
+.prog{height:5px;background:var(--soft);border-radius:9px;overflow:hidden;margin:2px 0 4px}
+.prog i{display:block;height:100%;background:var(--sage)}
+
+/* buttons */
+.btn{border:0;border-radius:14px;padding:12px 16px;font-weight:700;font-size:15px;background:var(--soft);color:var(--ink)}
+.btn.primary{background:var(--pink);color:#fff}
+.btn.ghost{background:none;color:var(--sub)}
+.btn.danger{color:#c4574a}
+.btn.full{width:100%}
+
+/* quick log */
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.q{border:0;border-radius:16px;padding:12px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:13px;font-weight:600}
+.q .e{font-size:22px;line-height:1.1}
+.q.f{background:var(--amber-soft);color:#9a6a2a}
+.q.b{background:var(--pink-soft);color:#b0594a}
+.q.d{background:var(--sage-soft);color:#4b7c5c}
+.q.s{background:var(--blue-soft);color:#4f6ea5}
+.q.s.on{background:var(--blue);color:#fff}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.stat{background:var(--soft);border-radius:14px;padding:10px 12px}
+.stat .n{font-size:18px;font-weight:800;letter-spacing:-.3px}
+.stat .l{font-size:12px;color:var(--sub)}
+.last{margin-top:12px;font-size:13.5px;color:var(--sub)}
+.last b{color:var(--ink)}
+.daynav{display:flex;align-items:center;gap:4px}
+.daynav button{border:0;background:var(--soft);width:28px;height:28px;border-radius:9px;color:var(--sub);font-weight:700}
+.daynav span{font-size:13px;font-weight:600;min-width:64px;text-align:center}
+.tl .ic{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:17px;flex:none}
+
+/* kick */
+.kick{text-align:center;padding:4px 0}
+.kick .count{font-size:52px;font-weight:800;letter-spacing:-1px;color:var(--pink);line-height:1.1}
+.kick .tm{color:var(--sub);font-size:13px;margin-bottom:14px}
+.kick-btn{width:120px;height:120px;border-radius:50%;border:0;background:radial-gradient(circle at 35% 30%,#f6b4a6,var(--pink));color:#fff;font-size:17px;font-weight:800;box-shadow:0 8px 24px rgba(226,130,111,.35);transition:transform .08s}
+.kick-btn:active{transform:scale(.94)}
+.kick-act{display:flex;gap:8px;justify-content:center;margin-top:16px}
+
+/* chart */
+.chart{width:100%;height:120px;display:block;margin:2px 0 6px}
+
+/* sheet */
+.sheet-wrap{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet-bg{position:absolute;inset:0;background:rgba(40,30,25,.35);animation:fade .2s}
+.sheet{position:relative;width:100%;max-width:560px;background:var(--card);border-radius:24px 24px 0 0;padding:10px 18px calc(18px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto;animation:up .22s ease-out}
+.handle{width:40px;height:4px;background:#e4dbd5;border-radius:9px;margin:0 auto 12px}
+.sheet h3{margin:0 0 14px;font-size:17px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12.5px;color:var(--sub);font-weight:600;margin-bottom:5px}
+.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);background:#fcfaf8;border-radius:12px;padding:11px 12px;font-size:16px;outline:none}
+.field input:focus,.field textarea:focus{border-color:#e9b3a8;background:#fff}
+.field textarea{min-height:76px;resize:vertical}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 12px;font-size:13.5px}
+.radio{display:flex;gap:6px}
+.radio label{flex:1;margin:0}
+.radio input{display:none}
+.radio span{display:block;text-align:center;padding:10px;border-radius:12px;border:1px solid var(--line);background:#fcfaf8;font-size:14.5px;color:var(--ink);font-weight:600}
+.radio input:checked + span{background:var(--pink-soft);border-color:#efc0b6;color:var(--pink)}
+.sheet-actions{display:flex;gap:8px;margin-top:6px}
+.sheet-actions .primary{flex:1}
+.note{font-size:12.5px;color:var(--sub);background:var(--soft);border-radius:12px;padding:10px 12px;margin-bottom:12px}
+
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:#3b3431;color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:.25s;z-index:30;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+@keyframes fade{from{opacity:0}}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header>
+    <div class="header-in">
+      <div class="brand">아기 노트</div>
+      <button class="icon-btn" data-act="settings" aria-label="설정"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+    </div>
+    <div class="seg-wrap"><div class="seg">
+      <button data-act="tab" data-tab="pre">임신</button>
+      <button data-act="tab" data-tab="post">육아</button>
+    </div></div>
+  </header>
+  <main id="pre"></main>
+  <main id="post" class="hidden"></main>
+</div>
+
+<div id="sheet" class="sheet-wrap hidden">
+  <div class="sheet-bg" data-act="closeSheet"></div>
+  <form class="sheet" id="sheetForm" autocomplete="off">
+    <div class="handle"></div>
+    <h3 id="sheetTitle"></h3>
+    <div id="sheetBody"></div>
+    <div class="sheet-actions">
+      <button type="button" class="btn ghost danger" id="sheetDel">삭제</button>
+      <button type="submit" class="btn primary" id="sheetOk">저장</button>
+    </div>
+  </form>
+</div>
+<div id="toast" class="toast"></div>
+
+<script type="module">
+// ===== 설정 =====
+const FIREBASE_CONFIG = {
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  appId: ""
+};
+const SHARE_KEY = "YC6yNOUPxcU5sqQT"; // 두 사람이 같은 값이면 같은 기록을 봐요
+const DOC_PATH = ["babynote", SHARE_KEY];
+
+// ===== 유틸 =====
+const $ = s => document.querySelector(s);
+const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-5);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DAY = 86400000;
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseYmd = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const today0 = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
+const diffDays = (a, b) => Math.round((b - a) / DAY);
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const addMonths = (d, n) => new Date(d.getFullYear(), d.getMonth() + n, d.getDate());
+const WD = '일월화수목금토';
+const fmtMD = d => `${d.getMonth()+1}.${d.getDate()} (${WD[d.getDay()]})`;
+const fmtYMD = d => `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`;
+const fmtHM = t => { const d = new Date(t); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const dur = min => { min = Math.max(0, Math.round(min)); const h = Math.floor(min/60), m = min%60; return h ? `${h}시간${m ? ' '+m+'분' : ''}` : `${m}분`; };
+const ddayTxt = n => n > 0 ? `D-${n}` : n === 0 ? 'D-DAY' : `D+${-n}`;
+const num = v => v === '' || v == null ? '' : Number(v);
+
+// ===== 기본 데이터 =====
+const SIZES = {4:'양귀비씨',5:'참깨',6:'렌틸콩',7:'블루베리',8:'라즈베리',9:'체리',10:'방울토마토',11:'무화과',12:'라임',13:'레몬',14:'귤',15:'사과',16:'아보카도',17:'배',18:'파프리카',19:'망고',20:'바나나',21:'당근',22:'파파야',23:'자몽',24:'옥수수',25:'콜리플라워',26:'양상추',27:'브로콜리',28:'가지',29:'단호박',30:'양배추',31:'코코넛',32:'배추',33:'파인애플',34:'멜론',35:'허니듀 멜론',36:'로메인 상추',37:'근대 한 단',38:'대파 한 단',39:'작은 수박',40:'수박'};
+
+const PRESETS = [
+  {k:'nt', t:'1차 기형아검사·NT 초음파', w:11, note:'11~13주'},
+  {k:'quad', t:'2차 기형아검사', w:16, note:'16~18주'},
+  {k:'detail', t:'정밀 초음파', w:20, note:'20~24주'},
+  {k:'gdm', t:'임신성 당뇨 검사', w:24, note:'24~28주'},
+  {k:'late', t:'막달 검사', w:36, note:'36주 전후'},
+];
+
+const PRE_CHECK = [
+  ['서류·지원','임신 확인서 발급'],
+  ['서류·지원','국민행복카드 바우처 신청'],
+  ['서류·지원','회사에 임신 사실 알리기 (근로시간 단축 등)'],
+  ['서류·지원','배우자 출산휴가 일정 확인'],
+  ['서류·지원','육아휴직 계획 세우기'],
+  ['서류·지원','산후조리원 예약'],
+  ['출산 가방','산모수첩·신분증'],
+  ['출산 가방','산모패드·수유 브라'],
+  ['출산 가방','세면도구·수건·슬리퍼'],
+  ['출산 가방','손목보호대·수면양말'],
+  ['출산 가방','배냇저고리·속싸개·겉싸개'],
+  ['출산 가방','퇴원복 (엄마·아기)'],
+  ['출산 가방','카시트 설치'],
+];
+const POST_CHECK = [
+  '출생신고 (출생 후 1개월 이내)',
+  '아기 건강보험 등록',
+  '부모급여 신청',
+  '아동수당 신청',
+  '첫만남이용권 신청',
+  '육아휴직 신청',
+];
+
+// 표준 예방접종·영유아검진 (질병관리청 기준, 정확한 일정은 소아과·예방접종도우미 확인)
+const SCHED = [
+  {k:'hepb1', t:'B형간염 1차', m:0, r:'출생 직후', v:1},
+  {k:'bcg', t:'BCG (결핵)', m:0, r:'생후 4주 이내', v:1},
+  {k:'chk1', t:'영유아검진 1차', d:14, r:'생후 14~35일', v:0},
+  {k:'hepb2', t:'B형간염 2차', m:1, r:'1개월', v:1},
+  {k:'dtap1', t:'DTaP 1차', m:2, r:'2개월', v:1},
+  {k:'ipv1', t:'폴리오 1차', m:2, r:'2개월', v:1},
+  {k:'hib1', t:'Hib 1차', m:2, r:'2개월', v:1},
+  {k:'pcv1', t:'폐렴구균 1차', m:2, r:'2개월', v:1},
+  {k:'rota1', t:'로타바이러스 1차', m:2, r:'2개월', v:1},
+  {k:'dtap2', t:'DTaP 2차', m:4, r:'4개월', v:1},
+  {k:'ipv2', t:'폴리오 2차', m:4, r:'4개월', v:1},
+  {k:'hib2', t:'Hib 2차', m:4, r:'4개월', v:1},
+  {k:'pcv2', t:'폐렴구균 2차', m:4, r:'4개월', v:1},
+  {k:'rota2', t:'로타바이러스 2차', m:4, r:'4개월', v:1},
+  {k:'chk2', t:'영유아검진 2차', m:4, r:'4~6개월', v:0},
+  {k:'dtap3', t:'DTaP 3차', m:6, r:'6개월', v:1},
+  {k:'ipv3', t:'폴리오 3차', m:6, r:'6~18개월', v:1},
+  {k:'hib3', t:'Hib 3차', m:6, r:'6개월', v:1},
+  {k:'pcv3', t:'폐렴구균 3차', m:6, r:'6개월', v:1},
+  {k:'hepb3', t:'B형간염 3차', m:6, r:'6개월', v:1},
+  {k:'rota3', t:'로타바이러스 3차', m:6, r:'6개월 (백신 종류에 따라)', v:1},
+  {k:'flu', t:'인플루엔자', m:6, r:'6개월부터 매년', v:1},
+  {k:'chk3', t:'영유아검진 3차', m:9, r:'9~12개월', v:0},
+  {k:'mmr1', t:'MMR 1차', m:12, r:'12~15개월', v:1},
+  {k:'var', t:'수두', m:12, r:'12~15개월', v:1},
+  {k:'hib4', t:'Hib 4차', m:12, r:'12~15개월', v:1},
+  {k:'pcv4', t:'폐렴구균 4차', m:12, r:'12~15개월', v:1},
+  {k:'hepa1', t:'A형간염 1차', m:12, r:'12~23개월', v:1},
+  {k:'je', t:'일본뇌염', m:12, r:'12~23개월 (백신 종류별 횟수 다름)', v:1},
+  {k:'dtap4', t:'DTaP 4차', m:15, r:'15~18개월', v:1},
+  {k:'hepa2', t:'A형간염 2차', m:18, r:'1차 후 6개월', v:1},
+  {k:'chk4', t:'영유아검진 4차', m:18, r:'18~24개월', v:0},
+  {k:'chk5', t:'영유아검진 5차', m:30, r:'30~36개월', v:0},
+  {k:'chk6', t:'영유아검진 6차', m:42, r:'42~48개월', v:0},
+  {k:'dtap5', t:'DTaP 5차', m:48, r:'만 4~6세', v:1},
+  {k:'ipv4', t:'폴리오 4차', m:48, r:'만 4~6세', v:1},
+  {k:'mmr2', t:'MMR 2차', m:48, r:'만 4~6세', v:1},
+  {k:'chk7', t:'영유아검진 7차', m:54, r:'54~60개월', v:0},
+  {k:'chk8', t:'영유아검진 8차', m:66, r:'66~71개월', v:0},
+];
+
+function defaultState() {
+  return {
+    dueDate: '', birthDate: '', name: '',
+    checkups: [], body: [], contacts: [], growth: [], sched: {},
+    preChecks: PRE_CHECK.map(([g, t]) => ({id: uid(), g, t, done: false})),
+    postChecks: POST_CHECK.map(t => ({id: uid(), g: '', t, done: false})),
+  };
+}
+
+// ===== 상태 & 저장소 =====
+let state = defaultState();
+let logs = [];
+let store;
+let mode = 'local';
+const ui = { tab: null, dayOff: 0, open: {}, kick: null };
+try { ui.tab = localStorage.getItem('babynote_tab'); } catch (e) {}
+
+function sortLogs() { logs.sort((a, b) => b.t - a.t); }
+
+const LocalStore = {
+  load() {
+    try {
+      const s = JSON.parse(localStorage.getItem('babynote_state') || 'null');
+      if (s) state = {...defaultState(), ...s};
+      logs = JSON.parse(localStorage.getItem('babynote_logs') || '[]');
+      const k = JSON.parse(localStorage.getItem('babynote_kick') || 'null');
+      if (k) ui.kick = k;
+    } catch (e) {}
+  },
+  save() { try { localStorage.setItem('babynote_state', JSON.stringify(state)); } catch (e) {} },
+  saveLogs() { try { localStorage.setItem('babynote_logs', JSON.stringify(logs.slice(0, 2000))); } catch (e) {} },
+  async addLog(l) { logs.push(l); sortLogs(); this.saveLogs(); render(); },
+  async updateLog(id, p) { const l = logs.find(x => x.id === id); if (l) Object.assign(l, p); sortLogs(); this.saveLogs(); render(); },
+  async delLog(id) { logs = logs.filter(x => x.id !== id); this.saveLogs(); render(); },
+};
+
+function save(...fields) { store.save(...fields); render(); }
+
+async function initFirebase() {
+  const V = '10.12.2';
+  const [appMod, fs] = await Promise.all([
+    import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`),
+    import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`),
+  ]);
+  const app = appMod.initializeApp(FIREBASE_CONFIG);
+  const db = fs.getFirestore(app);
+  const docRef = fs.doc(db, ...DOC_PATH);
+  const logCol = fs.collection(docRef, 'logs');
+
+  fs.onSnapshot(docRef, snap => {
+    if (!snap.exists()) { fs.setDoc(docRef, defaultState()); return; }
+    state = {...defaultState(), ...snap.data()};
+    render();
+  }, err => toast('불러오기 실패: ' + err.code));
+  fs.onSnapshot(fs.query(logCol, fs.orderBy('t', 'desc'), fs.limit(400)), snap => {
+    logs = snap.docs.map(d => ({...d.data(), id: d.id}));
+    render();
+  }, err => toast('기록 불러오기 실패: ' + err.code));
+
+  const fail = e => toast('저장 실패: ' + (e.code || e.message));
+  store = {
+    save: (...fields) => {
+      const p = {}; fields.forEach(f => p[f] = state[f]);
+      fs.updateDoc(docRef, p).catch(fail);
+    },
+    addLog: l => { const {id, ...rest} = l; logs.push(l); sortLogs(); render(); return fs.setDoc(fs.doc(logCol, id), rest).catch(fail); },
+    updateLog: (id, p) => fs.updateDoc(fs.doc(logCol, id), p).catch(fail),
+    delLog: id => { logs = logs.filter(x => x.id !== id); render(); return fs.deleteDoc(fs.doc(logCol, id)).catch(fail); },
+  };
+}
+
+
+
+// ===== 공통 UI =====
+let toastTimer;
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('on'), 1800);
+}
+const CHECK_SVG = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const chk = (on, act, data = '') => `<button type="button" class="chk ${on ? 'on' : ''}" data-act="${act}" ${data}>${CHECK_SVG}</button>`;
+const cardHead = (title, meta = '', btn = '') => `<div class="card-h"><h2>${title}${meta ? `<span class="meta">${meta}</span>` : ''}</h2>${btn}</div>`;
+const addBtn = (act, label = '+ 추가', data = '') => `<button class="add" data-act="${act}" ${data}>${label}</button>`;
+const moreBtn = (key, total, shown) => total > shown || ui.open[key] ? `<button class="more" data-act="more" data-k="${key}">${ui.open[key] ? '접기' : `더보기 (${total - shown})`}</button>` : '';
+
+// ===== 시트 (입력창) =====
+let sheetCb = null, sheetDelCb = null;
+function openSheet({title, body, onSubmit, onDelete, ok = '저장'}) {
+  $('#sheetTitle').textContent = title;
+  $('#sheetBody').innerHTML = body;
+  $('#sheetOk').textContent = ok;
+  $('#sheetDel').classList.toggle('hidden', !onDelete);
+  sheetCb = onSubmit; sheetDelCb = onDelete;
+  $('#sheet').classList.remove('hidden');
+}
+function closeSheet() { $('#sheet').classList.add('hidden'); sheetCb = sheetDelCb = null; }
+$('#sheetForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const v = Object.fromEntries(new FormData(e.target).entries());
+  const cb = sheetCb; closeSheet(); cb && cb(v);
+});
+$('#sheetDel').onclick = () => { if (!confirm('삭제할까요?')) return; const cb = sheetDelCb; closeSheet(); cb && cb(); };
+
+function fieldHtml(f, val) {
+  val = val ?? f.def ?? '';
+  const attrs = `name="${f.n}" ${f.req ? 'required' : ''} ${f.ph ? `placeholder="${esc(f.ph)}"` : ''}`;
+  let input;
+  if (f.type === 'textarea') input = `<textarea ${attrs}>${esc(val)}</textarea>`;
+  else if (f.type === 'select') input = `<select ${attrs}>${f.opts.map(o => `<option ${o === val ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select>`;
+  else if (f.type === 'radio') input = `<div class="radio">${f.opts.map(o => `<label><input type="radio" name="${f.n}" value="${esc(o)}" ${o === val ? 'checked' : ''}><span>${esc(o)}</span></label>`).join('')}</div>`;
+  else input = `<input type="${f.type || 'text'}" ${attrs} value="${esc(val)}" ${f.step ? `step="${f.step}"` : ''} ${f.type === 'number' ? 'inputmode="decimal"' : ''}>`;
+  const chips = f.chips ? `<div class="chips">${f.chips.map(c => `<button type="button" class="chip" data-act="setVal" data-n="${f.n}" data-v="${c}">${c}${f.unit || ''}</button>`).join('')}</div>` : '';
+  return `<div class="field"><label>${f.l}</label>${input}${chips}</div>`;
+}
+
+// 리스트형 항목 편집 공통
+const SPECS = {
+  checkups: {title: '검진', sort: 1, fields: [
+    {n:'date', l:'날짜', type:'date', req:1},
+    {n:'title', l:'내용', ph:'예) 정기검진, 기형아검사', req:1},
+    {n:'memo', l:'메모', type:'textarea', ph:'결과나 다음에 물어볼 것'}]},
+  body: {title: '몸 상태', sort: -1, fields: [
+    {n:'date', l:'날짜', type:'date', req:1},
+    {n:'weight', l:'체중 (kg)', type:'number', step:'0.1'},
+    {n:'memo', l:'증상·컨디션', type:'textarea', ph:'입덧, 부종, 수면 등'}]},
+  contacts: {title: '연락처', fields: [
+    {n:'name', l:'이름', ph:'예) ○○산부인과, ○○조리원', req:1},
+    {n:'phone', l:'전화번호', type:'tel'},
+    {n:'memo', l:'메모', type:'textarea', ph:'담당 선생님, 예약 상태, 비용 등'}]},
+  growth: {title: '성장', sort: -1, fields: [
+    {n:'date', l:'날짜', type:'date', req:1},
+    {n:'h', l:'키 (cm)', type:'number', step:'0.1'},
+    {n:'w', l:'몸무게 (kg)', type:'number', step:'0.01'},
+    {n:'hc', l:'머리둘레 (cm)', type:'number', step:'0.1'}]},
+};
+function editItem(field, id) {
+  const spec = SPECS[field];
+  const item = id ? state[field].find(x => x.id === id) : null;
+  const body = spec.fields.map(f => fieldHtml(f, item ? item[f.n] : (f.type === 'date' ? ymd(new Date()) : ''))).join('');
+  openSheet({
+    title: (item ? '' : '새 ') + spec.title + (item ? ' 수정' : ''),
+    body,
+    onSubmit: v => {
+      spec.fields.forEach(f => { if (f.type === 'number') v[f.n] = num(v[f.n]); });
+      if (item) Object.assign(item, v); else state[field].push({id: uid(), ...v});
+      if (spec.sort) state[field].sort((a, b) => spec.sort * (a.date > b.date ? 1 : a.date < b.date ? -1 : 0));
+      save(field);
+    },
+    onDelete: item ? () => { state[field] = state[field].filter(x => x.id !== id); save(field); } : null,
+  });
+}
+
+// ===== 임신 탭 =====
+function renderPre() {
+  const due = state.dueDate ? parseYmd(state.dueDate) : null;
+  const t0 = today0();
+  let h = '';
+
+  if (!due) {
+    h += `<div class="card hero"><div class="label">출산예정일을 넣으면 주수와 D-day를 알려드려요</div>
+      <div class="big">우리 아기 👶</div><button class="btn primary full" data-act="settings">예정일 입력하기</button></div>`;
+  } else {
+    const lmp = addDays(due, -280);
+    const d = diffDays(lmp, t0);
+    const w = Math.floor(d / 7), dd = ((d % 7) + 7) % 7;
+    const left = diffDays(t0, due);
+    const pct = Math.min(100, Math.max(0, d / 280 * 100));
+    const tri = w < 14 ? '초기' : w < 28 ? '중기' : '후기';
+    const size = SIZES[Math.min(40, Math.max(4, w))];
+    h += `<div class="card hero">
+      <div class="hero-top"><div><div class="label">${esc(state.name || '우리 아기')} · 임신 ${tri}</div>
+      <div class="big">${w}주 ${dd}일</div></div><div class="dday">${ddayTxt(left)}</div></div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      <div class="hero-foot"><span>${w >= 4 ? `이번 주엔 <b>${size}</b>만 해요` : ''}</span><span>예정일 ${fmtYMD(due)}</span></div></div>`;
+  }
+
+  // 검진 일정
+  const cu = state.checkups;
+  const nextIdx = cu.findIndex(c => !c.done && c.date >= ymd(t0));
+  const showAll = ui.open.checkups;
+  // 지난 완료 항목은 접고, 다가오는 것 위주로
+  let list = cu.map((c, i) => ({c, i}));
+  const hiddenDone = list.filter(x => x.c.done && x.c.date < ymd(t0));
+  if (!showAll) list = list.filter(x => !(x.c.done && x.c.date < ymd(t0)));
+  h += `<div class="card">${cardHead('검진 일정', '', addBtn('add', '+ 추가', 'data-f="checkups"'))}`;
+  if (!cu.length) h += `<div class="empty">산부인과 검진 일정을 추가해 보세요</div>`;
+  h += list.map(({c, i}) => {
+    const dt = parseYmd(c.date), left = diffDays(t0, dt);
+    const pill = c.done ? '<span class="pill sage">완료</span>' : left < 0 ? '<span class="pill">지남</span>' : `<span class="pill ${left <= 7 ? 'pink' : ''}">${ddayTxt(left)}</span>`;
+    return `<div class="row tap ${c.done ? 'done' : ''} ${i === nextIdx ? 'next' : ''}" data-act="edit" data-f="checkups" data-id="${c.id}">
+      ${chk(c.done, 'toggleItem', `data-f="checkups" data-id="${c.id}"`)}
+      <div class="main"><div class="t">${esc(c.title)}</div><div class="s">${fmtMD(dt)}${c.memo ? ' · ' + esc(c.memo) : ''}</div></div>${pill}</div>`;
+  }).join('');
+  if (hiddenDone.length) h += `<button class="more" data-act="more" data-k="checkups">${showAll ? '접기' : `지난 검진 보기 (${hiddenDone.length})`}</button>`;
+  if (due) {
+    const added = new Set(cu.map(c => c.preset).filter(Boolean));
+    const avail = PRESETS.filter(p => !added.has(p.k));
+    if (avail.length) h += `<div class="presets">${avail.map(p => `<button class="preset" data-act="preset" data-k="${p.k}">+ ${p.t} <span class="muted">${p.note}</span></button>`).join('')}</div>`;
+  }
+  h += `</div>`;
+
+  // 태동
+  const kicks = logs.filter(l => l.type === 'kick');
+  h += `<div class="card">${cardHead('태동 세기')}`;
+  if (ui.kick) {
+    h += `<div class="kick"><div class="count">${ui.kick.count}</div><div class="tm" id="kickTime">${fmtHM(ui.kick.start)} 시작 · ${dur((Date.now() - ui.kick.start) / 60000)} 경과</div>
+      <button class="kick-btn" data-act="kickPlus">톡! +1</button>
+      <div class="kick-act"><button class="btn ghost" data-act="kickCancel">취소</button><button class="btn primary" data-act="kickSave">기록 저장</button></div></div>`;
+  } else {
+    h += `<button class="btn full" data-act="kickStart" style="background:var(--pink-soft);color:var(--pink)">태동 세기 시작</button>`;
+  }
+  if (kicks.length) {
+    const shown = ui.open.kicks ? kicks : kicks.slice(0, 3);
+    h += `<div style="margin-top:10px">` + shown.map(k => `<div class="row tap" data-act="delLog" data-id="${k.id}">
+      <div class="main"><div class="t">${k.count}회</div><div class="s">${fmtMD(new Date(k.t))} ${fmtHM(k.t)} · ${dur((k.end - k.t) / 60000)}</div></div><span class="x">×</span></div>`).join('') + `</div>`;
+    h += moreBtn('kicks', kicks.length, 3);
+  }
+  h += `</div>`;
+
+  // 몸 상태
+  const body = state.body;
+  const bShown = ui.open.body ? body : body.slice(0, 4);
+  h += `<div class="card">${cardHead('몸 상태', '', addBtn('add', '+ 기록', 'data-f="body"'))}`;
+  if (!body.length) h += `<div class="empty">체중과 컨디션을 기록해 두면 검진 때 도움이 돼요</div>`;
+  h += bShown.map((b, i) => {
+    const prev = body[i + 1];
+    const diff = b.weight !== '' && prev && prev.weight !== '' ? b.weight - prev.weight : null;
+    return `<div class="row tap" data-act="edit" data-f="body" data-id="${b.id}">
+      <div class="main"><div class="t">${fmtMD(parseYmd(b.date))}</div>${b.memo ? `<div class="s">${esc(b.memo)}</div>` : ''}</div>
+      <div class="right">${b.weight !== '' ? `<b style="color:var(--ink)">${b.weight}kg</b>` : ''}${diff !== null ? `<div>${diff > 0 ? '+' : ''}${diff.toFixed(1)}</div>` : ''}</div></div>`;
+  }).join('');
+  h += moreBtn('body', body.length, 4) + `</div>`;
+
+  // 준비 체크리스트
+  h += checklistCard('준비 체크리스트', 'preChecks', true);
+
+  // 연락처
+  h += `<div class="card">${cardHead('병원·조리원', '', addBtn('add', '+ 추가', 'data-f="contacts"'))}`;
+  if (!state.contacts.length) h += `<div class="empty">병원, 조리원 연락처와 메모를 모아두세요</div>`;
+  h += state.contacts.map(c => `<div class="row tap" data-act="edit" data-f="contacts" data-id="${c.id}">
+    <div class="main"><div class="t">${esc(c.name)}</div>${c.memo ? `<div class="s">${esc(c.memo)}</div>` : ''}</div>
+    ${c.phone ? `<a class="pill pink" href="tel:${esc(c.phone)}" data-act="noop" style="text-decoration:none">전화</a>` : ''}</div>`).join('');
+  h += `</div>`;
+
+  $('#pre').innerHTML = h;
+}
+
+function checklistCard(title, field, grouped) {
+  const items = state[field];
+  const done = items.filter(x => x.done).length;
+  let h = `<div class="card">${cardHead(title, `${done}/${items.length}`, addBtn('addCheck', '+ 추가', `data-f="${field}"`))}`;
+  const groups = grouped ? [...new Set(items.map(x => x.g))] : [''];
+  h += groups.map(g => {
+    const gi = items.filter(x => (grouped ? x.g === g : true));
+    const gd = gi.filter(x => x.done).length;
+    return (grouped ? `<div class="group-t"><span>${esc(g)}</span><span>${gd}/${gi.length}</span></div><div class="prog"><i style="width:${gi.length ? gd / gi.length * 100 : 0}%"></i></div>` : '') +
+      gi.map(x => `<div class="row ${x.done ? 'done' : ''}">${chk(x.done, 'toggleCheck', `data-f="${field}" data-id="${x.id}"`)}
+        <div class="main"><div class="t" style="font-weight:500">${esc(x.t)}</div></div><button class="x" data-act="delCheck" data-f="${field}" data-id="${x.id}">×</button></div>`).join('');
+  }).join('');
+  return h + `</div>`;
+}
+
+// ===== 육아 탭 =====
+function logText(l) {
+  if (l.type === 'feed') return l.kind === '분유' ? `분유 ${l.ml ? l.ml + 'ml' : ''}` : `모유 ${l.side || ''}${l.min ? ' ' + l.min + '분' : ''}`;
+  if (l.type === 'diaper') return `기저귀 · ${l.kind}`;
+  if (l.type === 'sleep') return l.end ? `수면 ${dur((l.end - l.t) / 60000)}` : '자는 중';
+  return '';
+}
+const LOG_IC = {
+  분유: ['🍼', 'var(--amber-soft)'], 모유: ['🤱', 'var(--pink-soft)'],
+  diaper: ['🧷', 'var(--sage-soft)'], sleep: ['🌙', 'var(--blue-soft)'],
+};
+
+function renderPost() {
+  const t0 = today0();
+  const birth = state.birthDate ? parseYmd(state.birthDate) : null;
+  let h = '';
+
+  if (!birth) {
+    h += `<div class="card hero"><div class="label">출생일을 넣으면 접종·검진 일정이 자동으로 계산돼요</div>
+      <div class="big">만나면 반가워 👋</div><button class="btn primary full" data-act="settings">출생일 입력하기</button></div>`;
+  } else {
+    const days = diffDays(birth, t0) + 1;
+    let months = (t0.getFullYear() - birth.getFullYear()) * 12 + t0.getMonth() - birth.getMonth();
+    if (t0.getDate() < birth.getDate()) months--;
+    const d100 = addDays(birth, 99);
+    const left100 = diffDays(t0, d100);
+    h += `<div class="card hero"><div class="hero-top"><div><div class="label">${esc(state.name || '우리 아기')}</div>
+      <div class="big">${days}일째</div></div><div class="dday">${months >= 1 ? months + '개월' : '신생아'}</div></div>
+      <div class="hero-foot" style="margin-top:12px"><span>${fmtYMD(birth)} 출생</span><span>${left100 >= 0 ? `100일까지 <b>${left100}일</b>` : ''}</span></div></div>`;
+  }
+
+  // 오늘 기록
+  const dayStart = addDays(t0, -ui.dayOff).getTime();
+  const dayEnd = dayStart + DAY;
+  const now = Date.now();
+  const dayLogs = logs.filter(l => l.type !== 'kick' && ((l.t >= dayStart && l.t < dayEnd) || (l.type === 'sleep' && l.t < dayStart && (l.end || now) > dayStart)));
+  const feeds = dayLogs.filter(l => l.type === 'feed' && l.t >= dayStart);
+  const ml = feeds.reduce((s, l) => s + (Number(l.ml) || 0), 0);
+  const diapers = dayLogs.filter(l => l.type === 'diaper');
+  const sleepMin = dayLogs.filter(l => l.type === 'sleep').reduce((s, l) => s + Math.max(0, Math.min(l.end || now, dayEnd, now) - Math.max(l.t, dayStart)), 0) / 60000;
+  const openSleep = logs.find(l => l.type === 'sleep' && !l.end);
+  const lastFeed = logs.find(l => l.type === 'feed');
+  const dayLabel = ui.dayOff === 0 ? '오늘' : ui.dayOff === 1 ? '어제' : fmtMD(new Date(dayStart));
+
+  h += `<div class="card"><div class="card-h"><h2>육아 기록</h2><div class="daynav">
+      <button data-act="dayPrev">‹</button><span>${dayLabel}</span><button data-act="dayNext" ${ui.dayOff === 0 ? 'style="visibility:hidden"' : ''}>›</button></div></div>
+    <div class="quick">
+      <button class="q f" data-act="logFeed" data-k="분유"><span class="e">🍼</span>분유</button>
+      <button class="q b" data-act="logFeed" data-k="모유"><span class="e">🤱</span>모유</button>
+      <button class="q d" data-act="logDiaper"><span class="e">🧷</span>기저귀</button>
+      <button class="q s ${openSleep ? 'on' : ''}" data-act="logSleep"><span class="e">🌙</span>${openSleep ? '깼어요' : '잠들었어요'}</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="n">${feeds.length}<span style="font-size:13px">회</span></div><div class="l">수유${ml ? ` · ${ml}ml` : ''}</div></div>
+      <div class="stat"><div class="n">${diapers.length}<span style="font-size:13px">회</span></div><div class="l">기저귀</div></div>
+      <div class="stat"><div class="n" style="font-size:${sleepMin >= 60 ? 15 : 18}px">${dur(sleepMin)}</div><div class="l">수면</div></div>
+    </div>`;
+  if (ui.dayOff === 0 && (lastFeed || openSleep)) {
+    h += `<div class="last">${lastFeed ? `마지막 수유 <b>${dur((now - lastFeed.t) / 60000)} 전</b> (${fmtHM(lastFeed.t)})` : ''}${openSleep ? `${lastFeed ? ' · ' : ''}<b>${dur((now - openSleep.t) / 60000)}</b>째 자는 중` : ''}</div>`;
+  }
+  if (dayLogs.length) {
+    const shown = ui.open.tl ? dayLogs : dayLogs.slice(0, 6);
+    h += `<div class="tl" style="margin-top:8px">` + shown.map(l => {
+      const [e, bg] = LOG_IC[l.type === 'feed' ? l.kind : l.type] || ['•', 'var(--soft)'];
+      const time = l.type === 'sleep' ? `${fmtHM(l.t)}${l.end ? '~' + fmtHM(l.end) : '~'}` : fmtHM(l.t);
+      return `<div class="row tap" data-act="editLog" data-id="${l.id}"><div class="ic" style="background:${bg}">${e}</div>
+        <div class="main"><div class="t">${esc(logText(l))}</div>${l.memo ? `<div class="s">${esc(l.memo)}</div>` : ''}</div><div class="right">${time}</div></div>`;
+    }).join('') + `</div>` + moreBtn('tl', dayLogs.length, 6);
+  } else {
+    h += `<div class="empty" style="margin-top:10px">${dayLabel} 기록이 없어요</div>`;
+  }
+  h += `</div>`;
+
+  // 접종·검진
+  if (birth) {
+    const items = SCHED.map(s => ({...s, date: s.d != null ? addDays(birth, s.d) : addMonths(birth, s.m), done: !!state.sched[s.k]}));
+    const todo = items.filter(x => !x.done);
+    const doneN = items.length - todo.length;
+    const list = ui.open.sched ? items : todo.slice(0, 5);
+    h += `<div class="card">${cardHead('접종·검진', `${doneN}/${items.length}`)}`;
+    h += list.map((x, i) => {
+      const left = diffDays(t0, x.date);
+      const pill = x.done ? '<span class="pill sage">완료</span>' : left < 0 ? '<span class="pill amber">시기 됨</span>' : `<span class="pill ${left <= 14 ? 'pink' : ''}">${ddayTxt(left)}</span>`;
+      return `<div class="row ${x.done ? 'done' : ''} ${!ui.open.sched && i === 0 ? 'next' : ''}">${chk(x.done, 'toggleSched', `data-k="${x.k}"`)}
+        <div class="main"><div class="t">${x.t} ${x.v ? '' : '<span class="pill blue" style="font-size:10.5px">검진</span>'}</div><div class="s">${x.r} · ${fmtYMD(x.date)}~</div></div>${pill}</div>`;
+    }).join('');
+    h += `<button class="more" data-act="more" data-k="sched">${ui.open.sched ? '다가오는 것만 보기' : '전체 일정 보기'}</button>`;
+    h += `<div class="s muted" style="font-size:11.5px;margin-top:4px">표준 일정 기준이에요. 정확한 날짜는 소아과·예방접종도우미에서 확인하세요.</div></div>`;
+  }
+
+  // 성장
+  const g = state.growth;
+  h += `<div class="card">${cardHead('성장 기록', '', addBtn('add', '+ 기록', 'data-f="growth"'))}`;
+  if (!g.length) h += `<div class="empty">키, 몸무게, 머리둘레를 기록해 보세요</div>`;
+  const wpts = g.filter(x => x.w !== '' && x.w != null).slice().reverse();
+  if (wpts.length >= 2) h += growthChart(wpts);
+  const gShown = ui.open.growth ? g : g.slice(0, 4);
+  h += gShown.map(x => `<div class="row tap" data-act="edit" data-f="growth" data-id="${x.id}">
+    <div class="main"><div class="t">${fmtMD(parseYmd(x.date))}</div>
+    <div class="s">${[x.h !== '' ? `키 ${x.h}cm` : '', x.hc !== '' ? `머리 ${x.hc}cm` : ''].filter(Boolean).join(' · ')}</div></div>
+    <div class="right">${x.w !== '' ? `<b style="color:var(--ink)">${x.w}kg</b>` : ''}</div></div>`).join('');
+  h += moreBtn('growth', g.length, 4) + `</div>`;
+
+  h += checklistCard('출생 후 할 일', 'postChecks', false);
+
+  $('#post').innerHTML = h;
+}
+
+function growthChart(pts) {
+  const W = 320, H = 120, P = 14;
+  const xs = pts.map(p => parseYmd(p.date).getTime()), ys = pts.map(p => Number(p.w));
+  const x0 = Math.min(...xs), x1 = Math.max(...xs) || x0 + 1;
+  const y0 = Math.min(...ys), y1 = Math.max(...ys);
+  const sx = t => P + (x1 === x0 ? 0.5 : (t - x0) / (x1 - x0)) * (W - P * 2);
+  const sy = v => H - P - (y1 === y0 ? 0.5 : (v - y0) / (y1 - y0)) * (H - P * 2 - 10);
+  const path = pts.map((p, i) => `${i ? 'L' : 'M'}${sx(xs[i]).toFixed(1)},${sy(ys[i]).toFixed(1)}`).join(' ');
+  const area = `${path} L${sx(xs[xs.length - 1]).toFixed(1)},${H - 4} L${sx(xs[0]).toFixed(1)},${H - 4} Z`;
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e2826f" stop-opacity=".25"/><stop offset="1" stop-color="#e2826f" stop-opacity="0"/></linearGradient></defs>
+    <path d="${area}" fill="url(#gg)"/><path d="${path}" fill="none" stroke="#e2826f" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+    ${pts.map((p, i) => `<circle cx="${sx(xs[i]).toFixed(1)}" cy="${sy(ys[i]).toFixed(1)}" r="3.5" fill="#fff" stroke="#e2826f" stroke-width="2" vector-effect="non-scaling-stroke"/>`).join('')}
+  </svg><div class="s muted" style="font-size:12px;display:flex;justify-content:space-between"><span>몸무게 ${ys[0]}kg</span><span>${ys[ys.length - 1]}kg</span></div>`;
+}
+
+// ===== 렌더 =====
+function render() {
+  if (!ui.tab) ui.tab = state.birthDate ? 'post' : 'pre';
+  document.querySelectorAll('.seg button').forEach(b => b.classList.toggle('on', b.dataset.tab === ui.tab));
+  $('#pre').classList.toggle('hidden', ui.tab !== 'pre');
+  $('#post').classList.toggle('hidden', ui.tab !== 'post');
+  renderPre(); renderPost();
+}
+
+// 기록 시간 입력: 미래 시각이면 전날로
+function timeToTs(hm, baseOff = ui.dayOff) {
+  const [h, m] = hm.split(':').map(Number);
+  const d = addDays(today0(), -baseOff); d.setHours(h, m, 0, 0);
+  if (d.getTime() > Date.now() + 5 * 60000) d.setDate(d.getDate() - 1);
+  return d.getTime();
+}
+const nowHM = () => fmtHM(Date.now());
+
+function saveKick() { if (mode === 'local') { try { localStorage.setItem('babynote_kick', JSON.stringify(ui.kick)); } catch (e) {} } }
+
+// ===== 동작 =====
+const ACT = {
+  noop() {},
+  tab(d) { ui.tab = d.tab; try { localStorage.setItem('babynote_tab', d.tab); } catch (e) {} render(); window.scrollTo(0, 0); },
+  closeSheet,
+  setVal(d) { const el = $('#sheetForm').querySelector(`[name="${d.n}"]`); if (el) el.value = d.v; },
+  more(d) { ui.open[d.k] = !ui.open[d.k]; render(); },
+  add(d) { editItem(d.f); },
+  edit(d) { editItem(d.f, d.id); },
+  toggleItem(d) { const it = state[d.f].find(x => x.id === d.id); if (it) { it.done = !it.done; save(d.f); } },
+  toggleCheck(d) { const it = state[d.f].find(x => x.id === d.id); if (it) { it.done = !it.done; save(d.f); } },
+  delCheck(d) { const it = state[d.f].find(x => x.id === d.id); if (it && confirm(`'${it.t}' 항목을 지울까요?`)) { state[d.f] = state[d.f].filter(x => x.id !== d.id); save(d.f); } },
+  addCheck(d) {
+    const grouped = d.f === 'preChecks';
+    const groups = grouped ? [...new Set(state[d.f].map(x => x.g))] : [];
+    openSheet({
+      title: '항목 추가',
+      body: (grouped ? fieldHtml({n:'g', l:'분류', type:'select', opts: groups.length ? groups : ['기타']}, groups[0]) : '') + fieldHtml({n:'t', l:'내용', req:1}),
+      ok: '추가',
+      onSubmit: v => { state[d.f].push({id: uid(), g: v.g || '', t: v.t, done: false}); save(d.f); },
+    });
+  },
+  preset(d) {
+    const p = PRESETS.find(x => x.k === d.k); if (!p || !state.dueDate) return;
+    const date = ymd(addDays(addDays(parseYmd(state.dueDate), -280), p.w * 7));
+    state.checkups.push({id: uid(), date, title: p.t, memo: p.note + ' 사이에 받으면 돼요', preset: p.k, done: false});
+    state.checkups.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+    save('checkups'); toast(`${p.t} 추가 (${fmtMD(parseYmd(date))})`);
+  },
+  toggleSched(d) { if (state.sched[d.k]) delete state.sched[d.k]; else state.sched[d.k] = ymd(new Date()); save('sched'); },
+
+  kickStart() { ui.kick = {start: Date.now(), count: 0}; saveKick(); render(); },
+  kickPlus() { ui.kick.count++; saveKick(); if (navigator.vibrate) navigator.vibrate(15); render(); },
+  kickCancel() { if (ui.kick.count && !confirm('기록하지 않고 끝낼까요?')) return; ui.kick = null; saveKick(); render(); },
+  kickSave() {
+    if (!ui.kick.count) { toast('태동을 한 번 이상 눌러주세요'); return; }
+    store.addLog({id: uid(), type: 'kick', t: ui.kick.start, end: Date.now(), count: ui.kick.count});
+    ui.kick = null; saveKick(); toast('태동 기록 저장'); render();
+  },
+  delLog(d) { if (confirm('이 기록을 지울까요?')) store.delLog(d.id); },
+
+  dayPrev() { ui.dayOff++; ui.open.tl = false; render(); },
+  dayNext() { ui.dayOff = Math.max(0, ui.dayOff - 1); ui.open.tl = false; render(); },
+  logFeed(d) { feedSheet(d.k); },
+  logDiaper() { diaperSheet(); },
+  logSleep() {
+    const open = logs.find(l => l.type === 'sleep' && !l.end);
+    if (open) { store.updateLog(open.id, {end: Date.now()}); toast(`수면 ${dur((Date.now() - open.t) / 60000)} 기록`); }
+    else { store.addLog({id: uid(), type: 'sleep', t: Date.now()}); toast('잠든 시각 기록'); }
+  },
+  editLog(d) {
+    const l = logs.find(x => x.id === d.id); if (!l) return;
+    if (l.type === 'feed') feedSheet(l.kind, l);
+    else if (l.type === 'diaper') diaperSheet(l);
+    else if (l.type === 'sleep') sleepSheet(l);
+  },
+  settings() { settingsSheet(); },
+};
+
+function feedSheet(kind, l) {
+  const isF = kind === '분유';
+  const fields = isF
+    ? [{n:'ml', l:'양 (ml)', type:'number', chips:[60, 80, 100, 120, 140, 160], unit:'ml'}]
+    : [{n:'side', l:'방향', type:'radio', opts:['왼쪽', '오른쪽', '양쪽'], def:'왼쪽'}, {n:'min', l:'시간 (분)', type:'number', chips:[5, 10, 15, 20, 30], unit:'분'}];
+  fields.unshift({n:'time', l:'시각', type:'time', req:1});
+  fields.push({n:'memo', l:'메모', ph:'선택'});
+  const val = l ? {...l, time: fmtHM(l.t)} : {time: nowHM()};
+  openSheet({
+    title: isF ? '🍼 분유' : '🤱 모유',
+    body: fields.map(f => fieldHtml(f, val[f.n])).join(''),
+    onSubmit: v => {
+      const rec = {kind, memo: v.memo || '', t: timeToTs(v.time, l ? 0 : ui.dayOff)};
+      if (l) rec.t = timeOnSameDay(l.t, v.time);
+      if (isF) rec.ml = num(v.ml); else { rec.side = v.side; rec.min = num(v.min); }
+      if (l) store.updateLog(l.id, rec); else store.addLog({id: uid(), type: 'feed', ...rec});
+    },
+    onDelete: l ? () => store.delLog(l.id) : null,
+  });
+}
+function diaperSheet(l) {
+  const val = l ? {...l, time: fmtHM(l.t)} : {time: nowHM(), kind: '소변'};
+  openSheet({
+    title: '🧷 기저귀',
+    body: fieldHtml({n:'kind', l:'종류', type:'radio', opts:['소변', '대변', '둘 다']}, val.kind) + fieldHtml({n:'time', l:'시각', type:'time', req:1}, val.time) + fieldHtml({n:'memo', l:'메모', ph:'색, 상태 등 (선택)'}, val.memo),
+    onSubmit: v => {
+      const rec = {kind: v.kind, memo: v.memo || '', t: l ? timeOnSameDay(l.t, v.time) : timeToTs(v.time)};
+      if (l) store.updateLog(l.id, rec); else store.addLog({id: uid(), type: 'diaper', ...rec});
+    },
+    onDelete: l ? () => store.delLog(l.id) : null,
+  });
+}
+function sleepSheet(l) {
+  openSheet({
+    title: '🌙 수면',
+    body: fieldHtml({n:'start', l:'잠든 시각', type:'time', req:1}, fmtHM(l.t)) + fieldHtml({n:'end', l:'깬 시각', type:'time', ph:'자는 중이면 비워두세요'}, l.end ? fmtHM(l.end) : ''),
+    onSubmit: v => {
+      const t = timeOnSameDay(l.t, v.start);
+      let end = '';
+      if (v.end) { end = timeOnSameDay(t, v.end); if (end < t) end += DAY; }
+      const p = {t}; if (end) p.end = end; else p.end = null;
+      store.updateLog(l.id, p);
+    },
+    onDelete: () => store.delLog(l.id),
+  });
+}
+function timeOnSameDay(base, hm) {
+  const [h, m] = hm.split(':').map(Number);
+  const d = new Date(base); d.setHours(h, m, 0, 0); return d.getTime();
+}
+function settingsSheet() {
+  const info = mode === 'local'
+    ? `<div class="note">이 기기에만 저장돼요. 같이 쓰려면 파일 맨 위 Firebase 설정을 넣어주세요.</div>`
+    : `<div class="note">함께 쓰는 중이에요. 바뀐 내용은 바로 서로에게 보여요.</div>`;
+  openSheet({
+    title: '설정',
+    body: info +
+      fieldHtml({n:'name', l:'태명 / 이름', ph:'예) 콩이'}, state.name) +
+      fieldHtml({n:'dueDate', l:'출산예정일', type:'date'}, state.dueDate) +
+      fieldHtml({n:'birthDate', l:'출생일 (태어나면 입력)', type:'date'}, state.birthDate),
+    onSubmit: v => {
+      const wasBorn = !!state.birthDate;
+      state.name = v.name.trim(); state.dueDate = v.dueDate; state.birthDate = v.birthDate;
+      if (!wasBorn && state.birthDate) ui.tab = 'post';
+      save('name', 'dueDate', 'birthDate');
+    },
+  });
+}
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  if (el.dataset.act === 'noop') { e.stopPropagation(); return; }
+  const fn = ACT[el.dataset.act];
+  if (fn) { if (el.tagName !== 'A') e.preventDefault(); fn(el.dataset, el); }
+});
+
+// 1초마다 태동 시간, 1분마다 전체 갱신
+setInterval(() => { const k = $('#kickTime'); if (k && ui.kick) k.textContent = `${fmtHM(ui.kick.start)} 시작 · ${dur((Date.now() - ui.kick.start) / 60000)} 경과`; }, 1000);
+setInterval(() => { if ($('#sheet').classList.contains('hidden')) render(); }, 60000);
+
+// ===== 시작 =====
+if (FIREBASE_CONFIG.apiKey) {
+  mode = 'firebase';
+  store = {save() {}, addLog() {}, updateLog() {}, delLog() {}};
+  render();
+  initFirebase().catch(e => toast('연결 실패: ' + e.message));
+} else {
+  mode = 'local';
+  store = LocalStore;
+  LocalStore.load();
+  render();
+}
+</script>
+</body>
+</html>
